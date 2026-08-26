@@ -255,7 +255,7 @@ export default function AppShell({
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsMobileOpen(true)}
-            className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors border-0 bg-transparent"
+            className="md:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors border-0 bg-transparent"
           >
             <Menu size={20} />
           </button>
@@ -361,7 +361,7 @@ export default function AppShell({
       <div className="flex flex-1 relative">
         {/* Desktop Left Persistent Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col bg-white border-r border-slate-200/80 sticky top-16 h-[calc(100vh-64px)] transition-all duration-300 z-30 select-none ${
+          className={`hidden md:flex flex-col bg-white border-r border-slate-200/80 sticky top-16 h-[calc(100vh-64px)] transition-all duration-300 z-30 select-none ${
             isCollapsed ? "w-20" : "w-64"
           }`}
         >
@@ -422,7 +422,7 @@ export default function AppShell({
 
         {/* Mobile Sidebar Overlay Drawer */}
         {isMobileOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="md:hidden fixed inset-0 z-50 flex">
             {/* Backdrop */}
             <div
               onClick={() => setIsMobileOpen(false)}
