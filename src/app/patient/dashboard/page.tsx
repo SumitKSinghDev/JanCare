@@ -79,13 +79,6 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     fetchPatientData();
-    // Load persisted order state from local storage if available
-    const savedOrderId = localStorage.getItem("jc_active_order_id");
-    const savedOrderStatus = localStorage.getItem("jc_active_order_status");
-    const savedOrderFacility = localStorage.getItem("jc_active_order_facility");
-    if (savedOrderId) setOrderTrackingId(savedOrderId);
-    if (savedOrderStatus) setOrderStatus(savedOrderStatus as any);
-    if (savedOrderFacility) setSelectedFacility(savedOrderFacility);
   }, []);
 
   async function fetchPatientData() {
@@ -99,6 +92,23 @@ export default function PatientDashboard() {
         return;
       }
       setUser(meData.user);
+
+      // Load patient-specific persisted order states
+      if (meData.user.patientId) {
+        const pId = meData.user.patientId;
+        const savedOrderId = localStorage.getItem(`jc_active_order_id_${pId}`);
+        const savedOrderStatus = localStorage.getItem(`jc_active_order_status_${pId}`);
+        const savedOrderFacility = localStorage.getItem(`jc_active_order_facility_${pId}`);
+        
+        if (savedOrderId) setOrderTrackingId(savedOrderId);
+        else setOrderTrackingId(null);
+        
+        if (savedOrderStatus) setOrderStatus(savedOrderStatus as any);
+        else setOrderStatus(null);
+        
+        if (savedOrderFacility) setSelectedFacility(savedOrderFacility);
+        else setSelectedFacility("PHC-01");
+      }
 
       // Fetch consultations
       const consRes = await fetch(`/api/consultations?patientId=${meData.user.patientId || ""}`);
@@ -183,14 +193,15 @@ export default function PatientDashboard() {
   // Handle simulated medicine reservation
   function handleReserveMedicine(facilityName: string) {
     const randomId = `JC-MED-${Math.floor(1000 + Math.random() * 9000)}`;
+    const pId = user?.patientId || "guest";
     setSelectedFacility(facilityName);
     setOrderStatus("Requested");
     setOrderTrackingId(randomId);
     
     // Save to local storage
-    localStorage.setItem("jc_active_order_id", randomId);
-    localStorage.setItem("jc_active_order_status", "Requested");
-    localStorage.setItem("jc_active_order_facility", facilityName);
+    localStorage.setItem(`jc_active_order_id_${pId}`, randomId);
+    localStorage.setItem(`jc_active_order_status_${pId}`, "Requested");
+    localStorage.setItem(`jc_active_order_facility_${pId}`, facilityName);
     
     alert(`Medicines successfully reserved at ${facilityName}! Tracking ID: ${randomId} generated.`);
     setActiveTab("Medicine Orders");
@@ -204,8 +215,9 @@ export default function PatientDashboard() {
     else if (orderStatus === "Ready") nextStatus = "Collected";
     else return;
 
+    const pId = user?.patientId || "guest";
     setOrderStatus(nextStatus);
-    localStorage.setItem("jc_active_order_status", nextStatus);
+    localStorage.setItem(`jc_active_order_status_${pId}`, nextStatus);
     alert(`Simulation: Order status updated to "${nextStatus}"`);
   }
 
