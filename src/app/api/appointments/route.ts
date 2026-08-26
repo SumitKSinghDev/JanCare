@@ -126,8 +126,8 @@ export async function POST(request: Request) {
 
     await Consultation.create({
       patientId,
-      doctorId,
-      facilityId,
+      doctorId: resolvedDoctorId,
+      facilityId: resolvedFacilityId,
       healthRecordId: healthRecord._id,
       status: "Scheduled",
       videoRoomName: `jancare-consult-${refLabel}-${Date.now().toString().slice(-4)}`

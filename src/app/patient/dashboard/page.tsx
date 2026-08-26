@@ -356,31 +356,13 @@ export default function PatientDashboard() {
           
           <div class="section-title">Care Timeline Log Progressions</div>
           <div style="margin-top: 20px;">
-            <div class="timeline-item">
-              <div class="date">22 Aug 2026, 09:10 AM</div>
-              <strong>Symptoms Reported</strong><br/>
-              You reported: Fever, Weakness, Dizziness logged by Sharda Patil ASHA.
-            </div>
-            <div class="timeline-item">
-              <div class="date">22 Aug 2026, 09:25 AM</div>
-              <strong>AI-Assisted Triage</strong><br/>
-              Risk Level: PRIORITY. Recommended: Doctor Consultation.
-            </div>
-            <div class="timeline-item">
-              <div class="date">22 Aug 2026, 11:30 AM</div>
-              <strong>Doctor Consultation</strong><br/>
-              Consulted with Dr. Aniruddha Kulkarni via video call.
-            </div>
-            <div class="timeline-item">
-              <div class="date">22 Aug 2026, 11:45 AM</div>
-              <strong>Prescription Created</strong><br/>
-              Medicines (Paracetamol MC1 & Metformin MC2) issued by clinic physician.
-            </div>
-            <div class="timeline-item">
-              <div class="date">22 Aug 2026, 12:10 PM</div>
-              <strong>Medicine Reserved</strong><br/>
-              Reserved from local subcenter Central Pharmacy. Tracking ID: ${orderTrackingId || "JC-MED-0001"}.
-            </div>
+            ${timelineSteps.map(step => `
+              <div class="timeline-item">
+                <div class="date">${step.date}</div>
+                <strong>${step.label}</strong><br/>
+                ${step.desc}
+              </div>
+            `).join('')}
           </div>
           
           <script>
@@ -422,18 +404,121 @@ export default function PatientDashboard() {
     t("journey.completeCare")
   ];
 
-  // Local fallback prescriptions if none seeded yet
-  const displayPrescriptions = prescriptions.length > 0 ? prescriptions : [
-    {
-      _id: "demo-pres",
-      createdAt: new Date(),
-      medicines: [
-        { name: "Paracetamol 500 mg", strength: "500mg", form: "Tablet", dosage: "1 tablet x 2 daily", durationDays: 5, instructions: "After Food" },
-        { name: "Metformin 500 mg", strength: "500mg", form: "Tablet", dosage: "1 tablet x 1 daily", durationDays: 30, instructions: "Before Food" }
-      ],
-      doctorId: { name: "Dr. Aniruddha Kulkarni", role: "Doctor" }
+  // Dynamic calculations for Care Journey Stepper
+  const getJourneySteps = () => {
+    if (!latestConsult) {
+      return [
+        { label: "Symptoms", status: "Upcoming" },
+        { label: "AI Triage", status: "Upcoming" },
+        { label: "Doctor", status: "Upcoming" },
+        { label: "Medicine", status: "Upcoming" },
+        { label: "Referral", status: "Upcoming" },
+        { label: "Follow-up", status: "Upcoming" },
+        { label: "Complete Care", status: "Upcoming" }
+      ];
     }
-  ];
+    
+    const isScheduled = latestConsult.status === "Scheduled" || latestConsult.status === "Active";
+    const isCompleted = latestConsult.status === "Completed";
+    const hasPrescription = prescriptions.length > 0;
+    const hasOrder = !!orderTrackingId;
+
+    return [
+      { label: "Symptoms", status: "Completed" },
+      { label: "AI Triage", status: "Completed" },
+      { label: "Doctor", status: isCompleted ? "Completed" : isScheduled ? "In Progress" : "Upcoming" },
+      { label: "Medicine", status: hasOrder ? "Completed" : hasPrescription ? "In Progress" : "Upcoming" },
+      { label: "Referral", status: orderStatus === "Collected" ? "Completed" : "Upcoming" },
+      { label: "Follow-up", status: "Upcoming" },
+      { label: "Complete Care", status: isCompleted && hasPrescription ? "In Progress" : "Upcoming" }
+    ];
+  };
+  const journeyStepsArray = getJourneySteps();
+
+  // Dynamic timeline builder
+  const getTimelineSteps = () => {
+    const steps = [];
+    const regDateStr = user?.createdAt 
+      ? new Date(user.createdAt).toLocaleString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }) + ", " + new Date(user.createdAt).toLocaleDateString() 
+      : new Date().toLocaleDateString();
+    
+    steps.push({
+      label: "Patient Registered",
+      desc: `Profile created successfully with Ref ID: ${user?.patientRefId || "JC-NEW"}`,
+      date: regDateStr,
+      completed: true
+    });
+
+    if (consultations.length === 0) {
+      steps.push({
+        label: "Await Appointment Booking",
+        desc: "Please select an available slot under Next Appointment to schedule a clinical consultation.",
+        date: "Pending Action",
+        completed: false
+      });
+      steps.push({
+        label: "Doctor Consultation",
+        desc: "Real-time WebRTC teleconsultation call.",
+        date: "Upcoming",
+        completed: false
+      });
+      steps.push({
+        label: "Prescription & Pharmacy Dispatch",
+        desc: "Receive medicines from the closest rural pharmacy.",
+        date: "Upcoming",
+        completed: false
+      });
+    } else {
+      const activeCons = consultations.find(c => c.status === "Scheduled" || c.status === "Active");
+      const completedCons = consultations.find(c => c.status === "Completed");
+
+      steps.push({
+        label: "Symptoms & AI Triage Intake",
+        desc: activeCons?.healthRecordId?.triage?.reason || "Intake assessment complete. Priority index logged.",
+        date: new Date(consultations[consultations.length - 1].createdAt).toLocaleDateString(),
+        completed: true
+      });
+
+      steps.push({
+        label: "Doctor Consultation Room",
+        desc: completedCons 
+          ? "Teleconsultation call successfully finished with Dr. Aniruddha Kulkarni." 
+          : "WebRTC consultation room is active. Click Join Consultation to enter.",
+        date: completedCons 
+          ? new Date(completedCons.updatedAt).toLocaleDateString() 
+          : "Active Now",
+        completed: !!completedCons
+      });
+
+      steps.push({
+        label: "Prescription Created",
+        desc: prescriptions.length > 0 
+          ? `${prescriptions[0].medicines.length} generic medicines issued by physician.` 
+          : "Pending doctor diagnosis and prescriptions.",
+        date: prescriptions.length > 0 
+          ? new Date(prescriptions[0].createdAt).toLocaleDateString() 
+          : "Awaiting consultation end",
+        completed: prescriptions.length > 0
+      });
+
+      if (prescriptions.length > 0) {
+        steps.push({
+          label: "Medicine Reservation",
+          desc: orderTrackingId 
+            ? `Reserved at ${selectedFacility || "PHC-01"}. Tracking ID: ${orderTrackingId}` 
+            : "Click 'Check Availability' to reserve generic drugs at nearest clinic.",
+          date: orderTrackingId ? "Reserved" : "Action Required",
+          completed: !!orderTrackingId
+        });
+      }
+    }
+    
+    return steps;
+  };
+  const timelineSteps = getTimelineSteps();
+
+  // Local fallback prescriptions if none seeded yet
+  const displayPrescriptions = prescriptions;
 
   const nearbyFacilities = [
     { name: "PHC-01 (Primary Health Centre)", distance: "2.1 km", MC1: "Available", MC2: "Low Stock", updated: "10:42 AM", coordinates: "19.8517,74.0006" },
@@ -524,10 +609,25 @@ export default function PatientDashboard() {
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-primary bg-soft-blue px-2.5 py-0.5 rounded-full w-fit">
                   <Calendar size={10} /> {language === "mr" ? "पुढील अपॉइंटमेंट" : language === "hi" ? "अगली अपॉइंटमेंट" : "Next Appointment"}
                 </span>
-                <h3 className="text-xs font-extrabold text-text-primary mt-2">
-                  {language === "mr" ? "आज, ११:३० AM" : language === "hi" ? "आज, ११:३० AM" : "Today, 11:30 AM"}
-                </h3>
-                <span className="text-[10px] text-text-secondary block mt-0.5">{language === "mr" ? "डॉ. कुलकर्णी (सामान्य चिकित्सक)" : language === "hi" ? "डॉ. कुलकर्णी (सामान्य चिकित्सक)" : "Dr. Kulkarni (General Physician)"}</span>
+                {activeConsultation ? (
+                  <>
+                    <h3 className="text-xs font-extrabold text-text-primary mt-2">
+                      Today, 11:30 AM
+                    </h3>
+                    <span className="text-[10px] text-text-secondary block mt-0.5">
+                      {activeConsultation.doctorId?.name || "Dr. Kulkarni"} (Tele-Consultation)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">
+                      No Appointment
+                    </h3>
+                    <span className="text-[10px] text-text-secondary block mt-0.5">
+                      Book a doctor slot below
+                    </span>
+                  </>
+                )}
               </div>
               {activeConsultation ? (
                 <button
@@ -552,14 +652,34 @@ export default function PatientDashboard() {
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-teal-brand bg-soft-teal px-2.5 py-0.5 rounded-full w-fit">
                   <Briefcase size={10} /> {language === "mr" ? "औषधे" : language === "hi" ? "दवाइयाँ" : "Medicines"}
                 </span>
-                <h3 className="text-xs font-extrabold text-text-primary mt-2">
-                  {language === "mr" ? "२ लिहून दिलेली औषधे" : language === "hi" ? "२ निर्धारित दवाइयाँ" : "2 Prescribed"}
-                </h3>
-                <span className="text-[10px] text-text-secondary block mt-0.5">{language === "mr" ? "३ जवळ उपलब्ध" : language === "hi" ? "३ पास में उपलब्ध" : "3 Nearby Available"}</span>
+                {prescriptions.length > 0 ? (
+                  <>
+                    <h3 className="text-xs font-extrabold text-text-primary mt-2">
+                      {prescriptions[0].medicines.length} Prescribed
+                    </h3>
+                    <span className="text-[10px] text-text-secondary block mt-0.5">
+                      Ready at Sinnar CHC Counter
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">
+                      0 Prescribed
+                    </h3>
+                    <span className="text-[10px] text-text-secondary block mt-0.5">
+                      No prescription issued
+                    </span>
+                  </>
+                )}
               </div>
               <button
                 onClick={() => setShowAvailabilityCheck(true)}
-                className="bg-green-brand hover:bg-green-800 text-white text-[10px] font-bold py-2 rounded-xl flex items-center justify-center cursor-pointer transition-colors border-0"
+                disabled={prescriptions.length === 0}
+                className={`text-[10px] font-bold py-2 rounded-xl flex items-center justify-center border-0 ${
+                  prescriptions.length > 0
+                    ? "bg-green-brand hover:bg-green-800 text-white cursor-pointer transition-colors"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                }`}
               >
                 {language === "mr" ? "स्टॉक तपासा" : language === "hi" ? "उपलब्धता जांचें" : "Check Availability"}
               </button>
@@ -571,14 +691,34 @@ export default function PatientDashboard() {
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full w-fit">
                   <Clock size={10} /> {language === "mr" ? "माझे ऑर्डर" : language === "hi" ? "मेरी ऑर्डर" : "Orders"}
                 </span>
-                <h3 className="text-xs font-extrabold text-text-primary mt-2">
-                  {orderTrackingId || "JC-MED-0001"}
-                </h3>
-                <span className="text-[10px] text-text-secondary block mt-0.5">{language === "mr" ? "स्थिती:" : language === "hi" ? "स्थिति:" : "Status:"} <strong className="text-purple-700">{orderStatus}</strong></span>
+                {orderTrackingId ? (
+                  <>
+                    <h3 className="text-xs font-extrabold text-text-primary mt-2">
+                      {orderTrackingId}
+                    </h3>
+                    <span className="text-[10px] text-text-secondary block mt-0.5">
+                      {language === "mr" ? "स्थिती:" : language === "hi" ? "स्थिति:" : "Status:"} <strong className="text-purple-700">{orderStatus}</strong>
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">
+                      No Orders
+                    </h3>
+                    <span className="text-[10px] text-text-secondary block mt-0.5">
+                      No active medicine reserves
+                    </span>
+                  </>
+                )}
               </div>
               <button
-                onClick={advanceOrderStatus}
-                className="bg-purple-700 hover:bg-purple-900 text-white text-[10px] font-bold py-2 rounded-xl flex items-center justify-center cursor-pointer transition-colors border-0"
+                onClick={orderTrackingId ? advanceOrderStatus : undefined}
+                disabled={!orderTrackingId}
+                className={`text-[10px] font-bold py-2 rounded-xl flex items-center justify-center border-0 ${
+                  orderTrackingId
+                    ? "bg-purple-700 hover:bg-purple-900 text-white cursor-pointer transition-colors"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                }`}
                 title="Hackathon: Click to simulated advance status"
               >
                 {language === "mr" ? "ऑर्डर ट्रॅक करा" : language === "hi" ? "ऑर्डर ट्रैक करें" : "Track Order"}
@@ -591,14 +731,34 @@ export default function PatientDashboard() {
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-500 bg-amber-50 px-2.5 py-0.5 rounded-full w-fit">
                   <RotateCcw size={10} /> {language === "mr" ? "पुढील तपासणी" : language === "hi" ? "फॉलो-अप जाँच" : "Follow-up"}
                 </span>
-                <h3 className="text-xs font-extrabold text-text-primary mt-2">
-                  {language === "mr" ? "पुढील गृहभेट" : language === "hi" ? "अगली फॉलो-अप" : "Next Follow-up"}
-                </h3>
-                <span className="text-[10px] text-text-secondary block mt-0.5">29 Aug 2026</span>
+                {latestConsult ? (
+                  <>
+                    <h3 className="text-xs font-extrabold text-text-primary mt-2">
+                      Home Vitals Check
+                    </h3>
+                    <span className="text-[10px] text-text-secondary block mt-0.5">
+                      ASHA Visit Scheduled
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">
+                      No Follow-up
+                    </h3>
+                    <span className="text-[10px] text-text-secondary block mt-0.5">
+                      No clinical logs recorded
+                    </span>
+                  </>
+                )}
               </div>
               <button
                 onClick={() => setActiveAction("Follow-up")}
-                className="bg-orange-500 hover:bg-orange-700 text-white text-[10px] font-bold py-2 rounded-xl flex items-center justify-center cursor-pointer transition-colors border-0"
+                disabled={!latestConsult}
+                className={`text-[10px] font-bold py-2 rounded-xl flex items-center justify-center border-0 ${
+                  latestConsult
+                    ? "bg-orange-500 hover:bg-orange-700 text-white cursor-pointer transition-colors"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                }`}
               >
                 {language === "mr" ? "तपशील पहा" : language === "hi" ? "फॉलो-अप देखें" : "View Follow-up"}
               </button>
@@ -611,15 +771,7 @@ export default function PatientDashboard() {
             
             <div className="overflow-x-auto pb-2 scrollbar-none">
               <div className="flex items-center justify-between min-w-[700px] relative py-2 px-4">
-                {[
-                  { label: "Symptoms", status: "Completed" },
-                  { label: "AI Triage", status: "Completed" },
-                  { label: "Doctor", status: "Completed" },
-                  { label: "Medicine", status: "In Progress" },
-                  { label: "Referral", status: "Upcoming" },
-                  { label: "Follow-up", status: "Upcoming" },
-                  { label: "Complete Care", status: "Upcoming" }
-                ].map((step, idx) => {
+                {journeyStepsArray.map((step, idx) => {
                   const isActive = step.status === "In Progress";
                   const isDone = step.status === "Completed";
                   return (
@@ -660,26 +812,36 @@ export default function PatientDashboard() {
             <div className="md:col-span-6 bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4">
               <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                 <h3 className="font-extrabold text-xs uppercase tracking-wider text-text-primary">Prescriptions</h3>
-                <button
-                  onClick={() => handleDownloadPrescription(displayPrescriptions[0])}
-                  className="text-primary text-[10px] font-bold flex items-center gap-1 bg-transparent border-0 cursor-pointer"
-                >
-                  <Download size={12} /> Download Report
-                </button>
+                {displayPrescriptions.length > 0 && (
+                  <button
+                    onClick={() => handleDownloadPrescription(displayPrescriptions[0])}
+                    className="text-primary text-[10px] font-bold flex items-center gap-1 bg-transparent border-0 cursor-pointer"
+                  >
+                    <Download size={12} /> Download Report
+                  </button>
+                )}
               </div>
 
               <div className="space-y-3">
-                {displayPrescriptions[0].medicines.map((med: any, idx: number) => (
-                  <div key={idx} className="flex gap-3 items-start bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs">
-                    <div className="p-2 rounded-lg bg-soft-blue text-primary shrink-0"><FileText size={16} /></div>
-                    <div>
-                      <strong className="text-text-primary block">{med.name}</strong>
-                      <span className="text-[10px] text-text-secondary mt-0.5 block">
-                        {med.dosage} — {med.durationDays} days
-                      </span>
+                {displayPrescriptions.length > 0 ? (
+                  displayPrescriptions[0].medicines.map((med: any, idx: number) => (
+                    <div key={idx} className="flex gap-3 items-start bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs">
+                      <div className="p-2 rounded-lg bg-soft-blue text-primary shrink-0"><FileText size={16} /></div>
+                      <div>
+                        <strong className="text-text-primary block">{med.name}</strong>
+                        <span className="text-[10px] text-text-secondary mt-0.5 block">
+                          {med.dosage} — {med.durationDays} days
+                        </span>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-6 text-slate-400 text-center space-y-1">
+                    <ClipboardList size={28} className="text-slate-300 animate-pulse" />
+                    <span className="text-[11px] font-bold">No active prescriptions</span>
+                    <span className="text-[9px] text-slate-400">Your generic Rx will appear here after a consultation ends.</span>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -689,7 +851,9 @@ export default function PatientDashboard() {
                 <h3 className="font-extrabold text-xs uppercase tracking-wider text-text-primary border-b border-slate-100 pb-2">
                   Medicine Availability
                 </h3>
-                <p className="text-[10px] text-text-secondary mt-2 font-semibold">2 medicines prescribed</p>
+                <p className="text-[10px] text-text-secondary mt-2 font-semibold">
+                  {displayPrescriptions.length > 0 ? `${displayPrescriptions[0].medicines.length} medicines prescribed` : "0 medicines prescribed"}
+                </p>
                 <div className="grid grid-cols-3 gap-2 mt-3 text-center">
                   <div className="bg-green-50 text-green-700 p-2 rounded-lg border border-green-150">
                     <span className="text-xs font-bold block">3</span>
@@ -721,24 +885,36 @@ export default function PatientDashboard() {
                 <h3 className="font-extrabold text-xs uppercase tracking-wider text-text-primary border-b border-slate-100 pb-2">
                   Recent Order
                 </h3>
-                <div className="mt-3 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Tracking ID</span>
-                    <strong className="text-text-primary">{orderTrackingId || "JC-MED-0001"}</strong>
+                {orderTrackingId ? (
+                  <div className="mt-3 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-text-secondary">Tracking ID</span>
+                      <strong className="text-text-primary">{orderTrackingId}</strong>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-text-secondary">Facility</span>
+                      <strong className="text-text-primary">{selectedFacility || "PHC-01"}</strong>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-text-secondary">Status</span>
+                      <strong className="text-orange-500 font-extrabold">{orderStatus}</strong>
+                    </div>
                   </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-text-secondary">Facility</span>
-                    <strong className="text-text-primary">{selectedFacility || "PHC-01"}</strong>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-5 text-slate-400 text-center space-y-1">
+                    <span className="text-[10px] font-bold mt-1">No active orders</span>
+                    <span className="text-[9px] text-slate-400">Order tracking will activate after reserving generic drugs.</span>
                   </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-text-secondary">Status</span>
-                    <strong className="text-orange-500 font-extrabold">{orderStatus}</strong>
-                  </div>
-                </div>
+                )}
               </div>
               <button
                 onClick={() => setActiveAction("Medicines")}
-                className="w-full bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 rounded-xl text-xs cursor-pointer border-0"
+                disabled={!orderTrackingId}
+                className={`w-full font-bold py-2 rounded-xl text-xs border-0 ${
+                  orderTrackingId
+                    ? "bg-orange-500 hover:bg-orange-700 text-white cursor-pointer"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                }`}
               >
                 Track Order
               </button>
@@ -753,25 +929,30 @@ export default function PatientDashboard() {
                 <div className="grid grid-cols-4 gap-2 mt-4 text-center">
                   <div>
                     <span className="text-[8px] font-bold text-text-secondary block">Temperature</span>
-                    <strong className="text-xs text-text-primary block mt-0.5">{latestVitals?.temperature || 98.6}°F</strong>
+                    <strong className="text-xs text-text-primary block mt-0.5">{latestVitals ? `${latestVitals.temperature}°F` : "--"}</strong>
                   </div>
                   <div>
                     <span className="text-[8px] font-bold text-text-secondary block">BP</span>
-                    <strong className="text-xs text-text-primary block mt-0.5">{latestVitals?.bloodPressureSystolic || 120}/{latestVitals?.bloodPressureDiastolic || 80}</strong>
+                    <strong className="text-xs text-text-primary block mt-0.5">{latestVitals ? `${latestVitals.bloodPressureSystolic}/${latestVitals.bloodPressureDiastolic}` : "--/--"}</strong>
                   </div>
                   <div>
                     <span className="text-[8px] font-bold text-text-secondary block">SpO2</span>
-                    <strong className="text-xs text-text-primary block mt-0.5">{latestVitals?.spo2 || 98}%</strong>
+                    <strong className="text-xs text-text-primary block mt-0.5">{latestVitals ? `${latestVitals.spo2}%` : "--"}</strong>
                   </div>
                   <div>
                     <span className="text-[8px] font-bold text-text-secondary block">Pulse</span>
-                    <strong className="text-xs text-text-primary block mt-0.5">{latestVitals?.heartRate || 78} bpm</strong>
+                    <strong className="text-xs text-text-primary block mt-0.5">{latestVitals ? `${latestVitals.heartRate} bpm` : "--"}</strong>
                   </div>
                 </div>
               </div>
               <button
-                onClick={() => alert("Simulated comprehensive vitals logs print generated.")}
-                className="w-full border border-slate-200 hover:bg-slate-50 text-text-primary font-bold py-2 rounded-xl text-xs cursor-pointer"
+                onClick={() => latestVitals ? alert("Simulated vitals logs print generated.") : alert("No vitals recorded to download.")}
+                disabled={!latestVitals}
+                className={`w-full font-bold py-2 rounded-xl text-xs border ${
+                  latestVitals
+                    ? "border-slate-200 hover:bg-slate-50 text-text-primary cursor-pointer"
+                    : "bg-slate-100 border-slate-100 text-slate-400 cursor-not-allowed"
+                }`}
               >
                 View All Vitals
               </button>
@@ -800,17 +981,7 @@ export default function PatientDashboard() {
 
             {/* Vertical Health Timeline Stepper matching reference */}
             <div className="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 mt-4">
-              {[
-                { label: "Symptoms Reported", desc: "You reported: Fever, Weakness, Dizziness", date: "22 Aug 2026, 09:10 AM", completed: true },
-                { label: "AI-Assisted Triage", desc: "Risk Level: PRIORITY. Recommended: Doctor Consultation.", date: "22 Aug 2026, 09:25 AM", completed: true },
-                { label: "Doctor Consultation", desc: "Consulted with Dr. Aniruddha Kulkarni via video call.", date: "22 Aug 2026, 11:30 AM", completed: true },
-                { label: "Prescription Created", desc: "2 medicines prescribed by clinic physician.", date: "22 Aug 2026, 11:45 AM", completed: true },
-                { label: "Medicine Reserved", desc: `Reserved from ${selectedFacility || "PHC-01"}. Tracking ID: ${orderTrackingId || "JC-MED-0001"}`, date: "22 Aug 2026, 12:10 PM", completed: true },
-                { label: "Medicine Ready", desc: "Medicines sorted and ready for central counter pickup.", date: "22 Aug 2026, 04:15 PM", completed: orderStatus !== "Requested" },
-                { label: "Medicine Collected", desc: `Collected from ${selectedFacility || "PHC-01"}. Package closed.`, date: "22 Aug 2026, 05:00 PM", completed: orderStatus === "Collected" },
-                { label: "Follow-up Scheduled", desc: "ASHA Sharda Patil home vitals verification scheduled.", date: "29 Aug 2026, 09:00 AM", completed: false },
-                { label: "Complete Care", desc: "Your treatment journey continues...", date: "05 Sep 2026", completed: false }
-              ].map((step, idx) => (
+              {timelineSteps.map((step, idx) => (
                 <div key={idx} className="relative flex items-start gap-4 text-xs">
                   <span className={`absolute -left-[22px] top-1 h-4 w-4 rounded-full border flex items-center justify-center text-[7px] font-bold ${
                     step.completed
@@ -842,19 +1013,19 @@ export default function PatientDashboard() {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="flex justify-between border-b border-slate-100 pb-1.5">
                 <span className="text-text-secondary">Total Steps</span>
-                <strong className="text-text-primary">9</strong>
+                <strong className="text-text-primary">7</strong>
               </div>
               <div className="flex justify-between border-b border-slate-100 pb-1.5">
                 <span className="text-text-secondary">Completed</span>
-                <strong className="text-green-700">7</strong>
+                <strong className="text-green-700">{journeyStepsArray.filter(s => s.status === "Completed").length}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-100 pb-1.5">
                 <span className="text-text-secondary">In Progress</span>
-                <strong className="text-primary">1</strong>
+                <strong className="text-primary">{journeyStepsArray.filter(s => s.status === "In Progress").length}</strong>
               </div>
               <div className="flex justify-between border-b border-slate-100 pb-1.5">
                 <span className="text-text-secondary">Upcoming</span>
-                <strong className="text-text-secondary">2</strong>
+                <strong className="text-text-secondary">{journeyStepsArray.filter(s => s.status === "Upcoming").length}</strong>
               </div>
             </div>
 
