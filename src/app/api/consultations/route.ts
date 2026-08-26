@@ -23,11 +23,19 @@ export async function GET(request: Request) {
 
     // Patients can only query their own consultations
     if (user.role === "Patient") {
-      // Find patient profile by user username (mobile)
       const Patient = (await import("@/models/Patient")).default;
-      const patient = await Patient.findOne({ mobile: user.name }); // or fetch via ID
+      const User = (await import("@/models/User")).default;
+      const dbUser = await User.findById(user.userId);
+      const patient = await Patient.findOne({
+        $or: [
+          { mobile: dbUser?.username },
+          { name: user.name }
+        ]
+      });
       if (patient) {
         query.patientId = patient._id;
+      } else {
+        return NextResponse.json({ success: true, consultations: [] });
       }
     } else if (user.role === "Doctor" || user.role === "Specialist") {
       query.doctorId = user.userId;

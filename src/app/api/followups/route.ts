@@ -24,11 +24,19 @@ export async function GET(request: Request) {
     if (user.role === "ASHA" || user.role === "ANM") {
       query.assignedWorkerId = user.userId;
     } else if (user.role === "Patient") {
-      // Find patient profile
       const Patient = (await import("@/models/Patient")).default;
-      const patient = await Patient.findOne({ mobile: user.name });
+      const User = (await import("@/models/User")).default;
+      const dbUser = await User.findById(user.userId);
+      const patient = await Patient.findOne({
+        $or: [
+          { mobile: dbUser?.username },
+          { name: user.name }
+        ]
+      });
       if (patient) {
         query.patientId = patient._id;
+      } else {
+        return NextResponse.json({ success: true, followups: [] });
       }
     }
 
