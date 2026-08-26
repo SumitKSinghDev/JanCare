@@ -137,6 +137,36 @@ export default function PatientDashboard() {
     }
   }
 
+  // Handle real slot booking and appointment scheduling
+  async function handleBookAppointment(slotTime: string) {
+    if (!user || !user.patientId) {
+      alert("Error: No patient profile linked to this user session. Please ensure your ABHA ID or mobile registration details are complete.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientId: user.patientId,
+          appointmentDate: new Date(), // Today
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert(`Slot ${slotTime} successfully booked! Your appointment is scheduled and consultation room created.`);
+        setActiveAction(null);
+        fetchPatientData(); // Refresh patient dashboard data
+      } else {
+        alert("Failed to book slot: " + (data.error || "Unknown error"));
+      }
+    } catch (err: any) {
+      alert("Failed to book slot: " + err.message);
+    }
+  }
+
   // Handle simulated medicine reservation
   function handleReserveMedicine(facilityName: string) {
     const randomId = `JC-MED-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -908,8 +938,8 @@ export default function PatientDashboard() {
                     <span className="text-[10px] text-green-700 bg-green-50 px-2 py-0.5 rounded-full font-bold">2 Slots Avail.</span>
                   </div>
                   <div className="flex gap-2 pt-1.5">
-                    <button onClick={() => alert("Slot 11:30 AM selected")} className="bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg font-bold cursor-pointer text-text-primary text-[10px]">11:30 AM</button>
-                    <button onClick={() => alert("Slot 02:00 PM selected")} className="bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg font-bold cursor-pointer text-text-primary text-[10px]">02:00 PM</button>
+                    <button onClick={() => handleBookAppointment("11:30 AM")} className="bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg font-bold cursor-pointer text-text-primary text-[10px]">11:30 AM</button>
+                    <button onClick={() => handleBookAppointment("02:00 PM")} className="bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg font-bold cursor-pointer text-text-primary text-[10px]">02:00 PM</button>
                   </div>
                 </div>
               </div>
