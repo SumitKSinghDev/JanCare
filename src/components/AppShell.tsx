@@ -260,10 +260,11 @@ export default function AppShell({
             <Menu size={20} />
           </button>
           
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center text-white font-extrabold text-sm shadow-sm">
-              जC
-            </div>
+          <div 
+            onClick={() => router.push(`/${role.toLowerCase()}/dashboard`)}
+            className="flex items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
+          >
+            <img src="/logo.png" alt="JanCare Logo" className="h-9 w-9 rounded-xl object-cover shadow-sm bg-white" />
             <div className="flex flex-col">
               <span className="text-sm font-extrabold text-slate-800 tracking-tight leading-tight">जनCare</span>
               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">{role} PORTAL</span>
@@ -332,7 +333,7 @@ export default function AppShell({
                 <div className="max-h-64 overflow-y-auto">
                   {notifications.map((n) => (
                     <div key={n.id} className={`px-4 py-3 border-b border-slate-50 hover:bg-slate-50/50 cursor-pointer flex gap-3 ${n.unread ? "bg-blue-50/30" : ""}`}>
-                      <div className={`h-2 w-2 rounded-full mt-1.5 shrink-0 ${n.unread ? "bg-primary" : "bg-transparent"}`} />
+                      <div className={`h-2 w-2 rounded-full mt-1.5 shrink-0 ${n.unread ? "bg-[#1464D2]" : "bg-transparent"}`} />
                       <div className="flex flex-col gap-0.5">
                         <p className="text-xs text-slate-700 leading-normal">{n.text}</p>
                         <span className="text-[9px] text-slate-400 font-semibold">{n.time}</span>
@@ -392,7 +393,7 @@ export default function AppShell({
                         onClick={() => setActiveTab(item.name)}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all border-0 bg-transparent cursor-pointer ${
                           isActive
-                            ? "bg-primary text-white shadow-md shadow-primary/10"
+                            ? "bg-[#1464D2] text-white shadow-md shadow-[#1464D2]/10"
                             : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                         }`}
                       >
@@ -433,9 +434,7 @@ export default function AppShell({
             <aside className="relative flex flex-col w-64 bg-white h-full shadow-2xl p-5 z-10 animate-in slide-in-from-left duration-250">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white font-extrabold text-xs">
-                    ज
-                  </div>
+                  <img src="/logo.png" alt="JanCare Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm bg-white" />
                   <span className="font-extrabold text-sm text-slate-800">जनCare</span>
                 </div>
                 <button
@@ -466,7 +465,7 @@ export default function AppShell({
                             }}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all border-0 bg-transparent cursor-pointer ${
                               isActive
-                                ? "bg-primary text-white shadow-md"
+                                ? "bg-[#1464D2] text-white shadow-md"
                                 : "text-slate-600 hover:bg-slate-50"
                             }`}
                           >
