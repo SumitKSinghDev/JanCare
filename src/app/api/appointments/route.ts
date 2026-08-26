@@ -104,7 +104,7 @@ export async function POST(request: Request) {
     if (!healthRecord) {
       healthRecord = await HealthRecord.create({
         patientId,
-        recordedBy: doctorId,
+        recordedBy: resolvedDoctorId,
         vitals: {
           temperature: 98.6,
           bloodPressureSystolic: 120,
