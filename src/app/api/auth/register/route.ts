@@ -1,0 +1,155 @@
+import { NextResponse } from "next/server";
+import { connectToDatabase } from "@/lib/db";
+import User from "@/models/User";
+import Patient from "@/models/Patient";
+import bcrypt from "bcryptjs";
+import { signToken } from "@/lib/jwt";
+import { cookies } from "next/headers";
+
+// Helper to generate a random JC patient reference ID: JC-XXXXXX
+function generatePatientRefId(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `JC-${result}`;
+}
+
+export async function POST(request: Request) {
+  try {
+    await connectToDatabase();
+    const body = await request.json();
+
+    const {
+      name,
+      username,
+      password,
+      role,
+      associatedFacility,
+      // Patient specific fields
+      age,
+      dateOfBirth,
+      gender,
+      mobile,
+      email,
+      division,
+      district,
+      taluka,
+      village,
+      preferredLanguage,
+      emergencyContact,
+    } = body;
+
+    if (!name || !username || !password || !role) {
+      return NextResponse.json(
+        { success: false, error: "Missing required fields (name, username, password, role)" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, error: "Username (email or mobile) already registered" },
+        { status: 400 }
+      );
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Create User record
+    const user = await User.create({
+      name,
+      username,
+      passwordHash,
+      role,
+      associatedFacility: associatedFacility || undefined,
+    });
+
+    let patientId = null;
+    let patientRefId = null;
+
+    // If role is Patient, create corresponding Patient profile
+    if (role === "Patient") {
+      if (!age || !dateOfBirth || !gender || !mobile || !division || !district || !taluka || !village || !emergencyContact) {
+        // Rollback user creation to maintain integrity
+        await User.findByIdAndDelete(user._id);
+        return NextResponse.json(
+          { success: false, error: "Missing patient demographic details for Patient registration" },
+          { status: 400 }
+        );
+      }
+
+      // Generate a unique patientRefId and ensure it is unique
+      let uniqueId = false;
+      let refId = "";
+      while (!uniqueId) {
+        refId = generatePatientRefId();
+        const existing = await Patient.findOne({ patientRefId: refId });
+        if (!existing) uniqueId = true;
+      }
+
+      const patient = await Patient.create({
+        patientRefId: refId,
+        name,
+        age: Number(age),
+        dateOfBirth: new Date(dateOfBirth),
+        gender,
+        mobile,
+        email: email || "",
+        state: "Maharashtra",
+        division,
+        district,
+        taluka,
+        village,
+        preferredLanguage: preferredLanguage || "Marathi",
+        emergencyContact,
+        abhaLinked: false,
+      });
+
+      patientId = patient._id;
+      patientRefId = patient.patientRefId;
+    }
+
+    // Sign JWT token
+    const token = signToken({
+      userId: user._id.toString(),
+      role: user.role,
+      name: user.name,
+    });
+
+    // Set cookie
+    const cookieStore = await cookies();
+    cookieStore.set({
+      name: "jancare_token",
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/",
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "User successfully registered",
+      user: {
+        id: user._id,
+        name: user.name,
+        username: user.username,
+        role: user.role,
+        patientId,
+        patientRefId,
+      },
+    });
+  } catch (error: any) {
+    console.error("Registration error:", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

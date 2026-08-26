@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1464D2;
+  --color-deep-blue: #0B3B73;
+  --color-teal-brand: #0D9488;
+  --color-green-brand: #16A34A;
+  --color-soft-blue: #EFF6FF;
+  --color-soft-teal: #F0FDFA;
+  --color-bg-brand: #F6F9FC;
+  --color-text-primary: #172033;
+  --color-text-secondary: #64748B;
+  --color-border-brand: #E2E8F0;
+  --color-warning-brand: #F59E0B;
+  --color-danger-brand: #DC2626;
+  
+  --font-sans: var(--font-sans), var(--font-devanagari), system-ui, sans-serif;
+}
+
+:root {
+  --background: #F6F9FC;
+  --foreground: #172033;
+}
+
+body {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(20, 100, 210, 0.03) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(13, 148, 136, 0.03) 0%, transparent 45%),
+    linear-gradient(rgba(20, 100, 210, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 100, 210, 0.012) 1px, transparent 1px);
+  background-size: auto, auto, 36px 36px, 36px 36px;
+  color: var(--foreground);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Signature Care Journey Line details */
+.care-journey-node {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.care-journey-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(20, 100, 210, 0.1);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
