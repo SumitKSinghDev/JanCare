@@ -5,10 +5,14 @@ import { useTranslation } from "@/lib/i18nContext";
 import { usePathname } from "next/navigation";
 import { Sparkles, X, Send, Mic, MicOff, Volume2, VolumeX, Loader2 } from "lucide-react";
 
-export default function AIAgentChatbot() {
+interface AIAgentChatbotProps {
+  inline?: boolean;
+}
+
+export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) {
   const { language, t } = useTranslation();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(inline);
   const [messages, setMessages] = useState<Array<{ sender: "user" | "agent"; text: string }>>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -206,6 +210,119 @@ export default function AIAgentChatbot() {
     { label: t("assistant.promptFacilities"), text: "Find healthcare clinics and facilities near Sinnar Nashik" },
     { label: t("assistant.promptRecords"), text: "Explain patient Ramesh Kumar's historical triage records" },
   ];
+
+  if (inline) {
+    return (
+      <div className="w-full h-full flex flex-col overflow-hidden bg-white">
+        {/* Header */}
+        <div className="bg-slate-900 text-white px-5 py-4 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2">
+            <Sparkles className="text-primary fill-primary" size={18} />
+            <div>
+              <h4 className="font-bold text-sm">
+                {language === "mr" ? "जनCare सहाय्यक" : language === "hi" ? "जनCare सहायक" : t("assistant.title")}
+              </h4>
+              <p className="text-[10px] text-slate-300">
+                {language === "mr" ? "AI सहाय्यित मार्गदर्शन" : language === "hi" ? "AI सहाय्यित मार्गदर्शन" : "AI-assisted care navigation"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setVoiceOn(!voiceOn)}
+              type="button"
+              className="text-slate-300 hover:text-white p-1 rounded-md transition-colors bg-transparent border-0 cursor-pointer"
+              title={voiceOn ? "Mute Voice Response" : "Unmute Voice Response"}
+            >
+              {voiceOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Legal AI Disclaimer Banner */}
+        <div className="bg-amber-50 text-amber-800 text-[10px] py-1.5 px-4 text-center border-b border-amber-200/60 font-semibold tracking-wide shrink-0">
+          💡 {t("assistant.disclaimer")}
+        </div>
+
+        {/* Message List */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50">
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`p-3.5 rounded-2xl text-xs max-w-[85%] leading-relaxed ${
+                  msg.sender === "user"
+                    ? "bg-primary text-white rounded-tr-none font-semibold shadow-xs"
+                    : "bg-white text-text-primary border border-slate-200/80 rounded-tl-none shadow-xs whitespace-pre-line"
+                }`}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-white text-slate-500 border border-slate-200/80 p-3 rounded-2xl rounded-tl-none text-xs flex items-center gap-2">
+                <Loader2 className="animate-spin text-primary" size={14} /> 
+                {language === "mr" ? "माहिती मिळवत आहे..." : language === "hi" ? "जानकारी प्राप्त की जा रही है..." : "Resolving database metrics..."}
+              </div>
+            </div>
+          )}
+          <div ref={chatEndRef} />
+        </div>
+
+        {/* Quick Prompts Bar */}
+        <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-none shrink-0">
+          {quickPrompts.map((p, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => sendMessage(p.text)}
+              disabled={loading}
+              className="bg-white hover:bg-blue-50 border border-slate-200 text-primary font-bold text-[10px] py-1.5 px-3 rounded-lg transition-all cursor-pointer inline-block"
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Inputs Form */}
+        <form onSubmit={handleSubmit} className="border-t border-slate-100 p-4 flex gap-2 items-center bg-white shrink-0">
+          <button
+            type="button"
+            onClick={toggleListening}
+            className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
+              isListening
+                ? "bg-red-500 text-white border-red-600 animate-pulse"
+                : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"
+            }`}
+            title="Speak with AI Voice"
+          >
+            {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+          </button>
+
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={language === "mr" ? "आरोग्यविषयक प्रश्न विचारा..." : language === "hi" ? "स्वास्थ्य प्रश्न पूछें..." : "Ask about Ramesh or stock..."}
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-primary transition-all text-slate-700"
+            disabled={loading}
+          />
+
+          <button
+            type="submit"
+            disabled={loading || !input.trim()}
+            className="bg-primary hover:bg-blue-600 text-white p-2.5 rounded-xl transition-colors disabled:bg-slate-100 disabled:text-slate-400 cursor-pointer border-0"
+          >
+            <Send size={16} />
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50 font-sans">

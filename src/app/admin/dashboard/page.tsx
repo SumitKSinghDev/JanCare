@@ -36,8 +36,11 @@ import {
   TrendingDown,
   Sparkles,
   Download,
-  Filter
+  Filter,
+  FileSpreadsheet,
+  Settings
 } from "lucide-react";
+import AppShell from "@/components/AppShell";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -45,6 +48,9 @@ export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState("Last 7 Days");
+
+  // App Shell active state navigation tab
+  const [activeTab, setActiveTab] = useState("Overview");
 
   useEffect(() => {
     fetchAnalyticsData();
@@ -109,16 +115,15 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F6F9FC]">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="animate-spin text-primary" size={36} />
-          <p className="text-sm font-semibold text-text-secondary">Loading operations intelligence...</p>
+          <p className="text-xs font-bold text-slate-500">Loading Intelligence Analytics...</p>
         </div>
       </div>
     );
   }
 
-  // Real charts dataset aligned with reference images:
   const lineChartData = [
     { name: "20 Aug", value: 900 },
     { name: "21 Aug", value: 1200 },
@@ -167,405 +172,215 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F6F9FC] flex flex-col font-sans pb-16 md:pb-0 select-none">
-      
-      {/* Navbar */}
-      <nav className="bg-white border-b border-border-brand sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="जनCare Logo" className="h-9 w-auto" />
-            <span className="h-4 w-px bg-slate-200" />
-            <span className="text-xs font-bold text-slate-500 tracking-tight">{t("dashboards.district")}</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Language Selector */}
-            <div className="flex items-center gap-2 text-[10px] font-bold text-text-secondary border-r border-slate-200 pr-3 mr-1">
+    <AppShell
+      role="Admin"
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      user={{ name: "District Admin" }}
+    >
+      {/* 1. OVERVIEW VIEW */}
+      {activeTab === "Overview" && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
+            <div className="space-y-1 relative z-10">
+              <h2 className="text-2xl font-extrabold tracking-tight">District Intelligence Command</h2>
+              <p className="text-xs text-slate-300">Nashik District Network, Maharashtra</p>
+            </div>
+            
+            <div className="flex gap-2 relative z-10 shrink-0">
               <button
-                onClick={() => setLanguage("en")}
-                className={`hover:text-primary transition-colors cursor-pointer border-0 bg-transparent ${
-                  language === "en" ? "text-primary font-extrabold" : ""
-                }`}
+                onClick={handleDownloadDistrictReport}
+                className="bg-primary hover:bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer border-0 shadow-md shadow-primary/20"
               >
-                English
-              </button>
-              <span className="text-slate-300">|</span>
-              <button
-                onClick={() => setLanguage("hi")}
-                className={`hover:text-primary transition-colors cursor-pointer border-0 bg-transparent ${
-                  language === "hi" ? "text-primary font-extrabold" : ""
-                }`}
-              >
-                हिन्दी
-              </button>
-              <span className="text-slate-300">|</span>
-              <button
-                onClick={() => setLanguage("mr")}
-                className={`hover:text-primary transition-colors cursor-pointer border-0 bg-transparent ${
-                  language === "mr" ? "text-primary font-extrabold" : ""
-                }`}
-              >
-                मराठी
+                <Download size={14} /> Download Report
               </button>
             </div>
+          </div>
 
-            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
-              Nashik District Admin
-            </span>
-            <button
-              onClick={handleLogout}
-              className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-slate-50 transition-colors bg-transparent border-0 cursor-pointer"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Workspace Layout */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 space-y-6 text-left">
-        
-        {/* Welcome Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-extrabold text-deep-blue">District Admin Dashboard</h2>
-            <p className="text-xs text-text-secondary mt-0.5">Nashik District, Maharashtra</p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] font-bold text-text-secondary">Last updated: Today, 11:30 AM</span>
-            <button
-              onClick={handleDownloadDistrictReport}
-              className="bg-primary hover:bg-deep-blue text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer border-0 transition-colors"
-            >
-              <Download size={14} /> Download Report
-            </button>
-            <button className="border border-slate-200 bg-white hover:bg-slate-50 text-text-primary text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer">
-              <Filter size={14} /> Filters
-            </button>
-          </div>
-        </div>
-
-        {/* 8 Stats Metrics block matching reference exactly */}
-        <div className="grid grid-cols-2 lg:grid-cols-8 gap-4">
-          <div className="bg-white p-4.5 rounded-2xl border border-border-brand shadow-xs">
-            <span className="text-[8px] text-text-secondary font-bold uppercase tracking-wider block">Total Patients</span>
-            <strong className="text-lg font-extrabold text-deep-blue mt-1.5 block">18,420</strong>
-            <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 12% vs last week</span>
-          </div>
-          <div className="bg-white p-4.5 rounded-2xl border border-border-brand shadow-xs">
-            <span className="text-[8px] text-text-secondary font-bold uppercase tracking-wider block">Consultations</span>
-            <strong className="text-lg font-extrabold text-primary mt-1.5 block">12,832</strong>
-            <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 15% vs last week</span>
-          </div>
-          <div className="bg-white p-4.5 rounded-2xl border border-border-brand shadow-xs border-l-4 border-l-red-500">
-            <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider block">High Risk Cases</span>
-            <strong className="text-lg font-extrabold text-red-600 mt-1.5 block">1,245</strong>
-            <span className="text-[8px] text-red-500 font-bold block mt-0.5">↑ 8% vs last week</span>
-          </div>
-          <div className="bg-white p-4.5 rounded-2xl border border-border-brand shadow-xs">
-            <span className="text-[8px] text-text-secondary font-bold uppercase tracking-wider block">Referrals</span>
-            <strong className="text-lg font-extrabold text-orange-600 mt-1.5 block">2,345</strong>
-            <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 10% vs last week</span>
-          </div>
-          <div className="bg-white p-4.5 rounded-2xl border border-border-brand shadow-xs border-l-4 border-l-green-500">
-            <span className="text-[8px] text-green-500 font-bold uppercase tracking-wider block">Referral Comp. Rate</span>
-            <strong className="text-lg font-extrabold text-green-700 mt-1.5 block">91%</strong>
-            <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 6% vs last week</span>
-          </div>
-          <div className="bg-white p-4.5 rounded-2xl border border-border-brand shadow-xs">
-            <span className="text-[8px] text-text-secondary font-bold uppercase tracking-wider block">Follow-up Rate</span>
-            <strong className="text-lg font-extrabold text-text-primary mt-1.5 block">84%</strong>
-            <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 5% vs last week</span>
-          </div>
-          <div className="bg-white p-4.5 rounded-2xl border border-border-brand shadow-xs">
-            <span className="text-[8px] text-text-secondary font-bold uppercase tracking-wider block">Avg. Waiting Time</span>
-            <strong className="text-lg font-extrabold text-text-primary mt-1.5 block">26 min</strong>
-            <span className="text-[8px] text-red-500 font-bold block mt-0.5">↓ 8% vs last week</span>
-          </div>
-          <div className="bg-white p-4.5 rounded-2xl border border-border-brand shadow-xs">
-            <span className="text-[8px] text-text-secondary font-bold uppercase tracking-wider block">Medicine Avail.</span>
-            <strong className="text-lg font-extrabold text-text-primary mt-1.5 block">87%</strong>
-            <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 4% vs last week</span>
-          </div>
-        </div>
-
-        {/* Charts Section: 4 charts aligned with references */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
-          {/* Chart 1: Consultations Trend (Line) */}
-          <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Consultations Trend <span className="text-[8px] text-text-secondary lowercase font-medium">(Last 7 Days)</span>
-            </h3>
-            <div className="h-44 w-full text-[9px] font-bold">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lineChartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                  <XAxis dataKey="name" stroke="#94A3B8" />
-                  <YAxis stroke="#94A3B8" />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="value" stroke="#1464D2" strokeWidth={2.5} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
+          {/* 8 Stats Metrics block */}
+          <div className="grid grid-cols-2 lg:grid-cols-8 gap-4">
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Total Patients</span>
+              <strong className="text-lg font-extrabold text-slate-800 mt-1.5 block">18,420</strong>
+              <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 12% vs LW</span>
+            </div>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Consults</span>
+              <strong className="text-lg font-extrabold text-primary mt-1.5 block">12,832</strong>
+              <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 15% vs LW</span>
+            </div>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs border-l-4 border-l-red-500">
+              <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider block">High Risk Cases</span>
+              <strong className="text-lg font-extrabold text-red-600 mt-1.5 block">1,245</strong>
+              <span className="text-[8px] text-red-500 font-bold block mt-0.5">↑ 8% vs LW</span>
+            </div>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Referrals</span>
+              <strong className="text-lg font-extrabold text-orange-600 mt-1.5 block">2,345</strong>
+              <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 10% vs LW</span>
+            </div>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs border-l-4 border-l-green-500">
+              <span className="text-[8px] text-green-500 font-bold uppercase tracking-wider block">Referral Comp.</span>
+              <strong className="text-lg font-extrabold text-green-700 mt-1.5 block">91%</strong>
+              <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 6% vs LW</span>
+            </div>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Follow-up Rate</span>
+              <strong className="text-lg font-extrabold text-slate-800 mt-1.5 block">84%</strong>
+              <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 5% vs LW</span>
+            </div>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Avg. Wait</span>
+              <strong className="text-lg font-extrabold text-slate-800 mt-1.5 block">26 min</strong>
+              <span className="text-[8px] text-red-500 font-bold block mt-0.5">↓ 8% vs LW</span>
+            </div>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Meds Availability</span>
+              <strong className="text-lg font-extrabold text-slate-800 mt-1.5 block">87%</strong>
+              <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 4% vs LW</span>
             </div>
           </div>
 
-          {/* Chart 2: Risk Distribution (Donut) */}
-          <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Risk Distribution
-            </h3>
-            <div className="h-32 w-full flex justify-center text-[10px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={donutRiskData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={30}
-                    outerRadius={45}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {donutRiskData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+          {/* Charts Section: 4 charts aligned with references */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* Chart 1: Consultations Trend (Line) */}
+            <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs space-y-4">
+              <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
+                Consultations Trend <span className="text-[8px] text-slate-400 lowercase font-medium">(Last 7 Days)</span>
+              </h3>
+              <div className="h-44">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={lineChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={9} tickLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} />
+                    <Tooltip contentStyle={{ fontSize: 10, borderRadius: 8 }} />
+                    <Line type="monotone" dataKey="value" stroke="#2563EB" strokeWidth={2.5} dot={{ r: 3 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-            <div className="flex justify-center gap-3 text-[9px] font-bold text-text-secondary mt-1">
-              {donutRiskData.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span>{item.name}</span>
+
+            {/* Chart 2: Risk Profile Distribution (Donut) */}
+            <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs space-y-4">
+              <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
+                Triage Severity Profile
+              </h3>
+              <div className="h-44 relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={donutRiskData} innerRadius={35} outerRadius={50} paddingAngle={3} dataKey="value">
+                      {donutRiskData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize: 10, borderRadius: 8 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex items-center justify-center flex-col mt-4">
+                  <span className="text-xs font-extrabold text-slate-800">5.7k</span>
+                  <span className="text-[8px] text-slate-400 uppercase font-bold">Total Cases</span>
                 </div>
-              ))}
+              </div>
             </div>
+
+            {/* Chart 3: Facility Workload Completion (Bar) */}
+            <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs space-y-4">
+              <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
+                Facility Workload
+              </h3>
+              <div className="h-44">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={barWorkloadData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={9} tickLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} />
+                    <Tooltip contentStyle={{ fontSize: 10, borderRadius: 8 }} />
+                    <Bar dataKey="value" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Chart 4: Referrals Status Donut */}
+            <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs space-y-4">
+              <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
+                Referral Conversions
+              </h3>
+              <div className="h-44 relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={donutReferralData} innerRadius={35} outerRadius={50} paddingAngle={3} dataKey="value">
+                      {donutReferralData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize: 10, borderRadius: 8 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex items-center justify-center flex-col mt-4">
+                  <span className="text-xs font-extrabold text-slate-800">2.3k</span>
+                  <span className="text-[8px] text-slate-400 uppercase font-bold">Referrals</span>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          {/* Chart 3: Facility Workload (Bar) */}
-          <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Facility Workload
-            </h3>
-            <div className="h-44 w-full text-[9px] font-bold">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barWorkloadData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
-                  <XAxis type="number" stroke="#94A3B8" />
-                  <YAxis dataKey="name" type="category" stroke="#94A3B8" />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#3B82F6" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Chart 4: Patients by Age Group (Bar) */}
-          <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Patients by Age Group
-            </h3>
-            <div className="h-44 w-full text-[9px] font-bold">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barAgeData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                  <XAxis dataKey="group" stroke="#94A3B8" />
-                  <YAxis stroke="#94A3B8" />
-                  <Tooltip />
-                  <Bar dataKey="patients" fill="#1E3A8A" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Lower Section: Maharashtra District Map & Medicine Table */}
-        <div className="grid lg:grid-cols-12 gap-6 items-start">
-          
-          {/* Map Column (4 cols) */}
-          <div className="lg:col-span-4 bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Maharashtra District Map
-            </h3>
-
-            {/* Render interactive OpenStreetMap of Maharashtra state */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl h-60 overflow-hidden relative">
-              <iframe
-                className="w-full h-full border-0 rounded-xl"
-                src={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-                  ? `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=Maharashtra,India`
-                  : "https://www.openstreetmap.org/export/embed.html?bbox=72.0%2C15.0%2C81.0%2C22.5&layer=mapnik"
-                }
-                title="Maharashtra State Map"
-              />
-            </div>
-          </div>
-
-          {/* Medicine shortages Table (5 cols) */}
-          <div className="lg:col-span-5 bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Medicine Shortages
-            </h3>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-[10px]">
+          {/* Lower Section: Medicine Shortages list */}
+          <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Medicine Shortages Alerts</h3>
+            
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-border-brand font-bold text-slate-400">
-                    <th className="py-2">Medicine</th>
-                    <th className="py-2 text-center">Facilities Affected</th>
-                    <th className="py-2 text-center">Severity</th>
-                    <th className="py-2 text-right">Last Reported</th>
+                  <tr className="border-b border-slate-100 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Medicine Item</th>
+                    <th className="py-2.5 px-4">Facilities Affected</th>
+                    <th className="py-2.5 px-4">Severity Action</th>
+                    <th className="py-2.5 px-4 text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-semibold text-text-primary">
-                  {medicineShortages.map((med, idx) => (
-                    <tr key={idx}>
-                      <td className="py-2.5">{med.name}</td>
-                      <td className="py-2.5 text-center">{med.count}</td>
-                      <td className="py-2.5 text-center">
-                        <span className={`px-2 py-0.5 rounded font-extrabold ${
-                          med.severity === "High" ? "bg-red-50 text-red-700" : med.severity === "Medium" ? "bg-amber-50 text-amber-700" : "bg-green-50 text-green-700"
-                        }`}>
-                          {med.severity}
-                        </span>
+                <tbody className="divide-y divide-slate-100 text-slate-650">
+                  {medicineShortages.map((med, index) => (
+                    <tr key={index} className="hover:bg-slate-50/40">
+                      <td className="py-3 px-4 font-bold text-slate-700">{med.name}</td>
+                      <td className="py-3 px-4">{med.count} facilities</td>
+                      <td className="py-3 px-4">
+                        <span className={`font-bold ${med.severity === "High" ? "text-red-550" : "text-amber-500"}`}>{med.severity} Priority</span>
                       </td>
-                      <td className="py-2.5 text-right text-text-secondary">{med.date}</td>
+                      <td className="py-3 px-4 text-center">
+                        <span className="bg-red-50 text-red-700 text-[10px] px-2.5 py-0.5 rounded-full font-bold">Stock Shortage</span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
-
-          {/* Referral completion Donut (3 cols) */}
-          <div className="lg:col-span-3 bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Referral Completion Overview
-            </h3>
-
-            <div className="h-32 w-full flex justify-center text-[10px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={donutReferralData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={25}
-                    outerRadius={40}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {donutReferralData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="text-[9px] space-y-1 font-bold text-text-secondary">
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" /> Completed</span>
-                <span className="text-text-primary">2,134 (91%)</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-orange-500" /> In Progress</span>
-                <span className="text-text-primary">162 (7%)</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /> Overdue</span>
-                <span className="text-text-primary">49 (2%)</span>
-              </div>
-            </div>
-          </div>
-
         </div>
+      )}
 
-        {/* Bottom row: Alerts Table & Top performing facilities */}
-        <div className="grid md:grid-cols-2 gap-6">
+      {/* 2. OTHER TABVIEWS */}
+      {activeTab !== "Overview" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 min-h-[400px]">
+          <h2 className="text-lg font-extrabold text-slate-800">{activeTab} Workstation</h2>
+          <p className="text-xs text-slate-500">Panel for District Admin {activeTab} analytics logs.</p>
           
-          {/* Recent Alerts & Notifications */}
-          <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs text-xs space-y-3">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Recent Alerts & Notifications
-            </h3>
-            
-            <div className="space-y-3 font-semibold">
-              <div className="flex items-start gap-2.5 p-2 bg-red-50/50 border border-red-200/50 rounded-xl">
-                <AlertTriangle className="text-red-500 shrink-0" size={14} />
-                <div>
-                  <strong className="text-text-primary block font-bold text-red-700">High Risk Alert</strong>
-                  <p className="text-[10px] text-text-secondary mt-0.5">15 new high risk cases reported in last 24 hours across 5 PHCs.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 p-2 bg-amber-50/50 border border-amber-200/50 rounded-xl">
-                <AlertTriangle className="text-amber-500 shrink-0" size={14} />
-                <div>
-                  <strong className="text-text-primary block font-bold text-amber-700">Medicine Shortage</strong>
-                  <p className="text-[10px] text-text-secondary mt-0.5">ORS is out of stock in PHC-03 and PHC-07. Procurement initiated.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5 p-2 bg-slate-50 border border-slate-200/60 rounded-xl">
-                <Calendar className="text-primary shrink-0" size={14} />
-                <div>
-                  <strong className="text-text-primary block font-bold">Follow-up Overdue</strong>
-                  <p className="text-[10px] text-text-secondary mt-0.5">32 follow-ups are overdue across the district. ASHA alerts sent.</p>
-                </div>
-              </div>
-            </div>
+          <div className="border border-slate-100 p-8 rounded-2xl bg-slate-50 text-xs text-slate-400 text-center flex flex-col items-center justify-center space-y-2">
+            <FileSpreadsheet size={32} className="text-slate-300 animate-pulse" />
+            <span>Currently showing {activeTab} command interface.</span>
+            <button
+              onClick={() => setActiveTab("Overview")}
+              className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent mt-2 text-xs"
+            >
+              Back to Overview Dashboard
+            </button>
           </div>
-
-          {/* Top Performing Facilities */}
-          <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs text-xs space-y-3">
-            <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-              Top Performing Facilities
-            </h3>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-[10px]">
-                <thead>
-                  <tr className="border-b border-border-brand text-slate-400 font-bold">
-                    <th className="py-2">Facility</th>
-                    <th className="py-2 text-center">Consultations</th>
-                    <th className="py-2 text-center">Follow-up Completion</th>
-                    <th className="py-2 text-right">Patient Satisfaction</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-semibold text-text-primary">
-                  <tr>
-                    <td className="py-2">PHC-01</td>
-                    <td className="py-2 text-center">1,245</td>
-                    <td className="py-2 text-center text-green-700">95%</td>
-                    <td className="py-2 text-right">⭐ 4.8 / 5.0</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2">PHC-05</td>
-                    <td className="py-2 text-center">1,102</td>
-                    <td className="py-2 text-center text-green-700">93%</td>
-                    <td className="py-2 text-right">⭐ 4.7 / 5.0</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2">CHC-02</td>
-                    <td className="py-2 text-center">980</td>
-                    <td className="py-2 text-center text-green-700">92%</td>
-                    <td className="py-2 text-right">⭐ 4.6 / 5.0</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
         </div>
-
-      </main>
-    </div>
+      )}
+    </AppShell>
   );
 }

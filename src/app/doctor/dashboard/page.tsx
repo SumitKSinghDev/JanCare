@@ -30,8 +30,11 @@ import {
   Mic,
   Camera,
   MessageSquare,
-  Monitor
+  Monitor,
+  Calendar,
+  AlertTriangle
 } from "lucide-react";
+import AppShell from "@/components/AppShell";
 
 export default function DoctorDashboard() {
   const router = useRouter();
@@ -48,6 +51,9 @@ export default function DoctorDashboard() {
   // Call controls state
   const [micActive, setMicActive] = useState(true);
   const [camActive, setCamActive] = useState(true);
+
+  // App Shell navigation active tab state
+  const [activeTab, setActiveTab] = useState("Dashboard");
 
   useEffect(() => {
     fetchDoctorQueue();
@@ -70,7 +76,7 @@ export default function DoctorDashboard() {
       if (consData.success) {
         setConsultations(consData.consultations);
         if (consData.consultations.length > 0) {
-          // Pre-select first scheduled consultation as default active (Ramesh Kumar in seeds)
+          // Pre-select first scheduled consultation as default active
           setActiveConsult(consData.consultations[0]);
         }
       }
@@ -95,10 +101,10 @@ export default function DoctorDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F6F9FC]">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="animate-spin text-primary" size={36} />
-          <p className="text-sm font-semibold text-text-secondary">Loading provider queue...</p>
+          <p className="text-xs font-bold text-slate-500">Loading Clinical Workspace...</p>
         </div>
       </div>
     );
@@ -114,361 +120,198 @@ export default function DoctorDashboard() {
 
   const urgentCount = consultations.filter((c) => c.healthRecordId?.triage?.level === "Urgent").length;
   const priorityCount = consultations.filter((c) => c.healthRecordId?.triage?.level === "Priority").length;
-  const routineCount = consultations.filter((c) => c.healthRecordId?.triage?.level === "Routine").length;
+  const routineCount = sortedConsultations.length - urgentCount - priorityCount;
 
   return (
-    <div className="min-h-screen bg-[#F6F9FC] flex flex-col font-sans pb-16 md:pb-0 select-none">
-      
-      {/* Navbar */}
-      <nav className="bg-white border-b border-border-brand sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="जनCare Logo" className="h-9 w-auto" />
-            <span className="h-4 w-px bg-slate-200" />
-            <span className="text-xs font-bold text-slate-500 tracking-tight">{t("dashboards.doctor")}</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Language Selector */}
-            <div className="flex items-center gap-2 text-[10px] font-bold text-text-secondary border-r border-slate-200 pr-3 mr-1">
-              <button
-                onClick={() => setLanguage("en")}
-                className={`hover:text-primary transition-colors cursor-pointer border-0 bg-transparent ${
-                  language === "en" ? "text-primary font-extrabold" : ""
-                }`}
-              >
-                English
-              </button>
-              <span className="text-slate-300">|</span>
-              <button
-                onClick={() => setLanguage("hi")}
-                className={`hover:text-primary transition-colors cursor-pointer border-0 bg-transparent ${
-                  language === "hi" ? "text-primary font-extrabold" : ""
-                }`}
-              >
-                हिन्दी
-              </button>
-              <span className="text-slate-300">|</span>
-              <button
-                onClick={() => setLanguage("mr")}
-                className={`hover:text-primary transition-colors cursor-pointer border-0 bg-transparent ${
-                  language === "mr" ? "text-primary font-extrabold" : ""
-                }`}
-              >
-                मराठी
-              </button>
-            </div>
-
-            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full">
-              {currentUser?.associatedFacility?.name || "Sinnar Rural Hospital"}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="text-slate-400 hover:text-red-500 p-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer bg-transparent border-0"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Workspace Split Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 grid lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left Column: Stats overview and Today's Queue */}
-        <div className="lg:col-span-8 space-y-6">
-          
+    <AppShell
+      role="Doctor"
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      user={currentUser}
+    >
+      {/* 1. DASHBOARD OVERVIEW */}
+      {activeTab === "Dashboard" && (
+        <div className="space-y-6">
           {/* Welcome Header */}
-          <div className="text-left">
-            <h2 className="text-2xl font-extrabold text-deep-blue">Clinical Workspace: Dr. {currentUser?.name?.split(" ")[1] || "Kulkarni"}</h2>
-            <p className="text-xs text-text-secondary mt-0.5">Manage live teleconsultations, write prescriptions, and coordinate referrals.</p>
+          <div className="text-left bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
+            <div className="space-y-1 relative z-10">
+              <h2 className="text-2xl font-extrabold tracking-tight">Clinical Workspace: Dr. {currentUser?.name?.split(" ")[1] || "Kulkarni"}</h2>
+              <p className="text-xs text-slate-300">Manage live teleconsultations, write prescriptions, and coordinate patient referrals.</p>
+            </div>
           </div>
 
           {/* Today's Metrics widgets */}
-          <div className="grid grid-cols-5 gap-3">
-            <div className="bg-white p-4.5 rounded-xl border border-border-brand shadow-xs flex flex-col justify-between">
-              <span className="text-[8px] text-text-secondary font-bold uppercase">Today's Consults</span>
-              <span className="text-lg font-extrabold text-text-primary mt-1">{consultations.length}</span>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Queue Size</span>
+              <span className="text-lg font-extrabold text-slate-800 mt-1">{consultations.length} Consults</span>
             </div>
-            <div className="bg-white p-4.5 rounded-xl border border-border-brand shadow-xs flex flex-col justify-between border-l-4 border-l-red-500">
-              <span className="text-[8px] text-red-500 font-bold uppercase">Urgent Cases</span>
-              <span className="text-lg font-extrabold text-red-600 mt-1">{urgentCount}</span>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between border-l-4 border-l-red-500 h-24">
+              <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider">Urgent Cases</span>
+              <span className="text-lg font-extrabold text-red-600 mt-1">{urgentCount} Cases</span>
             </div>
-            <div className="bg-white p-4.5 rounded-xl border border-border-brand shadow-xs flex flex-col justify-between border-l-4 border-l-orange-500">
-              <span className="text-[8px] text-orange-500 font-bold uppercase">Priority Cases</span>
-              <span className="text-lg font-extrabold text-orange-600 mt-1">{priorityCount}</span>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between border-l-4 border-l-orange-500 h-24">
+              <span className="text-[8px] text-orange-500 font-bold uppercase tracking-wider">Priority Cases</span>
+              <span className="text-lg font-extrabold text-orange-600 mt-1">{priorityCount} Cases</span>
             </div>
-            <div className="bg-white p-4.5 rounded-xl border border-border-brand shadow-xs flex flex-col justify-between">
-              <span className="text-[8px] text-text-secondary font-bold uppercase">Follow-ups Due</span>
-              <span className="text-lg font-extrabold text-text-primary mt-1">6</span>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Follow-ups</span>
+              <span className="text-lg font-extrabold text-slate-800 mt-1">2 Scheduled</span>
             </div>
-            <div className="bg-white p-4.5 rounded-xl border border-border-brand shadow-xs flex flex-col justify-between">
-              <span className="text-[8px] text-text-secondary font-bold uppercase">Pending Presc.</span>
-              <span className="text-lg font-extrabold text-text-primary mt-1">3</span>
+            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Facility Hub</span>
+              <span className="text-xs font-bold text-slate-700 mt-1 truncate">{currentUser?.associatedFacility?.name || "Sinnar CHC"}</span>
             </div>
           </div>
 
-          {/* Today's Consultation Queue */}
-          <div className="bg-white border border-border-brand rounded-2xl p-6 space-y-4">
-            <h3 className="font-extrabold text-sm text-deep-blue text-left">
-              Today's Consultation Queue
-            </h3>
+          {/* Consultation queue */}
+          <div className="grid lg:grid-cols-12 gap-6">
+            {/* Queue Table */}
+            <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-4">
+              <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                Today's Consultation Queue
+              </h3>
 
-            {sortedConsultations.length === 0 ? (
-              <div className="py-12 text-center text-xs text-text-secondary">
-                No consultations currently in your queue.
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-border-brand text-slate-400 font-bold bg-slate-50/50">
-                      <th className="py-3 px-4">Triage Priority</th>
-                      <th className="py-3 px-4">Patient ID</th>
-                      <th className="py-3 px-4">Name</th>
-                      <th className="py-3 px-4">Age/Sex</th>
-                      <th className="py-3 px-4">Complaint</th>
-                      <th className="py-3 px-4 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {sortedConsultations.map((consult) => {
-                      const level = consult.healthRecordId?.triage?.level || "Routine";
-                      const symptoms = consult.healthRecordId?.symptoms || [];
+              {sortedConsultations.length === 0 ? (
+                <div className="py-12 text-center text-xs text-slate-400">
+                  No consultations currently in your queue.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-100 text-slate-400 font-bold bg-slate-50/50">
+                        <th className="py-3 px-4">Triage Priority</th>
+                        <th className="py-3 px-4">Patient ID</th>
+                        <th className="py-3 px-4">Name</th>
+                        <th className="py-3 px-4">Complaint</th>
+                        <th className="py-3 px-4 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {sortedConsultations.map((consult) => {
+                        const level = consult.healthRecordId?.triage?.level || "Routine";
+                        const symptoms = consult.healthRecordId?.symptoms || [];
 
-                      return (
-                        <tr key={consult._id} className={`hover:bg-slate-50/40 cursor-pointer ${activeConsult?._id === consult._id ? "bg-primary/5 border-l-2 border-l-primary" : ""}`} onClick={() => setActiveConsult(consult)}>
-                          <td className="py-3.5 px-4 font-bold">
-                            {level === "Urgent" && (
-                              <span className="bg-red-50 text-red-600 border border-red-200/50 px-2.5 py-1 rounded-full text-[10px]">
-                                🔴 Urgent
-                              </span>
-                            )}
-                            {level === "Priority" && (
-                              <span className="bg-orange-50 text-orange-600 border border-orange-200/50 px-2.5 py-1 rounded-full text-[10px]">
-                                🟠 Priority
-                              </span>
-                            )}
-                            {level === "Routine" && (
-                              <span className="bg-green-50 text-green-600 border border-green-200/50 px-2.5 py-1 rounded-full text-[10px]">
-                                🟢 Routine
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-3.5 px-4 font-mono font-semibold text-slate-500">
-                            {consult.patientId?.patientRefId}
-                          </td>
-                          <td className="py-3.5 px-4 font-semibold text-text-primary">{consult.patientId?.name}</td>
-                          <td className="py-3.5 px-4 text-text-secondary">
-                            {consult.patientId?.age}y / {consult.patientId?.gender}
-                          </td>
-                          <td className="py-3.5 px-4 truncate max-w-[140px] text-text-secondary">
-                            {symptoms.map((s: any) => s.name).join(", ") || "No symptoms logged"}
-                          </td>
-                          <td className="py-3.5 px-4 text-center">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/doctor/consultation/${consult._id}`);
-                              }}
-                              className="bg-primary hover:bg-deep-blue text-white font-bold py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 mx-auto transition-all cursor-pointer text-[10px] border-0"
-                            >
-                              <Video size={12} /> Start
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                        return (
+                          <tr
+                            key={consult._id}
+                            className={`hover:bg-slate-50/50 cursor-pointer ${activeConsult?._id === consult._id ? "bg-blue-50/30 font-semibold" : ""}`}
+                            onClick={() => setActiveConsult(consult)}
+                          >
+                            <td className="py-3.5 px-4 font-bold">
+                              {level === "Urgent" && <span className="bg-red-50 text-red-600 border border-red-200/50 px-2.5 py-1 rounded-full text-[10px]">🔴 Urgent</span>}
+                              {level === "Priority" && <span className="bg-orange-50 text-orange-600 border border-orange-200/50 px-2.5 py-1 rounded-full text-[10px]">🟠 Priority</span>}
+                              {level === "Routine" && <span className="bg-green-50 text-green-600 border border-green-200/50 px-2.5 py-1 rounded-full text-[10px]">🟢 Routine</span>}
+                            </td>
+                            <td className="py-3.5 px-4 font-mono text-slate-400 font-semibold">{consult.patientId?.patientRefId}</td>
+                            <td className="py-3.5 px-4 text-slate-700">{consult.patientId?.name}</td>
+                            <td className="py-3.5 px-4 text-slate-500 truncate max-w-[140px]">
+                              {symptoms.map((s: any) => s.name).join(", ") || "Routine checkup"}
+                            </td>
+                            <td className="py-3.5 px-4 text-center">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/doctor/consultation/${consult._id}`);
+                                }}
+                                className="bg-primary hover:bg-blue-600 text-white font-bold py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 mx-auto transition-all cursor-pointer text-[10px] border-0"
+                              >
+                                <Video size={12} /> Start Session
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Split consult side panel */}
+            <div className="lg:col-span-4">
+              {activeConsult ? (
+                <div className="bg-white border border-slate-200/80 p-5 rounded-3xl shadow-xs space-y-4 text-left">
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                    <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800">Current Consultation</h3>
+                    <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full uppercase">Active</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-slate-50 border border-slate-200/60 p-3 rounded-xl">
+                    <div className="h-10 w-10 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-center font-bold text-primary text-xs uppercase shrink-0">
+                      {activeConsult.patientId?.name?.slice(0, 2)}
+                    </div>
+                    <div className="text-xs">
+                      <strong className="text-slate-800 block">{activeConsult.patientId?.name}</strong>
+                      <span className="text-[10px] text-slate-400 block mt-0.5">
+                        {activeConsult.patientId?.age} Years / {activeConsult.patientId?.gender} | ID: {activeConsult.patientId?.patientRefId}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <span className="text-[9px] text-slate-400 font-bold uppercase block">Symptoms Complaint</span>
+                      <p className="font-semibold text-slate-700 mt-0.5">
+                        {activeConsult.healthRecordId?.symptoms?.map((s: any) => `${s.name} (${s.severity})`).join(", ") || "No symptoms logged"}
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl space-y-2 text-[10px]">
+                      <span className="text-[9px] text-primary font-bold uppercase tracking-wider block">AI-Assisted Clinical Copilot</span>
+                      <p className="text-slate-600 leading-relaxed font-semibold">
+                        {activeConsult.healthRecordId?.triage?.aiExplanation || "Patient requires diagnosis and paracetamol Rx check."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-center text-[10px] font-bold">
+                    <button
+                      onClick={() => router.push(`/doctor/consultation/${activeConsult._id}`)}
+                      className="bg-primary hover:bg-blue-600 text-white py-2.5 rounded-xl cursor-pointer border-0"
+                    >
+                      Start Call
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveConsult(null);
+                      }}
+                      className="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 py-2.5 rounded-xl cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white border border-slate-200/80 p-8 rounded-3xl shadow-xs text-center text-xs text-slate-400">
+                  Select a consultation from the queue to review patient documents.
+                </div>
+              )}
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Right Column: Current Consultation details & WebRTC Cam Mockup */}
-        <div className="lg:col-span-4 space-y-6">
+      {/* 2. OTHER TABVIEWS */}
+      {activeTab !== "Dashboard" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 min-h-[400px]">
+          <h2 className="text-lg font-extrabold text-slate-800">{activeTab} Workspace</h2>
+          <p className="text-xs text-slate-500">Workspace panel for {activeTab} information logs.</p>
           
-          {activeConsult ? (
-            <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs space-y-4 text-left">
-              <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                <h3 className="font-extrabold text-sm text-deep-blue">Current Consultation</h3>
-                <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full uppercase">Active session</span>
-              </div>
-
-              {/* Patient mini demographics */}
-              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200/60 p-3 rounded-xl">
-                <div className="h-10 w-10 bg-slate-200 rounded-full flex items-center justify-center font-bold text-text-primary text-xs uppercase shrink-0">
-                  {activeConsult.patientId?.name?.slice(0, 2)}
-                </div>
-                <div className="text-xs">
-                  <strong className="text-text-primary block">{activeConsult.patientId?.name}</strong>
-                  <span className="text-[10px] text-text-secondary block mt-0.5">
-                    {activeConsult.patientId?.age} Years / {activeConsult.patientId?.gender} | ID: {activeConsult.patientId?.patientRefId}
-                  </span>
-                </div>
-              </div>
-
-              {/* Complaint & Vitals */}
-              <div className="space-y-2 text-xs">
-                <div>
-                  <span className="text-[9px] text-text-secondary font-bold uppercase block">Symptoms / Complaint</span>
-                  <p className="font-semibold text-text-primary mt-0.5">
-                    {activeConsult.healthRecordId?.symptoms?.map((s: any) => `${s.name} (${s.severity})`).join(", ") || "Fever, Weakness, Dizziness"}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-4 gap-2 pt-1.5 text-center">
-                  <div className="bg-slate-50 border border-slate-100 p-2 rounded-lg">
-                    <span className="text-[8px] text-text-secondary block">Temp</span>
-                    <strong className="text-[10px] text-text-primary block mt-0.5">
-                      {activeConsult.healthRecordId?.vitals?.temperature || 98.6}°F
-                    </strong>
-                  </div>
-                  <div className="bg-slate-50 border border-slate-100 p-2 rounded-lg">
-                    <span className="text-[8px] text-text-secondary block">BP</span>
-                    <strong className="text-[10px] text-text-primary block mt-0.5">
-                      {activeConsult.healthRecordId?.vitals?.bloodPressureSystolic || 120}/{activeConsult.healthRecordId?.vitals?.bloodPressureDiastolic || 80}
-                    </strong>
-                  </div>
-                  <div className="bg-slate-50 border border-slate-100 p-2 rounded-lg">
-                    <span className="text-[8px] text-text-secondary block">SpO2</span>
-                    <strong className="text-[10px] text-text-primary block mt-0.5">
-                      {activeConsult.healthRecordId?.vitals?.spo2 || 98}%
-                    </strong>
-                  </div>
-                  <div className="bg-slate-50 border border-slate-100 p-2 rounded-lg">
-                    <span className="text-[8px] text-text-secondary block">Pulse</span>
-                    <strong className="text-[10px] text-text-primary block mt-0.5">
-                      {activeConsult.healthRecordId?.vitals?.heartRate || 78} bpm
-                    </strong>
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Assistant Summary suggestions */}
-              <div className="bg-blue-50/50 border border-blue-100 p-3.5 rounded-xl text-xs space-y-1.5">
-                <span className="text-[9px] text-primary font-bold uppercase tracking-wider block">AI-Assisted Summary</span>
-                <p className="text-[10px] text-text-primary leading-relaxed font-medium">
-                  {activeConsult.healthRecordId?.triage?.aiExplanation || "Patient has moderate fever and weakness. Recommended: Paracetamol prescription. Monitor vitals."}
-                </p>
-              </div>
-
-              {/* Real camera video container mock */}
-              <div className="bg-slate-900 rounded-2xl h-44 overflow-hidden relative border border-slate-800 flex items-center justify-center">
-                <button
-                  onClick={() => router.push(`/doctor/consultation/${activeConsult._id}`)}
-                  className="absolute inset-0 bg-slate-950/90 hover:bg-slate-950 text-white font-bold flex flex-col items-center justify-center gap-2.5 border-0 cursor-pointer transition-all z-30"
-                >
-                  <div className="p-4 bg-primary/10 rounded-full border border-primary/20 animate-pulse">
-                    <Video size={28} className="text-primary" />
-                  </div>
-                  <span className="text-xs tracking-wide">Start Video Consultation Room</span>
-                </button>
-              </div>
-
-              {/* Quick Actions buttons */}
-              <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-bold pt-2 border-t border-slate-100">
-                <button
-                  onClick={() => router.push(`/doctor/consultation/${activeConsult._id}`)}
-                  className="bg-primary/5 hover:bg-primary/10 text-primary border border-primary/20 py-2.5 rounded-xl cursor-pointer"
-                >
-                  Prescription
-                </button>
-                <button
-                  onClick={() => router.push(`/doctor/consultation/${activeConsult._id}`)}
-                  className="bg-primary/5 hover:bg-primary/10 text-primary border border-primary/20 py-2.5 rounded-xl cursor-pointer"
-                >
-                  Referral
-                </button>
-                <button
-                  onClick={() => router.push(`/doctor/consultation/${activeConsult._id}`)}
-                  className="bg-primary/5 hover:bg-primary/10 text-primary border border-primary/20 py-2.5 rounded-xl cursor-pointer"
-                >
-                  Follow-up
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white border border-border-brand p-8 rounded-2xl shadow-xs text-center text-xs text-text-secondary">
-              Select a consultation from the queue to start session.
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Bottom section charts and queues */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 grid md:grid-cols-3 gap-6">
-        
-        {/* Recent Prescriptions */}
-        <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs text-left">
-          <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-            Recent Prescriptions
-          </h3>
-          <div className="space-y-3 mt-3">
-            <div className="flex justify-between items-center text-xs">
-              <div>
-                <strong className="text-text-primary block">Ramesh Kumar</strong>
-                <span className="text-[10px] text-text-secondary">2 Medicines • 26 Aug 2026</span>
-              </div>
-              <span className="text-green-700 bg-green-50 px-2 py-0.5 rounded font-bold text-[9px]">Issued</span>
-            </div>
-            <div className="flex justify-between items-center text-xs">
-              <div>
-                <strong className="text-text-primary block">Savitri Patil</strong>
-                <span className="text-[10px] text-text-secondary">1 Medicines • 25 Aug 2026</span>
-              </div>
-              <span className="text-green-700 bg-green-50 px-2 py-0.5 rounded font-bold text-[9px]">Issued</span>
-            </div>
+          <div className="border border-slate-100 p-8 rounded-2xl bg-slate-50 text-xs text-slate-400 text-center flex flex-col items-center justify-center space-y-2">
+            <ClipboardList size={32} className="text-slate-300 animate-pulse" />
+            <span>Currently showing {activeTab} details.</span>
+            <button
+              onClick={() => setActiveTab("Dashboard")}
+              className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent mt-2 text-xs"
+            >
+              Back to Queue Dashboard
+            </button>
           </div>
         </div>
-
-        {/* Upcoming Follow-ups */}
-        <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs text-left">
-          <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-            Upcoming Follow-ups
-          </h3>
-          <div className="space-y-3 mt-3">
-            <div className="flex justify-between items-center text-xs">
-              <div>
-                <strong className="text-text-primary block">Ramesh Kumar</strong>
-                <span className="text-[10px] text-text-secondary">ASHA Visit due in 2 days</span>
-              </div>
-              <span className="text-orange-700 bg-orange-50 px-2 py-0.5 rounded font-bold text-[9px]">Pending</span>
-            </div>
-            <div className="flex justify-between items-center text-xs">
-              <div>
-                <strong className="text-text-primary block">Vitthal Pawar</strong>
-                <span className="text-[10px] text-text-secondary">ASHA Visit due in 7 days</span>
-              </div>
-              <span className="text-orange-700 bg-orange-50 px-2 py-0.5 rounded font-bold text-[9px]">Pending</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Referrals Overview Dial card */}
-        <div className="bg-white border border-border-brand p-5 rounded-2xl shadow-xs text-left flex flex-col justify-between">
-          <h3 className="font-extrabold text-xs text-deep-blue uppercase tracking-wider border-b border-slate-100 pb-2">
-            Referrals Overview
-          </h3>
-          <div className="flex items-center gap-4 mt-3 text-xs">
-            <div className="h-16 w-16 rounded-full border-4 border-primary border-r-transparent flex items-center justify-center font-bold text-text-primary shrink-0">
-              12
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-[10px]">
-                <span className="h-2 w-2 rounded-full bg-green-500" /> Completed: <strong>7 (58%)</strong>
-              </div>
-              <div className="flex items-center gap-1.5 text-[10px]">
-                <span className="h-2 w-2 rounded-full bg-orange-500" /> In Progress: <strong>3 (25%)</strong>
-              </div>
-              <div className="flex items-center gap-1.5 text-[10px]">
-                <span className="h-2 w-2 rounded-full bg-red-500" /> Overdue: <strong>2 (17%)</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+      )}
+    </AppShell>
   );
 }
