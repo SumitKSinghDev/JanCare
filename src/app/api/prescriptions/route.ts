@@ -16,11 +16,18 @@ export async function GET(request: Request) {
     const patientId = searchParams.get("patientId");
 
     const query: any = {};
-    if (patientId) {
+    if (patientId && patientId.trim() !== "" && patientId !== "undefined" && patientId !== "null") {
       query.patientId = patientId;
     } else if (user.role === "Patient") {
       const Patient = (await import("@/models/Patient")).default;
-      const patient = await Patient.findOne({ mobile: user.name });
+      const User = (await import("@/models/User")).default;
+      const dbUser = await User.findById(user.userId);
+      const patient = await Patient.findOne({
+        $or: [
+          { mobile: dbUser?.username },
+          { name: user.name }
+        ]
+      });
       if (patient) {
         query.patientId = patient._id;
       } else {
