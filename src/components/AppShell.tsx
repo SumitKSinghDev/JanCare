@@ -391,10 +391,10 @@ export default function AppShell({
                       <button
                         key={item.name}
                         onClick={() => setActiveTab(item.name)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all border-0 bg-transparent cursor-pointer ${
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer ${
                           isActive
                             ? "bg-[#1464D2] text-white shadow-md shadow-[#1464D2]/10"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                            : "bg-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                         }`}
                       >
                         <Icon size={16} className={isActive ? "text-white" : "text-slate-400"} />
@@ -463,10 +463,10 @@ export default function AppShell({
                               setActiveTab(item.name);
                               setIsMobileOpen(false);
                             }}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all border-0 bg-transparent cursor-pointer ${
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer ${
                               isActive
                                 ? "bg-[#1464D2] text-white shadow-md"
-                                : "text-slate-600 hover:bg-slate-50"
+                                : "bg-transparent text-slate-600 hover:bg-slate-50"
                             }`}
                           >
                             <Icon size={16} className={isActive ? "text-white" : "text-slate-400"} />
