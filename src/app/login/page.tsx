@@ -97,22 +97,17 @@ export default function LoginPage() {
     setLoading(true);
     try {
       if (hasFirebase && auth) {
-        if ((window as any).recaptchaVerifier) {
+        if (!(window as any).recaptchaVerifier) {
           try {
-            (window as any).recaptchaVerifier.clear();
-          } catch (e) {}
-          (window as any).recaptchaVerifier = null;
-        }
-
-        try {
-          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-            size: "invisible",
-            callback: (response: any) => {
-              // reCAPTCHA solved
-            }
-          });
-        } catch (recaptchaErr: any) {
-          console.error("Firebase RecaptchaVerifier creation failed:", recaptchaErr);
+            (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+              size: "invisible",
+              callback: (response: any) => {
+                // reCAPTCHA solved
+              }
+            });
+          } catch (recaptchaErr: any) {
+            console.error("Firebase RecaptchaVerifier creation failed:", recaptchaErr);
+          }
         }
 
         let formattedPhone = username.trim();
