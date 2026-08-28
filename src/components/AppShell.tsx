@@ -35,7 +35,8 @@ import {
   Map,
   Database,
   MapPin,
-  X
+  X,
+  Shield
 } from "lucide-react";
 
 interface AppShellProps {
@@ -87,7 +88,8 @@ export default function AppShell({
               { name: "Health Records", icon: Heart },
               { name: "Care Timeline", icon: Clock },
               { name: "Referrals", icon: Share2 },
-              { name: "Follow-ups", icon: RotateCcw }
+              { name: "Follow-ups", icon: RotateCcw },
+              { name: "Consent Manager", icon: Shield }
             ]
           },
           {

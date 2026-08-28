@@ -54,6 +54,7 @@ export default function PatientDashboard() {
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [followups, setFollowups] = useState<any[]>([]);
   const [referrals, setReferrals] = useState<any[]>([]);
+  const [consents, setConsents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -191,6 +192,13 @@ export default function PatientDashboard() {
       const refData = await refRes.json();
       if (refData.success) {
         setReferrals(refData.referrals);
+      }
+
+      // Fetch consents
+      const consentRes = await fetch("/api/consent");
+      const consentData = await consentRes.json();
+      if (consentData.success) {
+        setConsents(consentData.consents);
       }
 
       // Mock ABHA linkage check
@@ -1638,6 +1646,127 @@ export default function PatientDashboard() {
                 <RotateCcw size={28} className="text-slate-350" />
                 <span className="text-[11px] font-bold">No follow-ups scheduled</span>
                 <span className="text-[9px] text-slate-400">ASHA checks will map dynamically after clinical consultation completes.</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 11.5 CONSENT MANAGER VIEW */}
+      {activeTab === "Consent Manager" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="flex justify-between items-center text-left">
+            <div>
+              <h2 className="text-lg font-extrabold text-slate-800">ABDM Digital Consent Manager</h2>
+              <p className="text-xs text-slate-500">Authorize or revoke access permission to your electronic health records.</p>
+            </div>
+            
+            <button
+              onClick={async () => {
+                const purpose = prompt("Enter purpose for data sharing:", "Routine clinical review");
+                if (!purpose) return;
+                try {
+                  const res = await fetch("/api/consent", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      purpose,
+                      expiryDays: 14
+                    })
+                  });
+                  const data = await res.json();
+                  if (data.success) {
+                    alert("Consent successfully granted!");
+                    // Re-fetch consents
+                    const consentRes = await fetch("/api/consent");
+                    const consentData = await consentRes.json();
+                    if (consentData.success) {
+                      setConsents(consentData.consents);
+                    }
+                  } else {
+                    alert("Failed to grant consent: " + data.error);
+                  }
+                } catch (e: any) {
+                  alert("Error: " + e.message);
+                }
+              }}
+              className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer border-0 shadow-md shadow-primary/20 flex items-center gap-1.5"
+            >
+              + Grant Access Consent
+            </button>
+          </div>
+
+          <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs text-left">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Active Data-Sharing Permits</h3>
+            
+            {consents.length > 0 ? (
+              <div className="overflow-x-auto text-xs">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                      <th className="py-2.5 px-4">Authorized Recipient</th>
+                      <th className="py-2.5 px-4">Purpose</th>
+                      <th className="py-2.5 px-4">Expiry Date</th>
+                      <th className="py-2.5 px-4 text-center">Status</th>
+                      <th className="py-2.5 px-4 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {consents.map((consent) => (
+                      <tr key={consent._id} className="hover:bg-slate-50/40">
+                        <td className="py-3 px-4 font-bold text-slate-700">
+                          {consent.grantedToDoctorId?.name || consent.grantedToFacilityId?.name || "General Practitioner (Nashik Network)"}
+                        </td>
+                        <td className="py-3 px-4 text-slate-500">{consent.purpose}</td>
+                        <td className="py-3 px-4 font-mono text-slate-400">{new Date(consent.expiryDate).toLocaleDateString()}</td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            consent.status === "Active" ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700"
+                          }`}>
+                            {consent.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          {consent.status === "Active" && (
+                            <button
+                              onClick={async () => {
+                                if (!confirm("Are you sure you want to withdraw this access consent?")) return;
+                                try {
+                                  const res = await fetch("/api/consent", {
+                                    method: "PUT",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ consentId: consent._id, status: "Withdrawn" })
+                                  });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    alert("Consent successfully withdrawn.");
+                                    // Re-fetch consents
+                                    const consentRes = await fetch("/api/consent");
+                                    const consentData = await consentRes.json();
+                                    if (consentData.success) {
+                                      setConsents(consentData.consents);
+                                    }
+                                  }
+                                } catch (e: any) {
+                                  alert("Error: " + e.message);
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-700 font-bold border-0 bg-transparent cursor-pointer text-xs"
+                            >
+                              Withdraw
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
+                <Shield size={28} className="text-slate-350" />
+                <span className="text-[11px] font-bold">No data permits active</span>
+                <span className="text-[9px] text-slate-400">All data transfers are blocked. Grant consent to allow practitioners to access your clinical history.</span>
               </div>
             )}
           </div>
