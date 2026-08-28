@@ -259,7 +259,17 @@ export async function POST(request: Request) {
         const HealthRecord = (await import("@/models/HealthRecord")).default;
 
         try {
-          const firstChc = await Facility.findOne({ type: "CHC" });
+          // Facility lookup matching patient's location
+          let firstChc = null;
+          if (patientDoc && patientDoc.district) {
+            firstChc = await Facility.findOne({ 
+              district: patientDoc.district, 
+              type: { $in: ["CHC", "PHC"] } 
+            });
+          }
+          if (!firstChc) {
+            firstChc = await Facility.findOne({ type: "CHC" });
+          }
           
           // Doctor selection
           let doctorDoc = null;
