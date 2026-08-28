@@ -178,7 +178,7 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
           facilityId: isBookingTool && data.toolResult?.appointment?.facilityId ? data.toolResult.appointment.facilityId : undefined,
           requestedSlot: isBookingTool && data.toolResult?.appointment?.date ? `${data.toolResult.appointment.date} ${data.toolResult.appointment.time}` : undefined,
           api: isBookingTool ? "POST /api/appointments" : undefined,
-          dbWrite: isBookingTool ? (data.toolResult?.id ? "SUCCESS" : "FAILED") : undefined,
+          dbWrite: isBookingTool ? (data.toolResult?.appointment?.id ? "SUCCESS" : "FAILED") : undefined,
           appointmentId: isBookingTool && data.toolResult?.appointment?.id ? data.toolResult.appointment.id : undefined,
           patientQuery: isBookingTool && data.toolResult?.appointment?.patientId ? "FOUND" : "NOT FOUND",
           doctorQuery: isBookingTool && data.toolResult?.appointment?.doctorId ? "FOUND" : "NOT FOUND",

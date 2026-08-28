@@ -581,7 +581,11 @@ export async function POST(request: Request) {
         // Build the current user message with any tool context
         let userPrompt = message;
         if (toolNameCalled && toolResult) {
-          userPrompt = `${message}\n\n[SYSTEM CONTEXT — Database query "${toolNameCalled}" returned this data, use it to answer the user's question]:\n${JSON.stringify(toolResult, null, 2)}`;
+          if (toolNameCalled === "bookAppointment" && !toolResult.success) {
+            userPrompt = `${message}\n\n[SYSTEM CONTEXT — CRITICAL: APPOINTMENT BOOKING FAILED. You must apologize and explain that the booking could not be completed. Do NOT show confirmation or claim success. Error details: ${toolResult.error || "No available slots"}]\n${JSON.stringify(toolResult, null, 2)}`;
+          } else {
+            userPrompt = `${message}\n\n[SYSTEM CONTEXT — Database query "${toolNameCalled}" returned this data, use it to answer the user's question]:\n${JSON.stringify(toolResult, null, 2)}`;
+          }
         } else if (toolNameCalled && !toolResult) {
           userPrompt = `${message}\n\n[SYSTEM CONTEXT — Database query "${toolNameCalled}" timed out. Inform the user that you could not fetch live data right now.]`;
         }
