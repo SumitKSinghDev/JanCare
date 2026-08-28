@@ -952,8 +952,8 @@ export default function AshaDashboard() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block font-bold text-slate-500">Division</label>
-                  <select value={regDivision} onChange={(e) => setRegDivision(e.target.value)} className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5">
-                    {divisions.map((div) => <option key={div as unknown as string} value={div as unknown as string}>{div as unknown as string}</option>)}
+                  <select value={regDivision} onChange={(e) => setRegDivision(e.target.value)} className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 focus:outline-hidden">
+                    {divisions.map((div) => <option key={div.name} value={div.name}>{div.name}</option>)}
                   </select>
                 </div>
                 <div>
