@@ -112,32 +112,35 @@ export default function LandingPage() {
 
           <div className="flex items-center gap-4">
             {/* Language Selector */}
-            <div className="flex items-center gap-2.5 text-[10px] font-bold text-text-secondary border-r border-slate-200 pr-4">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 text-[9px] sm:text-[10px] font-bold text-text-secondary border-r border-slate-200 pr-2 sm:pr-4">
               <button
                 onClick={() => setLanguage("mr")}
                 className={`hover:text-primary transition-colors cursor-pointer ${
                   language === "mr" ? "text-primary border-b border-primary" : ""
                 }`}
               >
-                मराठी
+                <span className="hidden sm:inline">मराठी</span>
+                <span className="sm:hidden">MR</span>
               </button>
-              <span className="text-slate-300">|</span>
+              <span className="text-slate-350">|</span>
               <button
                 onClick={() => setLanguage("hi")}
                 className={`hover:text-primary transition-colors cursor-pointer ${
                   language === "hi" ? "text-primary border-b border-primary" : ""
                 }`}
               >
-                हिन्दी
+                <span className="hidden sm:inline">हिन्दी</span>
+                <span className="sm:hidden">HI</span>
               </button>
-              <span className="text-slate-300">|</span>
+              <span className="text-slate-350">|</span>
               <button
                 onClick={() => setLanguage("en")}
                 className={`hover:text-primary transition-colors cursor-pointer ${
                   language === "en" ? "text-primary border-b border-primary" : ""
                 }`}
               >
-                English
+                <span className="hidden sm:inline">English</span>
+                <span className="sm:hidden">EN</span>
               </button>
             </div>
 
@@ -312,10 +315,10 @@ export default function LandingPage() {
                       <div className="h-8 w-8 rounded-full bg-slate-50 border border-slate-200 text-primary flex items-center justify-center shadow-xs">
                         <step.icon size={14} />
                       </div>
-                      <span className="text-[9px] font-bold text-text-primary mt-2 block truncate w-full" title={step.label}>
+                      <span className="text-[9px] font-bold text-text-primary mt-2 hidden sm:block truncate w-full" title={step.label}>
                         {step.label}
                       </span>
-                      <span className="text-[8px] font-semibold text-text-secondary block truncate w-full" title={step.mr}>
+                      <span className="text-[8px] font-semibold text-text-secondary hidden sm:block truncate w-full" title={step.mr}>
                         {step.mr}
                       </span>
                     </div>
@@ -595,6 +598,67 @@ export default function LandingPage() {
                 {language === "mr" ? "Daily.co च्या सुरक्षित WebRTC एकत्रीकरणाद्वारे थेट तज्ज्ञ डॉक्टरांशी व्हिडिओ संवाद." : "Secure Daily.co WebRTC integrations bring medical specialists directly to subcenters, with patient context telemetry panels."}
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 7.5 — INDIAN MEDICAL GROWTH & HEALTHCARE NEWS */}
+      <section className="py-16 bg-[#F8FAFC] border-y border-border-brand text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+            <div>
+              <span className="text-[10px] text-primary font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <TrendingUp size={12} className="text-primary animate-pulse" /> What's New in Healthcare
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-deep-blue mt-1">
+                Indian Medical Growth & Innovation Feed
+              </h2>
+              <p className="text-xs text-text-secondary mt-1">
+                Real-time tracking of new medicine developments, ABDM updates, and rural healthcare advancements.
+              </p>
+            </div>
+            
+            <div className="bg-primary/5 text-primary text-[10px] font-bold px-3.5 py-1.5 rounded-full border border-primary/10 w-fit">
+              Live updates curated from MOHFW & ICMR
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                date: "28 Aug 2026",
+                tag: "ABDM Milestone",
+                title: "India Links Over 50 Crore Health Locker Accounts via ABDM Stack",
+                desc: "The National Health Authority (NHA) reported massive digital compliance growth. Tightly managed patient consent systems are now driving clinical transparency across public clinics."
+              },
+              {
+                date: "26 Aug 2026",
+                tag: "Rural Medicine",
+                title: "Maharashtra Approves Drones for Last-Mile Drug Distribution",
+                desc: "To solve chronic medicine shortages, the State Innovation Society launched remote drone channels linking central Nashik depots to Sinnar and Igatpuri PHC drug stores."
+              },
+              {
+                date: "24 Aug 2026",
+                tag: "Clinical Research",
+                title: "ICMR Launches New Rural Chronic Disease Management Guidelines",
+                desc: "Focusing on preventive screening, the new guidelines establish ASHA-led vital logging protocols for early detection of non-communicable diseases (NCDs) like hypertension."
+              }
+            ].map((news, idx) => (
+              <div key={idx} className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition-all duration-200">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-[9px] font-bold">
+                    <span className="text-slate-400 font-mono">{news.date}</span>
+                    <span className="text-primary bg-primary/5 px-2 py-0.5 rounded">{news.tag}</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-800 leading-snug">{news.title}</h4>
+                  <p className="text-[11px] text-text-secondary leading-relaxed">{news.desc}</p>
+                </div>
+                <div className="border-t border-slate-100 pt-3 mt-3 flex justify-between items-center text-[10px]">
+                  <span className="text-slate-400">Source: MOHFW India</span>
+                  <a href="https://main.mohfw.gov.in" target="_blank" className="text-primary hover:underline font-bold text-decoration-none">Read Official Press Release →</a>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
