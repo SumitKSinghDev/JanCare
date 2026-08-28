@@ -1572,12 +1572,12 @@ export default function PatientDashboard() {
       {/* 10. REFERRALS VIEW */}
       {activeTab === "Referrals" && (
         <div className="space-y-6">
-          <div>
-            <h2 className="text-lg font-extrabold text-slate-800">Hospital Referrals</h2>
-            <p className="text-xs text-slate-500">Outpatient clinical transfers to secondary care clinics.</p>
+          <div className="text-left">
+            <h2 className="text-lg font-extrabold text-slate-800">Doctor In-Person Visits (Offline Consultations)</h2>
+            <p className="text-xs text-slate-500">View details of scheduled offline consultations ordered by physicians after online triage.</p>
           </div>
-          <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Active Referrals</h3>
+          <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4 text-left">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Scheduled Doctor Visit Orders</h3>
 
             {referrals.length > 0 ? (
               <div className="space-y-4">
@@ -1585,16 +1585,43 @@ export default function PatientDashboard() {
                   <div key={ref._id} className="border border-slate-200 p-5 rounded-2xl bg-slate-50 space-y-3 text-xs leading-relaxed max-w-2xl">
                     <div className="flex justify-between items-center">
                       <span className={`text-[10px] px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
-                        ref.status === "Completed" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700 animate-pulse"
-                      }`}>{ref.status || "Awaiting Admission"}</span>
-                      <span className="text-[10px] text-slate-400">Date Logged: {new Date(ref.createdAt).toLocaleDateString()}</span>
+                        ref.status === "Completed" ? "bg-green-50 text-green-700 border border-green-150" : "bg-blue-50 text-primary border border-blue-150 animate-pulse"
+                      }`}>
+                        {ref.status === "Created" ? "OPD Consultation Booked" : ref.status}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-semibold">Logged: {new Date(ref.createdAt).toLocaleDateString()}</span>
                     </div>
-                    <div className="text-slate-700">
-                      From: <strong className="text-slate-800">{ref.referringFacilityId?.name || "Sinnar PHC / Chatbot Hub"}</strong><br />
-                      To: <strong className="text-slate-800">{ref.destinationFacilityId?.name || "Nashik District Civil Hospital"}</strong>
+
+                    <div className="grid sm:grid-cols-2 gap-4 text-slate-700 bg-white p-4 rounded-xl border border-slate-100">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Health Facility to Visit</span>
+                        <strong className="text-slate-800 text-sm">{ref.destinationFacilityId?.name || "Nashik District Civil Hospital"}</strong>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">Type: {ref.destinationFacilityId?.type || "District Hospital"}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Referring Online Doctor</span>
+                        <strong className="text-slate-800 text-sm">{ref.referringDoctorId?.name || "Dr. Aniruddha Kulkarni"}</strong>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">Role: General Medical Officer</span>
+                      </div>
                     </div>
-                    <div className="border-t border-slate-200/60 pt-2 text-[10px] text-slate-500">
-                      Reason: {ref.reason || "Referral evaluation assigned by physician."}
+
+                    <div className="space-y-2 bg-[#F8FAFC] p-4.5 rounded-xl border border-slate-200/60">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">📅 Scheduled Appointment Date & Time</span>
+                        <strong className="text-primary text-xs font-mono">
+                          {ref.appointmentDate ? new Date(ref.appointmentDate).toLocaleString() : ref.followUpDate ? new Date(ref.followUpDate).toLocaleString() : "Please visit OPD during consultation hours (9 AM - 2 PM)"}
+                        </strong>
+                      </div>
+                      <div className="border-t border-slate-200/60 pt-2">
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Clinical Reason for In-Person Check</span>
+                        <p className="text-slate-700 text-xs font-semibold mt-0.5">{ref.reason}</p>
+                      </div>
+                      {ref.instructions && (
+                        <div className="border-t border-slate-200/60 pt-2">
+                          <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Patient Instructions</span>
+                          <p className="text-slate-550 italic text-[11px] mt-0.5">{ref.instructions}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
