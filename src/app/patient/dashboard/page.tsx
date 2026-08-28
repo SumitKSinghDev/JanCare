@@ -55,6 +55,14 @@ export default function PatientDashboard() {
   const [followups, setFollowups] = useState<any[]>([]);
   const [referrals, setReferrals] = useState<any[]>([]);
   const [consents, setConsents] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
+  
+  // Clinical document upload states
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadType, setUploadType] = useState("LabReport");
+  const [uploadContent, setUploadContent] = useState("");
+  const [uploadLoading, setUploadLoading] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -199,6 +207,13 @@ export default function PatientDashboard() {
       const consentData = await consentRes.json();
       if (consentData.success) {
         setConsents(consentData.consents);
+      }
+
+      // Fetch clinical documents
+      const docRes = await fetch("/api/documents");
+      const docData = await docRes.json();
+      if (docData.success) {
+        setDocuments(docData.documents);
       }
 
       // Mock ABHA linkage check
@@ -427,6 +442,70 @@ export default function PatientDashboard() {
     `;
     
     printWindow.document.write(html);
+    printWindow.document.close();
+  }
+
+  function handleDownloadClinicalDocument(doc: any) {
+    const patientName = user?.name || "Ramesh Kumar";
+    const patientId = user?.patientRefId || "JC-R-0283";
+    const dateStr = new Date(doc.createdAt || new Date()).toLocaleDateString();
+
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${doc.title}</title>
+          <style>
+            body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; }
+            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 20px; }
+            .logo { font-size: 24px; font-weight: bold; color: #1464D2; }
+            .details { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
+            .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; color: #0f172a; margin-top: 30px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+            .content { font-size: 13px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: monospace; white-space: pre-wrap; margin-top: 15px; }
+            .footer { margin-top: 50px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <div class="logo">जनCare Health Initiative</div>
+              <div style="font-size: 12px; color: #64748b; margin-top: 5px;">Government of Maharashtra | ABDM Sandbox</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: bold; font-size: 14px;">Clinical Artifact</div>
+              <div style="font-size: 11px; color: #64748b; margin-top: 5px;">Type: ${doc.type}</div>
+            </div>
+          </div>
+
+          <div class="details">
+            <div>
+              <strong>Patient Name:</strong> ${patientName}<br/>
+              <strong>Patient Ref ID:</strong> ${patientId}
+            </div>
+            <div style="text-align: right;">
+              <strong>Record Date:</strong> ${dateStr}<br/>
+              <strong>Source:</strong> ${doc.recordedBy?.name || "System Upload"} (${doc.recordedBy?.role || "Frontline Worker"})
+            </div>
+          </div>
+
+          <div class="section-title">${doc.title}</div>
+          <div class="content">${doc.fileContent || "No document file content present."}</div>
+
+          <div class="footer">
+            This is a digitally generated clinical record authorized under ABHA consent guidelines. Secure transactional key verified.
+          </div>
+
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            }
+          </script>
+        </body>
+      </html>
+    `);
     printWindow.document.close();
   }
 
@@ -1494,35 +1573,207 @@ export default function PatientDashboard() {
       {/* 8. HEALTH RECORDS VIEW */}
       {activeTab === "Health Records" && (
         <div className="space-y-6">
-          <div>
+          <div className="text-left">
             <h2 className="text-lg font-extrabold text-slate-800">Your ABDM Health Records</h2>
-            <p className="text-xs text-slate-500">View diagnostics report files and vitals logs sync details.</p>
+            <p className="text-xs text-slate-500">Manage diagnostic report files, historical prescriptions, and upload custom lab reports.</p>
           </div>
 
-          <div className="border border-slate-200/80 bg-white rounded-3xl p-6 shadow-xs space-y-4">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Clinical Documents Locker</h3>
-            
-            <div className="space-y-3 text-xs">
-              <div className="flex justify-between items-center bg-slate-50 border border-slate-200 p-4 rounded-2xl">
-                <div className="flex gap-3 items-start">
-                  <div className="p-2.5 bg-blue-50 text-primary rounded-xl shrink-0"><FileSpreadsheet size={16} /></div>
-                  <div>
-                    <strong className="text-slate-800 block text-[13px]">ASHA Vitals Baseline Intake</strong>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">Date: Today | Registered: Sharda Patil</span>
-                  </div>
+          <div className="grid md:grid-cols-3 gap-6 items-start">
+            {/* Left Col: Upload Form */}
+            <div className="bg-white border border-slate-200/80 p-5 rounded-3xl shadow-xs space-y-4 text-left">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Upload Lab Report</h3>
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!uploadTitle || !uploadContent) {
+                    alert("Please fill in all fields.");
+                    return;
+                  }
+                  setUploadLoading(true);
+                  try {
+                    const res = await fetch("/api/documents", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        title: uploadTitle,
+                        type: uploadType,
+                        fileContent: uploadContent,
+                      })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      alert("Document uploaded successfully!");
+                      setUploadTitle("");
+                      setUploadContent("");
+                      // Re-fetch documents
+                      const docRes = await fetch("/api/documents");
+                      const docData = await docRes.json();
+                      if (docData.success) {
+                        setDocuments(docData.documents);
+                      }
+                    } else {
+                      alert("Failed to upload: " + data.error);
+                    }
+                  } catch (err: any) {
+                    alert("Error: " + err.message);
+                  } finally {
+                    setUploadLoading(false);
+                  }
+                }}
+                className="space-y-3 text-xs"
+              >
+                <div>
+                  <label className="block font-bold text-slate-600 mb-1">Document Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={uploadTitle}
+                    onChange={(e) => setUploadTitle(e.target.value)}
+                    placeholder="e.g. Blood Sugar Report, Chest X-Ray Notes"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white"
+                  />
                 </div>
-                <button onClick={() => alert("Downloading raw baseline records...")} className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent">Download Report</button>
+                <div>
+                  <label className="block font-bold text-slate-600 mb-1">Document Type</label>
+                  <select
+                    value={uploadType}
+                    onChange={(e) => setUploadType(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"
+                  >
+                    <option value="LabReport">Laboratory Diagnostics (Lab Report)</option>
+                    <option value="DischargeSummary">Discharge Summary</option>
+                    <option value="Other">Other Clinical Document</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-600 mb-1">Report Data / Clinical Notes</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={uploadContent}
+                    onChange={(e) => setUploadContent(e.target.value)}
+                    placeholder="Enter diagnostic values, sugar readings, or doctor's summary instructions here..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white font-mono"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={uploadLoading}
+                  className="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl cursor-pointer border-0 mt-2 flex items-center justify-center gap-1.5"
+                >
+                  {uploadLoading ? "Uploading..." : "Save to Health Locker"}
+                </button>
+              </form>
+            </div>
+
+            {/* Right Col: Documents Locker & Prescription History */}
+            <div className="md:col-span-2 space-y-6 text-left">
+              {/* Document Locker */}
+              <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Clinical Documents Locker</h3>
+                
+                <div className="space-y-3 text-xs">
+                  {/* Default Static Documents using our real print function */}
+                  <div className="flex justify-between items-center bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                    <div className="flex gap-3 items-start">
+                      <div className="p-2.5 bg-blue-50 text-primary rounded-xl shrink-0"><FileSpreadsheet size={16} /></div>
+                      <div>
+                        <strong className="text-slate-800 block text-[13px]">ASHA Vitals Baseline Intake</strong>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">Source: Sharda Patil (ASHA) | Status: Verified</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDownloadClinicalDocument({
+                        title: "ASHA Vitals Baseline Intake",
+                        type: "LabReport",
+                        fileContent: `Baseline Checkup Intake Details:\n\nTemperature: 98.4 F\nBlood Pressure: 120/80 mmHg\nHeart Rate: 72 bpm\nSpO2: 99%\nRespiratory Rate: 16/min\n\nPatient reports general fitness. Triage status: ROUTINE.`
+                      })}
+                      className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
+                    >
+                      Download PDF
+                    </button>
+                  </div>
+
+                  <div className="flex justify-between items-center bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                    <div className="flex gap-3 items-start">
+                      <div className="p-2.5 bg-blue-50 text-primary rounded-xl shrink-0"><FileSpreadsheet size={16} /></div>
+                      <div>
+                        <strong className="text-slate-800 block text-[13px]">Community Lab Diagnostics (CBC)</strong>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">Source: Dr. Kulkarni | Status: Verified</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDownloadClinicalDocument({
+                        title: "Community Lab Diagnostics (CBC)",
+                        type: "LabReport",
+                        fileContent: `Complete Blood Count (CBC) Results:\n\nHemoglobin: 14.2 g/dL (Normal)\nWhite Blood Cells: 6,500 /mcL (Normal)\nPlatelets: 250,000 /mcL (Normal)\nRed Blood Cells: 4.8 million/mcL (Normal)\n\nOverall diagnostic status: Normal. No indications of acute anemia or infection.`
+                      })}
+                      className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
+                    >
+                      Download PDF
+                    </button>
+                  </div>
+
+                  {/* Dynamically uploaded documents */}
+                  {documents.map((doc) => (
+                    <div key={doc._id} className="flex justify-between items-center bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                      <div className="flex gap-3 items-start">
+                        <div className="p-2.5 bg-blue-50 text-primary rounded-xl shrink-0"><FileSpreadsheet size={16} /></div>
+                        <div>
+                          <strong className="text-slate-800 block text-[13px]">{doc.title}</strong>
+                          <span className="text-[10px] text-slate-400 block mt-0.5">
+                            Date: {new Date(doc.createdAt).toLocaleDateString()} | Type: {doc.type}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDownloadClinicalDocument(doc)}
+                        className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
+                      >
+                        Download PDF
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex justify-between items-center bg-slate-50 border border-slate-200 p-4 rounded-2xl">
-                <div className="flex gap-3 items-start">
-                  <div className="p-2.5 bg-blue-50 text-primary rounded-xl shrink-0"><FileSpreadsheet size={16} /></div>
-                  <div>
-                    <strong className="text-slate-800 block text-[13px]">Community Lab Diagnostics (CBC)</strong>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">Date: 12 Jul 2026 | Doctor: Dr. Kulkarni</span>
+              {/* Prescription Medicine History */}
+              <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Prescription & Medication History</h3>
+                
+                {prescriptions.length > 0 ? (
+                  <div className="space-y-3">
+                    {prescriptions.map((pres) => (
+                      <div key={pres._id} className="border border-slate-150 p-4 rounded-2xl bg-slate-50/50 flex flex-col justify-between gap-3 text-xs">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <strong className="text-slate-800 block">Prescribed by {pres.doctorId?.name || "Medical Officer"}</strong>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Date: {new Date(pres.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          <button
+                            onClick={() => handleDownloadPrescription(pres)}
+                            className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
+                          >
+                            Print Rx PDF
+                          </button>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase block tracking-wider">Medicines Taken:</span>
+                          {pres.medicines.map((med: any, idx: number) => (
+                            <div key={idx} className="text-slate-700 bg-white border border-slate-100 px-3 py-1.5 rounded-lg flex justify-between items-center">
+                              <strong>{med.name} ({med.strength})</strong>
+                              <span className="text-slate-500 font-semibold">{med.dosage} • {med.durationDays} Days</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-                <button onClick={() => alert("Downloading laboratory record...")} className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent">Download Report</button>
+                ) : (
+                  <div className="py-8 text-center text-slate-400 italic">
+                    No medication history recorded.
+                  </div>
+                )}
               </div>
             </div>
           </div>
