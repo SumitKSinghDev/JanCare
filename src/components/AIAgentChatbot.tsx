@@ -349,15 +349,15 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 font-sans">
       {/* Floating Action Circle Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-primary hover:bg-deep-blue text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer border-0"
+          className="bg-primary hover:bg-deep-blue text-white p-3 sm:p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer border-0"
         >
-          <Sparkles className="animate-pulse" size={24} />
-          <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-bold text-sm whitespace-nowrap">
+          <Sparkles className="animate-pulse" size={20} />
+          <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-bold text-xs sm:text-sm whitespace-nowrap">
             {language === "mr" ? "बोलून सांगा" : language === "hi" ? "बोलकर बताएं" : "Ask JanCare Assistant"}
           </span>
         </button>
@@ -365,7 +365,7 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
 
       {/* Expanded Calming Premium Chat Widget */}
       {isOpen && (
-        <div className="bg-white border border-border-brand rounded-2xl shadow-2xl w-80 sm:w-96 flex flex-col h-[500px] overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+        <div className="bg-white border border-border-brand rounded-2xl shadow-2xl w-[calc(100vw-2rem)] max-w-sm sm:w-96 flex flex-col h-[460px] sm:h-[500px] overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
           {/* Header */}
           <div className="bg-deep-blue text-white px-5 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">

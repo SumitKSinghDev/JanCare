@@ -227,75 +227,76 @@ export default function LandingPage() {
       )}
 
       {/* HEALTHCARE NEWS TICKER — Horizontal Auto-Scroll */}
-      <div className="bg-deep-blue text-white overflow-hidden whitespace-nowrap relative h-9 flex items-center border-b border-primary/20 select-none group">
-        <div className="absolute left-0 top-0 bottom-0 w-28 sm:w-32 bg-deep-blue z-10 flex items-center px-3 gap-1.5 border-r border-white/10 shrink-0 shadow-md">
-          <TrendingUp size={12} className="text-green-400 animate-pulse" />
-          <span className="text-[10px] font-bold tracking-wide uppercase">Live Updates</span>
+      <div className="bg-deep-blue text-white overflow-hidden whitespace-nowrap relative h-8 sm:h-9 flex items-center border-b border-primary/20 select-none group">
+        <div className="absolute left-0 top-0 bottom-0 bg-deep-blue z-10 flex items-center px-2.5 sm:px-3 gap-1 border-r border-white/10 shrink-0 shadow-md">
+          <TrendingUp size={11} className="text-green-400 animate-pulse" />
+          <span className="text-[9px] sm:text-[10px] font-bold tracking-wide uppercase">Live Updates</span>
         </div>
-        <div className="animate-marquee inline-flex gap-10 pl-32 sm:pl-36 items-center">
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+        <div className="animate-marquee inline-flex gap-8 sm:gap-10 pl-24 sm:pl-36 items-center">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🧬</span> <strong>BioTech Breakthrough:</strong> India's First Indigenous CAR-T Therapy (NexCAR19) slashes cancer treatment costs by 90%
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🩺</span> <strong>MedTech AI:</strong> CDSCO certifies portable AI-powered point-of-care ECG & biomarker triage devices for rural PHCs
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🧪</span> <strong>BioTech Sensors:</strong> DBT & BIRAC scale rapid field biosensors for remote drinking water pathogen detection
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🏥</span> <strong>ABDM Milestone:</strong> India links over 50 Crore Health Locker accounts via ABDM Stack — NHA reports 4.5 Cr ABHA records
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🚁</span> <strong>Rural Drone Logistics:</strong> Maharashtra approves drone corridors for last-mile drug delivery to remote Sinnar & Igatpuri PHCs
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>⚙️</span> <strong>MedTech Growth:</strong> National Medical Devices Policy unlocks ₹5,000 Cr in indigenous diagnostic telemetry clusters
           </a>
           <span className="text-white/30">•</span>
 
           {/* Exact duplicate for seamless infinite marquee loop */}
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🧬</span> <strong>BioTech Breakthrough:</strong> India's First Indigenous CAR-T Therapy (NexCAR19) slashes cancer treatment costs by 90%
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🩺</span> <strong>MedTech AI:</strong> CDSCO certifies portable AI-powered point-of-care ECG & biomarker triage devices for rural PHCs
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🧪</span> <strong>BioTech Sensors:</strong> DBT & BIRAC scale rapid field biosensors for remote drinking water pathogen detection
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🏥</span> <strong>ABDM Milestone:</strong> India links over 50 Crore Health Locker accounts via ABDM Stack — NHA reports 4.5 Cr ABHA records
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>🚁</span> <strong>Rural Drone Logistics:</strong> Maharashtra approves drone corridors for last-mile drug delivery to remote Sinnar & Igatpuri PHCs
           </a>
           <span className="text-white/30">•</span>
-          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+          <a href="#health-news" className="text-[10px] sm:text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
             <span>⚙️</span> <strong>MedTech Growth:</strong> National Medical Devices Policy unlocks ₹5,000 Cr in indigenous diagnostic telemetry clusters
           </a>
           <span className="text-white/30">•</span>
         </div>
-        <a href="#health-news" className="absolute right-0 top-0 bottom-0 bg-primary hover:bg-blue-600 text-white z-10 flex items-center px-3.5 sm:px-4 text-[10px] font-bold tracking-wide uppercase cursor-pointer no-underline transition-colors shadow-md">
-          Know More →
+        <a href="#health-news" className="absolute right-0 top-0 bottom-0 bg-primary hover:bg-blue-600 text-white z-10 flex items-center px-2.5 sm:px-4 text-[9px] sm:text-[10px] font-bold tracking-wide uppercase cursor-pointer no-underline transition-colors shadow-md">
+          <span className="hidden sm:inline">Know More →</span>
+          <span className="sm:hidden">More →</span>
         </a>
       </div>
 
       {/* SECTION 1 — HERO & LANDSCAPE VECTOR DRAWING */}
       <section 
-        className="relative overflow-hidden pt-12 pb-24 border-b border-border-brand bg-cover bg-center"
+        className="relative overflow-hidden pt-8 sm:pt-12 pb-16 sm:pb-24 border-b border-border-brand bg-cover bg-center"
         style={{ backgroundImage: "url('/background_maharashtra.jpg')" }}
       >
         {/* Soft light-to-transparent overlay to ensure text contrast and legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#F6F9FC]/95 via-[#F6F9FC]/80 to-transparent z-0" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#F6F9FC]/95 via-[#F6F9FC]/85 to-[#F6F9FC]/60 sm:to-transparent z-0" />
         
         {/* Layered Background System */}
         <div className="absolute inset-0 pointer-events-none z-0 select-none">
@@ -314,41 +315,40 @@ export default function LandingPage() {
             <path d="M500 100 L700 50 L950 120 L1050 350 L900 520 L650 480 L520 400 Z" stroke="#1464D2" strokeWidth="3" fill="none" opacity="0.04" />
           </svg>
 
-          {/* Floating faint division names */}
-          <span className="absolute left-[8%] top-[15%] text-[9px] font-bold tracking-widest text-primary/[0.08] uppercase">Nashik division (नाशिक)</span>
-          <span className="absolute right-[12%] top-[25%] text-[9px] font-bold tracking-widest text-primary/[0.08] uppercase">Aurangabad division (औरंगाबाद)</span>
-          <span className="absolute left-[20%] bottom-[35%] text-[9px] font-bold tracking-widest text-primary/[0.08] uppercase">Pune division (पुणे)</span>
-          <span className="absolute right-[25%] bottom-[30%] text-[9px] font-bold tracking-widest text-primary/[0.08] uppercase">Konkan division (कोंकण)</span>
+          {/* Floating faint division names — hidden on mobile to avoid text bleeding */}
+          <span className="hidden md:block absolute left-[8%] top-[15%] text-[9px] font-bold tracking-widest text-primary/[0.08] uppercase">Nashik division (नाशिक)</span>
+          <span className="hidden md:block absolute right-[12%] top-[25%] text-[9px] font-bold tracking-widest text-primary/[0.08] uppercase">Aurangabad division (औरंगाबाद)</span>
+          <span className="hidden md:block absolute left-[20%] bottom-[35%] text-[9px] font-bold tracking-widest text-primary/[0.08] uppercase">Pune division (पुणे)</span>
+          <span className="hidden md:block absolute right-[25%] bottom-[30%] text-[9px] font-bold tracking-widest text-primary/[0.08] uppercase">Konkan division (कोंकण)</span>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8 sm:space-y-12">
           {/* Main Hero row */}
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
-            <div className="lg:col-span-5 flex flex-col items-start text-left space-y-6">
-              <img src="/logo.png" alt="जनCare Brand Logo" className="h-16 w-auto" />
-              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-deep-blue leading-tight">
+            <div className="lg:col-span-5 flex flex-col items-start text-left space-y-4 sm:space-y-6">
+              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-deep-blue leading-tight">
                 जनCare
               </h1>
-              <p className="text-sm font-bold text-teal-brand tracking-wide uppercase">
+              <p className="text-xs sm:text-sm font-bold text-teal-brand tracking-wide uppercase">
                 {language === "mr" ? "आरोग्यसेवा तुमच्यापर्यंत." : t("hero.tagline")}
               </p>
               <p className="text-xs font-semibold text-slate-500">
                 {language === "mr" ? "पहिल्या लक्षणापासून संपूर्ण उपचारापर्यंत." : t("hero.marathiSupport")}
               </p>
-              <p className="text-sm sm:text-base text-text-secondary leading-relaxed max-w-lg">
+              <p className="text-xs sm:text-base text-text-secondary leading-relaxed max-w-lg">
                 {t("hero.description")}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto pt-2">
                 <Link
                   href="/login"
-                  className="bg-primary hover:bg-deep-blue text-white text-center font-bold px-8 py-3.5 rounded-xl shadow-md shadow-primary/10 transition-all text-xs cursor-pointer border-0"
+                  className="bg-primary hover:bg-deep-blue text-white text-center font-bold px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl shadow-md shadow-primary/10 transition-all text-xs cursor-pointer border-0"
                 >
                   {t("hero.explore")}
                 </Link>
                 <a
                   href="#journey"
-                  className="bg-white hover:bg-slate-50 border border-border-brand text-text-primary text-center font-bold px-8 py-3.5 rounded-xl transition-all text-xs"
+                  className="bg-white hover:bg-slate-50 border border-border-brand text-text-primary text-center font-bold px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl transition-all text-xs"
                 >
                   {t("hero.howItWorks")}
                 </a>
@@ -356,14 +356,14 @@ export default function LandingPage() {
             </div>
 
             {/* Right Content: Premium Care Journey stepper */}
-            <div className="lg:col-span-7 flex flex-col items-center">
-              <div className="bg-white/95 border border-border-brand p-8 rounded-3xl shadow-xl w-full max-w-2xl relative">
-                <span className="text-[10px] text-primary bg-soft-blue border border-primary/20 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider block w-fit mx-auto mb-6">
+            <div className="lg:col-span-7 flex flex-col items-center w-full">
+              <div className="bg-white/95 border border-border-brand p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl w-full max-w-2xl relative">
+                <span className="text-[9px] sm:text-[10px] text-primary bg-soft-blue border border-primary/20 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider block w-fit mx-auto mb-4 sm:mb-6">
                   {language === "mr" ? "आरोग्यसेवा प्रवास रेखा" : "Unified Care Journey"}
                 </span>
                 
                 {/* Horizontal Stepper Diagram */}
-                <div className="relative flex justify-between items-start w-full gap-2">
+                <div className="relative flex justify-between items-start w-full gap-1 sm:gap-2">
                   {[
                     { label: "Symptoms", mr: "लक्षणे", icon: Activity },
                     { label: "AI Triage", mr: "AI वर्गीकरण", icon: Brain },
@@ -375,8 +375,8 @@ export default function LandingPage() {
                     { label: "Complete", mr: "संपूर्ण उपचार", icon: CheckCircle }
                   ].map((step, idx) => (
                     <div key={idx} className="flex flex-col items-center flex-1 text-center relative">
-                      <div className="h-8 w-8 rounded-full bg-slate-50 border border-slate-200 text-primary flex items-center justify-center shadow-xs">
-                        <step.icon size={14} />
+                      <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-slate-50 border border-slate-200 text-primary flex items-center justify-center shadow-xs">
+                        <step.icon size={13} className="sm:w-3.5 sm:h-3.5" />
                       </div>
                       <span className="text-[9px] font-bold text-text-primary mt-2 hidden sm:block truncate w-full" title={step.label}>
                         {step.label}
@@ -388,7 +388,7 @@ export default function LandingPage() {
                   ))}
                   
                   {/* Connecting Line */}
-                  <div className="absolute top-4 left-4 right-4 h-0.5 bg-slate-200 -z-10" />
+                  <div className="absolute top-3.5 sm:top-4 left-3 sm:left-4 right-3 sm:right-4 h-0.5 bg-slate-200 -z-10" />
                 </div>
               </div>
             </div>
