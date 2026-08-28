@@ -845,22 +845,18 @@ export default function PatientDashboard() {
       {/* 1. DASHBOARD VIEW */}
       {activeTab === "Dashboard" && (
         <div className="space-y-6">
-          {/* Greeting & Header */}
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
+          {/* Welcome Header */}
+          <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden space-y-4">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h1 className="text-2xl font-extrabold tracking-tight">
-                {language === "mr" ? `शुभ सकाळ, ${user?.name || "रमेश कुमार"} 👋` : language === "hi" ? `शुभ प्रभात, ${user?.name || "रमेश कुमार"} 👋` : `Good morning, ${user?.name || "Ramesh Kumar"} 👋`}
-              </h1>
-              <p className="text-xs text-slate-300">
-                {language === "mr" ? "तुमची आजची आरोग्य माहिती खालीलप्रमाणे आहे." : language === "hi" ? "आपकी आज की स्वास्थ्य जानकारी निम्नलिखित है।" : "Welcome back. Here is your personalized health dashboard overview."}
-              </p>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Good morning, {user?.name || "Ramesh Kumar"} 👋</h2>
+              <p className="text-xs text-slate-300">Welcome back. Here is your personalized health dashboard overview.</p>
             </div>
-            
-            {activeConsultation && (
+
+            {activeConsultation?.status === "In Progress" && (
               <button
-                onClick={() => setActiveTab("Video Consultation")}
-                className="bg-primary hover:bg-blue-600 text-white font-extrabold text-xs px-6 py-3 rounded-2xl flex items-center gap-2 cursor-pointer transition-all shadow-md shadow-primary/20 w-fit shrink-0 relative z-10 border-0"
+                onClick={() => router.push(`/doctor/consultation/${activeConsultation._id}`)}
+                className="bg-primary hover:bg-deep-blue text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-md transition-all border-0 w-full sm:w-auto justify-center"
               >
                 <Video size={16} /> Join Consultation Call
               </button>
@@ -868,11 +864,14 @@ export default function PatientDashboard() {
           </div>
 
           {/* Stepper Progress bar: Your Care Journey */}
-          <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">Your Care Journey Progression</h3>
+          <div className="bg-white border border-slate-200/80 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xs space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">Your Care Journey Progression</h3>
+              <span className="sm:hidden text-[9px] font-bold text-primary bg-blue-50 px-2 py-0.5 rounded-full">← Swipe →</span>
+            </div>
             
             <div className="overflow-x-auto pb-2 scrollbar-none">
-              <div className="flex items-center justify-between min-w-[700px] relative py-2 px-4">
+              <div className="flex items-center justify-between min-w-[620px] relative py-2 px-2 sm:px-4">
                 {journeyStepsArray.map((step, idx) => {
                   const isActive = step.status === "In Progress";
                   const isDone = step.status === "Completed";

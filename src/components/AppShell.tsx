@@ -278,12 +278,12 @@ export default function AppShell({
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans select-none antialiased">
       {/* Top Navigation Bar */}
-      <header className="bg-white border-b border-slate-200/80 h-16 sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 shadow-xs">
+      <header className="bg-white border-b border-slate-200/80 h-16 sticky top-0 z-50 flex items-center justify-between px-3 sm:px-6 shadow-xs">
         {/* Left Section: Logo & Mobile Toggle */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => setIsMobileOpen(true)}
-            className="md:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors border-0 bg-transparent"
+            className="md:hidden p-1.5 sm:p-2 text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors border-0 bg-transparent"
           >
             <Menu size={20} />
           </button>
@@ -296,12 +296,12 @@ export default function AppShell({
                 router.push(`/${role.toLowerCase()}/dashboard`);
               }
             }}
-            className="flex items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
+            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
           >
-            <img src="/logo.png" alt="JanCare Logo" className="h-9 w-9 rounded-xl object-cover shadow-sm bg-white" />
+            <img src="/logo.png" alt="JanCare Logo" className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl object-cover shadow-sm bg-white" />
             <div className="flex flex-col">
-              <span className="text-sm font-extrabold text-slate-800 tracking-tight leading-tight">जनCare</span>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">{role} PORTAL</span>
+              <span className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight leading-tight">जनCare</span>
+              <span className="hidden sm:inline-block text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">{role} PORTAL</span>
             </div>
           </div>
         </div>
@@ -319,12 +319,12 @@ export default function AppShell({
         </div>
 
         {/* Right Section: Utility Controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Language Selector */}
-          <div className="flex items-center gap-1.5 border border-slate-200/80 bg-slate-50 rounded-xl p-1 text-[10px] font-bold text-slate-600">
+          <div className="flex items-center gap-0.5 sm:gap-1.5 border border-slate-200/80 bg-slate-50 rounded-xl p-0.5 sm:p-1 text-[9px] sm:text-[10px] font-bold text-slate-600">
             <button
               onClick={() => setLanguage("en")}
-              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg transition-all cursor-pointer ${
                 language === "en" ? "bg-white text-primary shadow-xs" : "hover:text-slate-900"
               }`}
             >
@@ -332,7 +332,7 @@ export default function AppShell({
             </button>
             <button
               onClick={() => setLanguage("hi")}
-              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg transition-all cursor-pointer ${
                 language === "hi" ? "bg-white text-primary shadow-xs" : "hover:text-slate-900"
               }`}
             >
@@ -340,7 +340,7 @@ export default function AppShell({
             </button>
             <button
               onClick={() => setLanguage("mr")}
-              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg transition-all cursor-pointer ${
                 language === "mr" ? "bg-white text-primary shadow-xs" : "hover:text-slate-900"
               }`}
             >
@@ -352,14 +352,14 @@ export default function AppShell({
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl cursor-pointer transition-all relative border-0 bg-transparent"
+              className="p-1.5 sm:p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl cursor-pointer transition-all relative border-0 bg-transparent"
             >
-              <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+              <Bell size={17} />
+              <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2.5 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 mt-2.5 w-72 sm:w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="px-4 pb-2 border-b border-slate-100 flex justify-between items-center">
                   <span className="font-extrabold text-xs text-slate-800">Notifications</span>
                   <span className="text-[9px] font-bold text-primary cursor-pointer hover:underline">Mark all read</span>
@@ -380,12 +380,12 @@ export default function AppShell({
           </div>
 
           {/* Profile Quick Details */}
-          <div className="flex items-center gap-2.5 border-l border-slate-200 pl-3.5">
-            <div className="h-8.5 w-8.5 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-primary font-bold text-xs uppercase shadow-xs">
+          <div className="flex items-center gap-2 border-l border-slate-200 pl-2 sm:pl-3.5">
+            <div className="h-8 w-8 sm:h-8.5 sm:w-8.5 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-primary font-bold text-xs uppercase shadow-xs">
               {user?.name?.slice(0, 2) || "U"}
             </div>
             <div className="hidden sm:flex flex-col text-left">
-              <span className="text-xs font-extrabold text-slate-700 leading-tight block">{user?.name || "Guest User"}</span>
+              <span className="text-xs font-extrabold text-slate-700 leading-tight block truncate max-w-[120px]">{user?.name || "Guest User"}</span>
               <span className="text-[9px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md w-fit leading-none mt-0.5 uppercase tracking-wider">{role}</span>
             </div>
           </div>
@@ -528,7 +528,7 @@ export default function AppShell({
         )}
 
         {/* Content Panel Area */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full transition-all">
+        <main className="flex-1 p-3.5 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full transition-all pb-24 sm:pb-8">
           {children}
         </main>
       </div>

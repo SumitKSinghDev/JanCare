@@ -355,17 +355,17 @@ export default function AdminDashboard() {
       {/* 1. OVERVIEW VIEW */}
       {activeTab === "Overview" && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h2 className="text-2xl font-extrabold tracking-tight">District Intelligence Command</h2>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">District Intelligence Command</h2>
               <p className="text-xs text-slate-300">Nashik District Network, Maharashtra</p>
             </div>
             
-            <div className="flex gap-2 relative z-10 shrink-0">
+            <div className="flex gap-2 relative z-10 shrink-0 w-full sm:w-auto">
               <button
                 onClick={handleDownloadDistrictReport}
-                className="bg-primary hover:bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer border-0 shadow-md shadow-primary/20"
+                className="bg-primary hover:bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer border-0 shadow-md shadow-primary/20 w-full sm:w-auto"
               >
                 <Download size={14} /> Download Report
               </button>
@@ -373,45 +373,45 @@ export default function AdminDashboard() {
           </div>
 
           {/* 8 Stats Metrics block */}
-          <div className="grid grid-cols-2 lg:grid-cols-8 gap-4">
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-4">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Total Patients</span>
-              <strong className="text-lg font-extrabold text-slate-800 mt-1.5 block">18,420</strong>
+              <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">18,420</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 12% vs LW</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Consults</span>
-              <strong className="text-lg font-extrabold text-primary mt-1.5 block">12,832</strong>
+              <strong className="text-base sm:text-lg font-extrabold text-primary mt-1.5 block">12,832</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 15% vs LW</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs border-l-4 border-l-red-500">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs border-l-4 border-l-red-500">
               <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider block">High Risk Cases</span>
-              <strong className="text-lg font-extrabold text-red-600 mt-1.5 block">1,245</strong>
+              <strong className="text-base sm:text-lg font-extrabold text-red-600 mt-1.5 block">1,245</strong>
               <span className="text-[8px] text-red-500 font-bold block mt-0.5">↑ 8% vs LW</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Referrals</span>
-              <strong className="text-lg font-extrabold text-orange-600 mt-1.5 block">2,345</strong>
+              <strong className="text-base sm:text-lg font-extrabold text-orange-600 mt-1.5 block">2,345</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 10% vs LW</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs border-l-4 border-l-green-500">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs border-l-4 border-l-green-500">
               <span className="text-[8px] text-green-500 font-bold uppercase tracking-wider block">Referral Comp.</span>
-              <strong className="text-lg font-extrabold text-green-700 mt-1.5 block">91%</strong>
+              <strong className="text-base sm:text-lg font-extrabold text-green-700 mt-1.5 block">91%</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 6% vs LW</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Follow-up Rate</span>
-              <strong className="text-lg font-extrabold text-slate-800 mt-1.5 block">84%</strong>
+              <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">84%</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 5% vs LW</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Avg. Wait</span>
-              <strong className="text-lg font-extrabold text-slate-800 mt-1.5 block">26 min</strong>
+              <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">26 min</strong>
               <span className="text-[8px] text-red-500 font-bold block mt-0.5">↓ 8% vs LW</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Meds Availability</span>
-              <strong className="text-lg font-extrabold text-slate-800 mt-1.5 block">87%</strong>
+              <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">87%</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 4% vs LW</span>
             </div>
           </div>

@@ -391,33 +391,33 @@ export default function DoctorDashboard() {
       {activeTab === "Dashboard" && (
         <div className="space-y-6">
           {/* Welcome Header */}
-          <div className="text-left bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
+          <div className="text-left bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h2 className="text-2xl font-extrabold tracking-tight">Clinical Workspace: Dr. {currentUser?.name?.split(" ")[1] || "Kulkarni"}</h2>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Clinical Workspace: Dr. {currentUser?.name?.split(" ")[1] || "Kulkarni"}</h2>
               <p className="text-xs text-slate-300">Manage live teleconsultations, write prescriptions, and coordinate patient referrals.</p>
             </div>
           </div>
 
           {/* Today's Metrics widgets */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Queue Size</span>
-              <span className="text-lg font-extrabold text-slate-800 mt-1">{consultations.length} Consults</span>
+              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">{consultations.length} Consults</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between border-l-4 border-l-red-500 h-24">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between border-l-4 border-l-red-500 h-22 sm:h-24">
               <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider">Urgent Cases</span>
-              <span className="text-lg font-extrabold text-red-600 mt-1">{urgentCount} Cases</span>
+              <span className="text-base sm:text-lg font-extrabold text-red-600 mt-1">{urgentCount} Cases</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between border-l-4 border-l-orange-500 h-24">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between border-l-4 border-l-orange-500 h-22 sm:h-24">
               <span className="text-[8px] text-orange-500 font-bold uppercase tracking-wider">Priority Cases</span>
-              <span className="text-lg font-extrabold text-orange-600 mt-1">{priorityCount} Cases</span>
+              <span className="text-base sm:text-lg font-extrabold text-orange-600 mt-1">{priorityCount} Cases</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+            <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Follow-ups</span>
-              <span className="text-lg font-extrabold text-slate-800 mt-1">2 Scheduled</span>
+              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">2 Scheduled</span>
             </div>
-            <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+            <div className="col-span-2 sm:col-span-1 bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Facility Hub</span>
               <span className="text-xs font-bold text-slate-700 mt-1 truncate">{currentUser?.associatedFacility?.name || "Sinnar CHC"}</span>
             </div>
@@ -426,25 +426,28 @@ export default function DoctorDashboard() {
           {/* Consultation queue */}
           <div className="grid lg:grid-cols-12 gap-6">
             {/* Queue Table */}
-            <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-4">
-              <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
-                Today's Consultation Queue
-              </h3>
+            <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800">
+                  Today's Consultation Queue
+                </h3>
+                <span className="sm:hidden text-[9px] font-bold text-primary bg-blue-50 px-2 py-0.5 rounded-full">← Swipe →</span>
+              </div>
 
               {sortedConsultations.length === 0 ? (
                 <div className="py-12 text-center text-xs text-slate-400">
                   No consultations currently in your queue.
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs">
+                <div className="overflow-x-auto -mx-2 sm:mx-0">
+                  <table className="w-full min-w-[480px] text-left border-collapse text-xs">
                     <thead>
                       <tr className="border-b border-slate-100 text-slate-400 font-bold bg-slate-50/50">
-                        <th className="py-3 px-4">Triage Priority</th>
-                        <th className="py-3 px-4">Patient ID</th>
-                        <th className="py-3 px-4">Name</th>
-                        <th className="py-3 px-4">Complaint</th>
-                        <th className="py-3 px-4 text-center">Action</th>
+                        <th className="py-3 px-3 sm:px-4">Triage Priority</th>
+                        <th className="py-3 px-3 sm:px-4">Patient ID</th>
+                        <th className="py-3 px-3 sm:px-4">Name</th>
+                        <th className="py-3 px-3 sm:px-4">Complaint</th>
+                        <th className="py-3 px-3 sm:px-4 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">

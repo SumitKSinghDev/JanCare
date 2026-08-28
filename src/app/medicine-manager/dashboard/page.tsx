@@ -408,50 +408,50 @@ export default function MedicineManagerDashboard() {
         {activeTab === "Dashboard" && (
           <>
             {/* Banner Header */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.12),transparent)] pointer-events-none" />
               <div className="space-y-1 relative z-10">
-                <h2 className="text-xl font-extrabold tracking-tight">Medicine Management Portal</h2>
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Medicine Management Portal</h2>
                 <p className="text-xs text-slate-300">Monitor and update drug availability across Primary Health Centers (PHC) and pharmacies.</p>
               </div>
             </div>
 
             {/* KPIs Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                  <Package size={20} />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+              <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3 sm:gap-4">
+                <div className="p-2.5 sm:p-3 bg-blue-50 text-blue-600 rounded-xl">
+                  <Package size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Stock Items</span>
-                  <span className="text-lg font-extrabold text-slate-800">{totalItems} Unique</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Stock Items</span>
+                  <span className="text-base sm:text-lg font-extrabold text-slate-800">{totalItems} Unique</span>
                 </div>
               </div>
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-                  <AlertTriangle size={20} />
+              <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3 sm:gap-4">
+                <div className="p-2.5 sm:p-3 bg-amber-50 text-amber-600 rounded-xl">
+                  <AlertTriangle size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Low Stock</span>
-                  <span className="text-lg font-extrabold text-amber-600">{lowStockCount} Items</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Low Stock</span>
+                  <span className="text-base sm:text-lg font-extrabold text-amber-600">{lowStockCount} Items</span>
                 </div>
               </div>
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="p-3 bg-red-50 text-red-600 rounded-xl">
-                  <TrendingDown size={20} />
+              <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3 sm:gap-4">
+                <div className="p-2.5 sm:p-3 bg-red-50 text-red-600 rounded-xl">
+                  <TrendingDown size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Out of Stock</span>
-                  <span className="text-lg font-extrabold text-red-600">{outOfStockCount} Items</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Out of Stock</span>
+                  <span className="text-base sm:text-lg font-extrabold text-red-600">{outOfStockCount} Items</span>
                 </div>
               </div>
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-                <div className="p-3 bg-green-50 text-green-600 rounded-xl">
-                  <Layers size={20} />
+              <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3 sm:gap-4">
+                <div className="p-2.5 sm:p-3 bg-green-50 text-green-600 rounded-xl">
+                  <Layers size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Reservations</span>
-                  <span className="text-lg font-extrabold text-green-600">{pendingReservations} Logged</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Reservations</span>
+                  <span className="text-base sm:text-lg font-extrabold text-green-600">{pendingReservations} Logged</span>
                 </div>
               </div>
             </div>

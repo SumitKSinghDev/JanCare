@@ -594,16 +594,16 @@ export default function AshaDashboard() {
       {/* 1. DASHBOARD OVERVIEW */}
       {activeTab === "Dashboard" && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h2 className="text-2xl font-extrabold tracking-tight">Village Health Outreach: {currentUser?.name}</h2>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Village Health Outreach: {currentUser?.name}</h2>
               <p className="text-xs text-slate-300">Register new patients, record baseline triage vitals, and synchronize records.</p>
             </div>
             
             <button
               onClick={toggleConnectivity}
-              className={`font-extrabold text-xs px-5 py-3 rounded-2xl flex items-center gap-2 cursor-pointer transition-all border-0 ${
+              className={`font-extrabold text-xs px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition-all border-0 w-full sm:w-auto shrink-0 relative z-10 ${
                 isOnline 
                   ? "bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-150" 
                   : "bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-150"
@@ -614,20 +614,20 @@ export default function AshaDashboard() {
             </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+            <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Sync Queue Count</span>
-              <span className="text-lg font-extrabold text-slate-800 mt-1">{offlineCount} Pending</span>
+              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">{offlineCount} Pending</span>
             </div>
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+            <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Patients Registered</span>
-              <span className="text-lg font-extrabold text-slate-800 mt-1">{patients.length} Registered</span>
+              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">{patients.length} Registered</span>
             </div>
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+            <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Outreach Region</span>
               <span className="text-xs font-bold text-slate-700 mt-1 truncate">Nashik / Sinnar</span>
             </div>
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-24">
+            <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Connection Status</span>
               <span className="text-xs font-bold text-slate-850 mt-1 flex items-center gap-1">
                 <span className={`h-2 w-2 rounded-full ${isOnline ? "bg-green-500" : "bg-amber-500"}`} />
@@ -638,7 +638,7 @@ export default function AshaDashboard() {
 
           <div className="grid lg:grid-cols-12 gap-6">
             {/* Quick Actions Panel */}
-            <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-4">
+            <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
               <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Outreach Operations Queue</h3>
               
               <div className="grid sm:grid-cols-2 gap-4">
