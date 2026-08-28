@@ -226,6 +226,61 @@ export default function LandingPage() {
         </div>
       )}
 
+      {/* HEALTHCARE NEWS TICKER — Horizontal Auto-Scroll */}
+      <div className="bg-deep-blue text-white overflow-hidden whitespace-nowrap relative h-9 flex items-center border-b border-primary/20 select-none group">
+        <div className="absolute left-0 top-0 bottom-0 w-28 sm:w-32 bg-deep-blue z-10 flex items-center px-3 gap-1.5 border-r border-white/10 shrink-0 shadow-md">
+          <TrendingUp size={12} className="text-green-400 animate-pulse" />
+          <span className="text-[10px] font-bold tracking-wide uppercase">Live Updates</span>
+        </div>
+        <div className="animate-marquee inline-flex gap-10 pl-32 sm:pl-36 items-center">
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>🏥</span> <strong>ABDM Milestone:</strong> India links over 50 Crore Health Locker accounts via ABDM Stack — NHA reports massive compliance growth
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>🚁</span> <strong>Rural Medicine:</strong> Maharashtra approves drones for last-mile drug distribution to Sinnar & Igatpuri PHC drug stores
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>🔬</span> <strong>ICMR Update:</strong> New rural chronic disease management guidelines launched — ASHA-led vital logging for early NCD detection
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>💊</span> <strong>Generic Drugs:</strong> Jan Aushadhi Kendras cross 12,000 outlets — affordable medicines now within 5km reach for 78% rural population
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>📱</span> <strong>Digital Health:</strong> Ayushman Bharat Digital Mission crosses 4.5 Crore ABHA-linked health records nationwide
+          </a>
+          <span className="text-white/30">•</span>
+
+          {/* Exact duplicate for seamless infinite marquee loop */}
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>🏥</span> <strong>ABDM Milestone:</strong> India links over 50 Crore Health Locker accounts via ABDM Stack — NHA reports massive compliance growth
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>🚁</span> <strong>Rural Medicine:</strong> Maharashtra approves drones for last-mile drug distribution to Sinnar & Igatpuri PHC drug stores
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>🔬</span> <strong>ICMR Update:</strong> New rural chronic disease management guidelines launched — ASHA-led vital logging for early NCD detection
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>💊</span> <strong>Generic Drugs:</strong> Jan Aushadhi Kendras cross 12,000 outlets — affordable medicines now within 5km reach for 78% rural population
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>📱</span> <strong>Digital Health:</strong> Ayushman Bharat Digital Mission crosses 4.5 Crore ABHA-linked health records nationwide
+          </a>
+          <span className="text-white/30">•</span>
+        </div>
+        <a href="#health-news" className="absolute right-0 top-0 bottom-0 bg-primary hover:bg-blue-600 text-white z-10 flex items-center px-3.5 sm:px-4 text-[10px] font-bold tracking-wide uppercase cursor-pointer no-underline transition-colors shadow-md">
+          Know More →
+        </a>
+      </div>
+
       {/* SECTION 1 — HERO & LANDSCAPE VECTOR DRAWING */}
       <section 
         className="relative overflow-hidden pt-12 pb-24 border-b border-border-brand bg-cover bg-center"
@@ -603,7 +658,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 7.5 — INDIAN MEDICAL GROWTH & HEALTHCARE NEWS */}
-      <section className="py-16 bg-[#F8FAFC] border-y border-border-brand text-left">
+      <section id="health-news" className="scroll-mt-16 py-16 bg-[#F8FAFC] border-y border-border-brand text-left">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
             <div>
