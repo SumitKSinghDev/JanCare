@@ -47,6 +47,8 @@ export default function AshaDashboard() {
   const { t, language, setLanguage } = useTranslation();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [patients, setPatients] = useState<any[]>([]);
+  const [referrals, setReferrals] = useState<any[]>([]);
+  const [filterType, setFilterType] = useState<"all" | "registered" | "referred" | "followup" | "priority">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -126,6 +128,12 @@ export default function AshaDashboard() {
         const patData = await patRes.json();
         if (patData.success) {
           setPatients(patData.patients);
+        }
+
+        const refRes = await fetch("/api/referrals");
+        const refData = await refRes.json();
+        if (refData.success) {
+          setReferrals(refData.referrals);
         }
       }
     } catch (error) {
@@ -394,12 +402,65 @@ export default function AshaDashboard() {
     );
   }
 
-  const filteredPatients = patients.filter(
+  // Process patients with their source mapping
+  const patientsWithSource = patients.map((pat) => {
+    const referral = referrals.find((r: any) => 
+      (r.patientId?._id === pat._id || r.patientId === pat._id) && 
+      (r.assignedAshaId === currentUser?.id || r.assignedAshaId?._id === currentUser?.id)
+    );
+    
+    let source = "ASHA_REGISTERED";
+    let referredBy = "";
+    let reason = "";
+    let followUpDate = "";
+    let instructions = "";
+    let referralStatus = "";
+    let isUrgent = false;
+
+    if (referral) {
+      source = "DOCTOR_REFERRED";
+      referredBy = referral.referringDoctorId?.name || "Dr. Aniruddha Kulkarni";
+      reason = referral.reason;
+      followUpDate = referral.followUpDate;
+      instructions = referral.instructions;
+      referralStatus = referral.status;
+      isUrgent = referral.priority === "Urgent";
+    }
+
+    return {
+      ...pat,
+      source,
+      referredBy,
+      reason,
+      followUpDate,
+      instructions,
+      referralStatus,
+      isUrgent
+    };
+  });
+
+  const searchedPatients = patientsWithSource.filter(
     (pat) =>
       pat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       pat.patientRefId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       pat.mobile.includes(searchQuery)
   );
+
+  const filteredPatients = searchedPatients.filter((pat) => {
+    if (filterType === "registered") {
+      return pat.source === "ASHA_REGISTERED";
+    }
+    if (filterType === "referred") {
+      return pat.source === "DOCTOR_REFERRED";
+    }
+    if (filterType === "followup") {
+      return pat.followUpDate || pat.referralStatus === "Created";
+    }
+    if (filterType === "priority") {
+      return pat.isUrgent || pat.gender === "Other"; // Keep demo/priority conditions matched
+    }
+    return true; // "all"
+  });
 
   return (
     <AppShell
@@ -502,7 +563,7 @@ export default function AshaDashboard() {
       {/* 2. PATIENTS REGISTRY VIEW */}
       {activeTab === "My Patients" && (
         <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
-          <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
             <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Outreach Patient Registry</h2>
             <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 text-xs">
               <Search size={14} className="text-slate-400" />
@@ -516,12 +577,36 @@ export default function AshaDashboard() {
             </div>
           </div>
 
+          {/* Segmented Filters */}
+          <div className="flex flex-wrap gap-2 pb-2">
+            {[
+              { type: "all", label: "All Patients" },
+              { type: "registered", label: "Registered by Me" },
+              { type: "referred", label: "Doctor Referrals" },
+              { type: "followup", label: "Follow-ups Due" },
+              { type: "priority", label: "Priority Cases" },
+            ].map((btn) => (
+              <button
+                key={btn.type}
+                onClick={() => setFilterType(btn.type as any)}
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer border-0 ${
+                  filterType === btn.type
+                    ? "bg-[#1464D2] text-white shadow-xs"
+                    : "bg-slate-100 text-slate-650 hover:bg-slate-200"
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+
           <div className="overflow-x-auto text-xs">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
                   <th className="py-2.5 px-4">Patient Ref ID</th>
                   <th className="py-2.5 px-4">Name</th>
+                  <th className="py-2.5 px-4">Acquisition / Source</th>
                   <th className="py-2.5 px-4">Age/Sex</th>
                   <th className="py-2.5 px-4">Mobile</th>
                   <th className="py-2.5 px-4">Village</th>
@@ -529,26 +614,53 @@ export default function AshaDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredPatients.map((pat) => (
-                  <tr key={pat._id || pat.id} className="hover:bg-slate-50/50">
-                    <td className="py-3 px-4 font-mono font-semibold text-slate-500">{pat.patientRefId || "OFFLINE"}</td>
-                    <td className="py-3 px-4 font-bold text-slate-700">{pat.name}</td>
-                    <td className="py-3 px-4 text-slate-500">{pat.age}y / {pat.gender}</td>
-                    <td className="py-3 px-4 text-slate-500">{pat.mobile}</td>
-                    <td className="py-3 px-4 text-slate-500">{pat.village}</td>
-                    <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => {
-                          setSelectedPatientId(pat._id || pat.id);
-                          setActiveTab("Vitals & Symptoms");
-                        }}
-                        className="bg-primary hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-lg cursor-pointer border-0 text-[10px]"
-                      >
-                        Record Vitals
-                      </button>
+                {filteredPatients.length > 0 ? (
+                  filteredPatients.map((pat) => (
+                    <tr key={pat._id || pat.id} className="hover:bg-slate-50/50">
+                      <td className="py-3 px-4 font-mono font-semibold text-slate-500">{pat.patientRefId || "OFFLINE"}</td>
+                      <td className="py-3 px-4 font-bold text-slate-700">
+                        <div className="flex flex-col">
+                          <span>{pat.name}</span>
+                          {pat.isUrgent && (
+                            <span className="inline-flex items-center text-[8px] font-extrabold text-red-600 bg-red-50 px-1 py-0.5 rounded mt-0.5 w-max">Urgent Attention</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex flex-col gap-0.5">
+                          {pat.source === "DOCTOR_REFERRED" ? (
+                            <>
+                              <span className="inline-flex items-center text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full w-max">🔵 Doctor Referral</span>
+                              <span className="text-[9px] text-slate-455">Referred by {pat.referredBy}</span>
+                            </>
+                          ) : (
+                            <span className="inline-flex items-center text-[9px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full w-max">🟢 Registered by Me</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-slate-500">{pat.age}y / {pat.gender}</td>
+                      <td className="py-3 px-4 text-slate-500">{pat.mobile}</td>
+                      <td className="py-3 px-4 text-slate-500">{pat.village}</td>
+                      <td className="py-3 px-4 text-center">
+                        <button
+                          onClick={() => {
+                            setSelectedPatientId(pat._id || pat.id);
+                            setActiveTab("Vitals & Symptoms");
+                          }}
+                          className="bg-primary hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-lg cursor-pointer border-0 text-[10px]"
+                        >
+                          Record Vitals
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-slate-400">
+                      No patients match the selected filter.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

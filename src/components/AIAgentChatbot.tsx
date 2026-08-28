@@ -138,6 +138,11 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
       if (data.success) {
         setMessages((prev) => [...prev, { sender: "agent", text: data.response }]);
         
+        // Dispatch booking event to reload parent dashboard data
+        if (data.toolCalled === "bookAppointment") {
+          window.dispatchEvent(new CustomEvent("jancare_appointment_booked"));
+        }
+
         // Detect language for debug panel and TTS
         const hasDevanagari = /[\u0900-\u097F]/.test(text);
         const isMarathi = /ताप|माझी|मला|तुमच|आहे|करा|औषध|अपॉइंटमेंट|फॉलो|रेफरल/.test(text);
@@ -159,14 +164,24 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
 
         const ttsLang = detectedLang === "mr" ? "mr-IN" : detectedLang === "hi" ? "hi-IN" : "en-IN";
 
+        const isBookingTool = data.toolCalled === "bookAppointment";
         setDebugInfo({
           transcript: text,
           detectedLanguage: detectedLang,
-          intent: matchedIntent,
+          intent: isBookingTool ? "BOOK_APPOINTMENT" : matchedIntent,
           entities: matchedIntent === "SYMPTOM_REPORT" ? (lowerText.match(/bukhar|fever|ताप/) ? "fever" : "symptom") : "None",
-          action: matchedIntent === "SYMPTOM_REPORT" ? "COLLECT_SYMPTOM_DETAILS" : matchedIntent === "GREETING" ? "CONVERSATIONAL_GREET" : `EXECUTE_${matchedIntent}`,
-          status: "SUCCESS",
+          action: isBookingTool ? "EXECUTE_BOOK_APPOINTMENT" : matchedIntent === "SYMPTOM_REPORT" ? "COLLECT_SYMPTOM_DETAILS" : matchedIntent === "GREETING" ? "CONVERSATIONAL_GREET" : `EXECUTE_${matchedIntent}`,
+          status: data.success && (!isBookingTool || data.toolResult?.success !== false) ? "SUCCESS" : "FAILED",
           ttsLanguage: ttsLang,
+          patientId: isBookingTool && data.toolResult?.appointment?.patientId ? data.toolResult.appointment.patientId : undefined,
+          doctorId: isBookingTool && data.toolResult?.appointment?.doctorId ? data.toolResult.appointment.doctorId : undefined,
+          facilityId: isBookingTool && data.toolResult?.appointment?.facilityId ? data.toolResult.appointment.facilityId : undefined,
+          requestedSlot: isBookingTool && data.toolResult?.appointment?.date ? `${data.toolResult.appointment.date} ${data.toolResult.appointment.time}` : undefined,
+          api: isBookingTool ? "POST /api/appointments" : undefined,
+          dbWrite: isBookingTool ? (data.toolResult?.id ? "SUCCESS" : "FAILED") : undefined,
+          appointmentId: isBookingTool && data.toolResult?.appointment?.id ? data.toolResult.appointment.id : undefined,
+          patientQuery: isBookingTool && data.toolResult?.appointment?.patientId ? "FOUND" : "NOT FOUND",
+          doctorQuery: isBookingTool && data.toolResult?.appointment?.doctorId ? "FOUND" : "NOT FOUND",
         });
 
         if (voiceOn) {
@@ -453,6 +468,22 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
               <Send size={16} />
             </button>
           </form>
+
+          {debugInfo && debugInfo.intent === "BOOK_APPOINTMENT" && (
+            <div className="bg-slate-900 text-slate-350 p-4.5 font-mono text-[9px] border-t border-slate-800 space-y-1 select-text">
+              <div className="font-bold text-slate-400 pb-1 border-b border-slate-800">🛠️ Developer Debug Panel (Step 17)</div>
+              <div>AI Intent: <span className="text-green-400 font-bold">{debugInfo.intent}</span></div>
+              <div>Patient ID: <span className="text-blue-400 font-bold">{debugInfo.patientId || "None"}</span></div>
+              <div>Doctor ID: <span className="text-blue-400 font-bold">{debugInfo.doctorId || "None"}</span></div>
+              <div>Facility ID: <span className="text-blue-400 font-bold">{debugInfo.facilityId || "None"}</span></div>
+              <div>Requested Slot: <span className="text-amber-400 font-bold">{debugInfo.requestedSlot || "None"}</span></div>
+              <div>API: <span className="text-yellow-400 font-bold">{debugInfo.api || "None"}</span></div>
+              <div>Database Write: <span className={debugInfo.dbWrite === "SUCCESS" ? "text-green-400 font-bold" : "text-red-400 font-bold"}>{debugInfo.dbWrite || "None"}</span></div>
+              <div>Appointment ID: <span className="text-green-400 font-bold">{debugInfo.appointmentId || "None"}</span></div>
+              <div>Patient Query: <span className="text-purple-400 font-bold">{debugInfo.patientQuery || "None"}</span></div>
+              <div>Doctor Query: <span className="text-purple-400 font-bold">{debugInfo.doctorQuery || "None"}</span></div>
+            </div>
+          )}
         </div>
       )}
     </div>

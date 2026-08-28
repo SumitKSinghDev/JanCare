@@ -4,7 +4,7 @@ export interface IUser extends Document {
   name: string;
   username: string; // Mobile number or email address
   passwordHash: string;
-  role: "Patient" | "ASHA" | "ANM" | "Doctor" | "Specialist" | "FacilityAdmin" | "DistrictAdmin" | "SystemAdmin";
+  role: "Patient" | "ASHA" | "ANM" | "Doctor" | "Specialist" | "FacilityAdmin" | "DistrictAdmin" | "SystemAdmin" | "MedicineManager";
   associatedFacility?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -18,7 +18,7 @@ const UserSchema: Schema<IUser> = new Schema(
     role: {
       type: String,
       required: true,
-      enum: ["Patient", "ASHA", "ANM", "Doctor", "Specialist", "FacilityAdmin", "DistrictAdmin", "SystemAdmin"],
+      enum: ["Patient", "ASHA", "ANM", "Doctor", "Specialist", "FacilityAdmin", "DistrictAdmin", "SystemAdmin", "MedicineManager"],
     },
     associatedFacility: { type: Schema.Types.ObjectId, ref: "Facility" },
   },

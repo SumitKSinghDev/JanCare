@@ -214,6 +214,7 @@ async function runGeminiWithFallback(
 
 export async function POST(request: Request) {
   try {
+    const user = await authenticateRequest().catch(() => null);
     const body = await request.json();
     const { message, history } = body;
 
@@ -227,8 +228,155 @@ export async function POST(request: Request) {
     let toolResult: any = null;
     let toolNameCalled = "";
 
+    // 0. Resolve AI Booking Intent
+    const isBookingRequest = (msgLower.includes("book") || msgLower.includes("appointment") || msgLower.includes("schedule") || msgLower.includes("अपॉइंटमेंट") || msgLower.includes("नोंदणी")) &&
+      (msgLower.includes("doctor") || msgLower.includes("consult") || msgLower.includes("appointment") || msgLower.includes("भेट") || msgLower.includes("तपासणी"));
+
+    if (isBookingRequest) {
+      toolNameCalled = "bookAppointment";
+      await connectToDatabase();
+      
+      let patientDoc = null;
+      if (user) {
+        const User = (await import("@/models/User")).default;
+        const dbUser = await User.findById(user.userId);
+        if (dbUser) {
+          patientDoc = await Patient.findOne({ mobile: dbUser.username });
+        }
+        if (!patientDoc) {
+          patientDoc = await Patient.findOne({ name: user.name });
+        }
+      }
+      if (!patientDoc) {
+        patientDoc = await Patient.findOne({ name: "Ramesh Kumar" });
+      }
+
+      if (patientDoc) {
+        const Facility = (await import("@/models/Facility")).default;
+        const User = (await import("@/models/User")).default;
+        const Appointment = (await import("@/models/Appointment")).default;
+        const Consultation = (await import("@/models/Consultation")).default;
+        const HealthRecord = (await import("@/models/HealthRecord")).default;
+
+        try {
+          const firstChc = await Facility.findOne({ type: "CHC" });
+          
+          // Doctor selection
+          let doctorDoc = null;
+          if (msgLower.includes("smita") || msgLower.includes("rao") || msgLower.includes("cardiologist")) {
+            doctorDoc = await User.findOne({ name: /Smita/i });
+          } else {
+            doctorDoc = await User.findOne({ name: /Aniruddha/i });
+            if (!doctorDoc) {
+              doctorDoc = await User.findOne({ role: "Doctor" });
+            }
+          }
+
+          if (!doctorDoc) {
+            toolResult = {
+              success: false,
+              error: "No doctor matching that description is currently active in the district.",
+            };
+          } else if (!firstChc) {
+            toolResult = {
+              success: false,
+              error: "No clinic facility found in the district to schedule the consultation.",
+            };
+          } else {
+            // Slot selection
+            let slotTime = "11:30 AM";
+            if (msgLower.includes("2:00") || msgLower.includes("02:00") || msgLower.includes("2 pm") || msgLower.includes("02 pm") || msgLower.includes("दोन")) {
+              slotTime = "02:00 PM";
+            }
+
+            const dateQuery = new Date();
+            const startOfDay = new Date(dateQuery.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(dateQuery.setHours(23, 59, 59, 999));
+
+            // Validate Slot availability (Duplicate check)
+            const slotTaken = await Appointment.findOne({
+              doctorId: doctorDoc._id,
+              status: "BOOKED",
+              appointmentDate: { $gte: startOfDay, $lte: endOfDay },
+              appointmentTime: slotTime,
+            });
+
+            if (slotTaken) {
+              toolResult = {
+                success: false,
+                error: `That slot is no longer available. Here are the next available times: ${slotTime === "11:30 AM" ? "02:00 PM" : "11:30 AM"}.`,
+              };
+            } else {
+              const count = await Appointment.countDocuments({
+                doctorId: doctorDoc._id,
+                status: "BOOKED",
+                appointmentDate: { $gte: startOfDay, $lte: endOfDay },
+              });
+
+              // Create the appointment in database
+              const appointment = await Appointment.create({
+                patientId: patientDoc._id,
+                doctorId: doctorDoc._id,
+                facilityId: firstChc._id,
+                appointmentDate: new Date(),
+                appointmentTime: slotTime,
+                status: "BOOKED",
+                queueNumber: count + 1,
+                estimatedWaitMinutes: (count + 1) * 15,
+                bookingSource: "AI_ASSISTANT",
+              });
+
+              // Create Consultation
+              let healthRecord = await HealthRecord.findOne({ patientId: patientDoc._id });
+              if (!healthRecord) {
+                healthRecord = await HealthRecord.create({
+                  patientId: patientDoc._id,
+                  recordedBy: doctorDoc._id,
+                  vitals: { temperature: 98.6, spo2: 98, bloodPressureSystolic: 120, bloodPressureDiastolic: 80, heartRate: 72, respiratoryRate: 16 },
+                  symptoms: [{ name: "AI Booked Consultation", durationDays: 1, severity: "Mild" }],
+                  triage: { level: "Routine", reason: "AI Assistant Booking", aiExplanation: "Booked via AI Assistant.", triageDate: new Date() },
+                  offlineCreated: false,
+                });
+              }
+
+              await Consultation.create({
+                patientId: patientDoc._id,
+                doctorId: doctorDoc._id,
+                facilityId: firstChc._id,
+                healthRecordId: healthRecord._id,
+                status: "Scheduled",
+                videoRoomName: `jancare-consult-${patientDoc.patientRefId.toLowerCase()}-${Date.now().toString().slice(-4)}`
+              });
+
+              toolResult = {
+                success: true,
+                appointment: {
+                  id: appointment._id.toString(),
+                  patientId: patientDoc._id.toString(),
+                  doctorId: doctorDoc._id.toString(),
+                  facilityId: firstChc._id.toString(),
+                  date: new Date().toLocaleDateString(),
+                  time: slotTime,
+                  status: "BOOKED",
+                  bookingSource: "AI_ASSISTANT"
+                }
+              };
+            }
+          }
+        } catch (err: any) {
+          console.error("[JanCare AI] Database write failed for AI Booking:", err);
+          toolResult = {
+            success: false,
+            error: `I couldn't complete the appointment booking right now. Please try again. Technical details: ${err.message}`,
+          };
+        }
+      }
+    }
+
     // 1. Resolve database tool calls via keyword matching
-    if (msgLower.includes("ramesh") || msgLower.includes("kumar") || msgLower.includes("jc-7f3k92")) {
+    if (toolNameCalled === "bookAppointment") {
+      // Already resolved above
+    } else if (msgLower.includes("ramesh") || msgLower.includes("kumar") || msgLower.includes("jc-7f3k92")) {
       toolNameCalled = "getCareTimeline";
       toolResult = await withTimeout(getCareTimeline("JC-7F3K92"));
     } else if (msgLower.includes("stock") || msgLower.includes("mc1") || msgLower.includes("mc2") || msgLower.includes("mc3") ||
@@ -341,6 +489,7 @@ export async function POST(request: Request) {
       success: true,
       response: finalResponse,
       toolCalled: toolNameCalled,
+      toolResult: toolResult,
     });
   } catch (error: any) {
     console.error("[JanCare AI] AI Agent query failed:", error);

@@ -58,15 +58,37 @@ export default function ConsultationWorkspace() {
   const [referralPriority, setReferralPriority] = useState("Routine");
   const [referralReason, setReferralReason] = useState("");
 
+  // ASHA Referral inputs
+  const [needAshaReferral, setNeedAshaReferral] = useState(false);
+  const [assignedAshaId, setAssignedAshaId] = useState("");
+  const [ashaReferralReason, setAshaReferralReason] = useState("");
+  const [ashaReferralPriority, setAshaReferralPriority] = useState("Routine");
+  const [ashaReferralInstructions, setAshaReferralInstructions] = useState("");
+  const [ashaReferralFollowUpDate, setAshaReferralFollowUpDate] = useState("");
+  const [ashaList, setAshaList] = useState<any[]>([]);
+
   // Follow-up inputs
   const [needFollowUp, setNeedFollowUp] = useState(false);
   const [followUpType, setFollowUpType] = useState("Medication");
   const [followUpDate, setFollowUpDate] = useState("");
   const [followUpNotes, setFollowUpNotes] = useState("");
 
+  async function fetchAshaWorkers() {
+    try {
+      const res = await fetch("/api/asha");
+      const data = await res.json();
+      if (data.success) {
+        setAshaList(data.ashas);
+      }
+    } catch (e) {
+      console.error("Failed to load ASHA workers:", e);
+    }
+  }
+
   useEffect(() => {
     fetchConsultationDetails();
     fetchReferralFacilities();
+    fetchAshaWorkers();
 
     // Call timer incrementer
     const interval = setInterval(() => {
@@ -234,6 +256,22 @@ export default function ConsultationWorkspace() {
             destinationFacilityId: referralFacility,
             reason: referralReason,
             priority: referralPriority,
+          }),
+        });
+      }
+
+      // 3.5 Submit ASHA Referral if checked
+      if (needAshaReferral && assignedAshaId) {
+        await fetch("/api/referrals", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            patientId: consult.patientId._id,
+            assignedAshaId: assignedAshaId,
+            reason: ashaReferralReason,
+            priority: ashaReferralPriority,
+            instructions: ashaReferralInstructions,
+            followUpDate: ashaReferralFollowUpDate ? new Date(ashaReferralFollowUpDate) : undefined,
           }),
         });
       }
@@ -707,6 +745,86 @@ export default function ConsultationWorkspace() {
                       placeholder="e.g. Cardiological evaluation required"
                     />
                   </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Form 3.5: Refer to ASHA Check */}
+          <div className="border-t border-border-brand pt-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="asha-referral-check"
+                checked={needAshaReferral}
+                onChange={(e) => setNeedAshaReferral(e.target.checked)}
+                className="rounded-sm border-slate-300 text-primary focus:ring-primary h-4 w-4"
+              />
+              <label htmlFor="asha-referral-check" className="text-sm font-bold text-text-primary cursor-pointer">
+                Refer Patient to ASHA (Community Follow-up)
+              </label>
+            </div>
+
+            {needAshaReferral && (
+              <div className="grid gap-4 bg-slate-50 p-5 rounded-xl border border-slate-100 text-xs">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500">Select Assigned ASHA Worker</label>
+                    <select
+                      value={assignedAshaId}
+                      onChange={(e) => setAssignedAshaId(e.target.value)}
+                      className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs"
+                    >
+                      <option value="">-- Choose ASHA Worker --</option>
+                      {ashaList.map((ash) => (
+                        <option key={ash._id} value={ash._id}>
+                          {ash.name} ({ash.username})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500">Priority Level</label>
+                    <select
+                      value={ashaReferralPriority}
+                      onChange={(e) => setAshaReferralPriority(e.target.value)}
+                      className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs"
+                    >
+                      <option value="Routine">Routine</option>
+                      <option value="Urgent">Urgent</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500">Reason for Referral</label>
+                    <input
+                      type="text"
+                      value={ashaReferralReason}
+                      onChange={(e) => setAshaReferralReason(e.target.value)}
+                      className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
+                      placeholder="e.g. Post-consultation follow-up, vital tracking"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500">Follow-up Requirement Date</label>
+                    <input
+                      type="date"
+                      value={ashaReferralFollowUpDate}
+                      onChange={(e) => setAshaReferralFollowUpDate(e.target.value)}
+                      className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-hidden focus:border-primary"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500">Specific Instructions for ASHA</label>
+                  <textarea
+                    value={ashaReferralInstructions}
+                    onChange={(e) => setAshaReferralInstructions(e.target.value)}
+                    rows={2}
+                    className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-hidden focus:border-primary resize-none"
+                    placeholder="Provide clear follow-up instructions, medicines to review, or symptoms to check..."
+                  />
                 </div>
               </div>
             )}

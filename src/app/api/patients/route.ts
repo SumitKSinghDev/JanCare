@@ -30,16 +30,36 @@ export async function GET(request: Request) {
 
     // Build query filters
     const query: any = {};
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { patientRefId: { $regex: search, $options: "i" } },
-        { mobile: { $regex: search, $options: "i" } },
-      ];
+    const conditions: any[] = [];
+
+    if (user.role === "ASHA" || user.role === "ANM") {
+      const Referral = (await import("@/models/Referral")).default;
+      const referredPatientIds = await Referral.find({ assignedAshaId: user.userId }).distinct("patientId");
+      conditions.push({
+        $or: [
+          { registeredBy: user.userId },
+          { _id: { $in: referredPatientIds } }
+        ]
+      });
     }
+
+    if (search) {
+      conditions.push({
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { patientRefId: { $regex: search, $options: "i" } },
+          { mobile: { $regex: search, $options: "i" } },
+        ]
+      });
+    }
+
     if (district) query.district = district;
     if (taluka) query.taluka = taluka;
     if (village) query.village = village;
+
+    if (conditions.length > 0) {
+      query.$and = conditions;
+    }
 
     const patients = await Patient.find(query).sort({ createdAt: -1 });
 

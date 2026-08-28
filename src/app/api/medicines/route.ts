@@ -4,6 +4,7 @@ import Medicine from "@/models/Medicine";
 import Prescription from "@/models/Prescription";
 import Consultation from "@/models/Consultation";
 import AuditLog from "@/models/AuditLog";
+import StockMovement from "@/models/StockMovement";
 import { authenticateRequest } from "@/lib/authMiddleware";
 
 export async function GET(request: Request) {
@@ -125,6 +126,60 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     console.error("Failed to create prescription:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const user = await authenticateRequest(["MedicineManager", "DistrictAdmin", "SystemAdmin"]);
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
+    }
+
+    await connectToDatabase();
+    const body = await request.json();
+    const { medicineId, type, quantity, notes } = body; // type is stock movement type, quantity is number (e.g. -5, +50)
+
+    if (!medicineId || !type || quantity === undefined || quantity === null) {
+      return NextResponse.json({ success: false, error: "Missing required fields (medicineId, type, quantity)" }, { status: 400 });
+    }
+
+    const med = await Medicine.findById(medicineId);
+    if (!med) {
+      return NextResponse.json({ success: false, error: "Medicine record not found" }, { status: 404 });
+    }
+
+    // Create the StockMovement record
+    const movement = await StockMovement.create({
+      facilityId: med.facilityId,
+      medicineId: med._id,
+      type,
+      quantity,
+      performedBy: user.userId as any,
+      notes: notes || `Stock updated via dashboard movement type: ${type}`,
+    });
+
+    // Update medicine quantity
+    med.quantity = Math.max(0, med.quantity + quantity);
+    med.lastUpdated = new Date();
+    await med.save();
+
+    // Log action to security audit
+    await AuditLog.create({
+      userId: user.userId as any,
+      action: "RecordModification",
+      details: `Inventory movement recorded: ${type} (qty change: ${quantity}) for drug ${med.name}. New stock: ${med.quantity}`,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Stock movement recorded successfully",
+      medicine: med,
+      movement,
+    });
+  } catch (error: any) {
+    console.error("Failed to record stock movement:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

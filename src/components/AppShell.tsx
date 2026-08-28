@@ -18,6 +18,7 @@ import {
   Bell,
   MessageSquare,
   Settings,
+  ArrowRightLeft,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -38,7 +39,7 @@ import {
 } from "lucide-react";
 
 interface AppShellProps {
-  role: "Patient" | "ASHA" | "Doctor" | "Facility" | "Admin";
+  role: "Patient" | "ASHA" | "Doctor" | "Facility" | "Admin" | "MedicineManager";
   activeTab: string;
   setActiveTab: (tab: string) => void;
   user: any;
@@ -229,6 +230,31 @@ export default function AppShell({
             ]
           }
         ];
+      case "MedicineManager":
+        return [
+          {
+            group: "OVERVIEW",
+            items: [
+              { name: "Dashboard", icon: LayoutDashboard }
+            ]
+          },
+          {
+            group: "INVENTORY MANAGEMENT",
+            items: [
+              { name: "Medicine Inventory", icon: Briefcase },
+              { name: "Stock Movements", icon: ArrowRightLeft },
+              { name: "Maharashtra Network", icon: Map }
+            ]
+          },
+          {
+            group: "OPERATIONS",
+            items: [
+              { name: "Medicine Reservations", icon: Package },
+              { name: "Reports", icon: TrendingUp },
+              { name: "Settings", icon: Settings }
+            ]
+          }
+        ];
       default:
         return [];
     }
@@ -261,7 +287,13 @@ export default function AppShell({
           </button>
           
           <div 
-            onClick={() => router.push(`/${role.toLowerCase()}/dashboard`)}
+            onClick={() => {
+              if (role === "MedicineManager") {
+                router.push("/medicine-manager/dashboard");
+              } else {
+                router.push(`/${role.toLowerCase()}/dashboard`);
+              }
+            }}
             className="flex items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity"
           >
             <img src="/logo.png" alt="JanCare Logo" className="h-9 w-9 rounded-xl object-cover shadow-sm bg-white" />

@@ -38,6 +38,8 @@ export async function GET(request: Request) {
         { referringFacilityId: facilityId },
         { destinationFacilityId: facilityId },
       ];
+    } else if (user.role === "ASHA" || user.role === "ANM") {
+      query.assignedAshaId = user.userId;
     }
 
     const referrals = await Referral.find(query)
@@ -63,45 +65,57 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
     const body = await request.json();
-    const { patientId, destinationFacilityId, reason, priority, notes, appointmentDate } = body;
+    const { patientId, destinationFacilityId, assignedAshaId, reason, priority, notes, appointmentDate, instructions, followUpDate } = body;
 
-    if (!patientId || !destinationFacilityId || !reason || !priority) {
+    if (!patientId || (!destinationFacilityId && !assignedAshaId) || !reason || !priority) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
     }
 
     const doctorRecord = await User.findById(user.userId);
-    if (!doctorRecord || !doctorRecord.associatedFacility) {
-      return NextResponse.json({ success: false, error: "Doctor is not linked to any home facility" }, { status: 400 });
-    }
+    const referringFacilityId = doctorRecord?.associatedFacility || undefined;
 
     const referral = await Referral.create({
       patientId,
       referringDoctorId: user.userId as any,
-      referringFacilityId: doctorRecord.associatedFacility,
-      destinationFacilityId,
+      referringFacilityId,
+      destinationFacilityId: destinationFacilityId || undefined,
+      assignedAshaId: assignedAshaId || undefined,
       reason,
       priority,
       status: "Created",
       notes,
+      instructions,
+      followUpDate: followUpDate ? new Date(followUpDate) : undefined,
       appointmentDate: appointmentDate ? new Date(appointmentDate) : undefined,
     });
 
     // Create system notification for ASHA and destination facility admins
     const patient = await Patient.findById(patientId);
     if (patient) {
-      // Find destination facility doctors
-      const destDocs = await User.find({ role: "Doctor", associatedFacility: destinationFacilityId });
-      for (const destDoc of destDocs) {
+      if (destinationFacilityId) {
+        // Find destination facility doctors
+        const destDocs = await User.find({ role: "Doctor", associatedFacility: destinationFacilityId });
+        for (const destDoc of destDocs) {
+          await Notification.create({
+            userId: destDoc._id as any,
+            title: `Incoming ${priority} Referral`,
+            message: `Patient ${patient.name} has been referred to your facility for: ${reason}. Status: Created.`,
+            type: "Referral",
+          });
+        }
+      }
+
+      if (assignedAshaId) {
         await Notification.create({
-          userId: destDoc._id as any,
-          title: `Incoming ${priority} Referral`,
-          message: `Patient ${patient.name} has been referred to your facility for: ${reason}. Status: Created.`,
+          userId: assignedAshaId as any,
+          title: "New patient referral",
+          message: `New Referral for ${patient.name} from Dr. ${user.name || "Doctor"}: ${reason}. Priority: ${priority}.`,
           type: "Referral",
         });
       }
 
       // Notify patient's registering ASHA if they exist
-      if (patient.registeredBy) {
+      if (patient.registeredBy && patient.registeredBy.toString() !== assignedAshaId) {
         await Notification.create({
           userId: patient.registeredBy,
           title: `Referral Registered`,

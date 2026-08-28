@@ -41,9 +41,11 @@ export async function POST(request: Request) {
       emergencyContact,
     } = body;
 
-    if (!name || !username || !password || !role) {
+    const resolvedRole = "Patient";
+
+    if (!name || !username || !password) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields (name, username, password, role)" },
+        { success: false, error: "Missing required fields (name, username, password)" },
         { status: 400 }
       );
     }
@@ -66,7 +68,7 @@ export async function POST(request: Request) {
       name,
       username,
       passwordHash,
-      role,
+      role: resolvedRole,
       associatedFacility: associatedFacility || undefined,
     });
 
@@ -74,7 +76,7 @@ export async function POST(request: Request) {
     let patientRefId = null;
 
     // If role is Patient, create corresponding Patient profile
-    if (role === "Patient") {
+    if (resolvedRole === "Patient") {
       if (!age || !dateOfBirth || !gender || !mobile || !division || !district || !taluka || !village || !emergencyContact) {
         // Rollback user creation to maintain integrity
         await User.findByIdAndDelete(user._id);

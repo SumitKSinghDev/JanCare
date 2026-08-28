@@ -38,10 +38,11 @@ export default function LoginPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   const demoAccounts = [
-    { label: "ASHA", username: "asha", path: "/asha/dashboard" },
-    { label: "Doctor", username: "doctor", path: "/doctor/dashboard" },
     { label: "Patient", username: "patient", path: "/patient/dashboard" },
+    { label: "Doctor", username: "doctor", path: "/doctor/dashboard" },
+    { label: "ASHA", username: "asha", path: "/asha/dashboard" },
     { label: "Admin", username: "districtadmin", path: "/admin/dashboard" },
+    { label: "Medicine Manager", username: "medmanager", path: "/medicine-manager/dashboard" },
   ];
 
   async function handleSubmit(e: React.FormEvent) {
@@ -438,18 +439,23 @@ export default function LoginPage() {
           </p>
 
           {/* Quick Demo Access Badges */}
-          <div className="border-t border-slate-100 pt-4">
-            <span className="text-[9px] text-text-secondary font-bold uppercase tracking-wider block text-center mb-2.5">
-              ⚡ Quick Demo Access Links
-            </span>
-            <div className="grid grid-cols-4 gap-2">
+          <div className="border-t border-slate-150 pt-5 mt-3">
+            <div className="text-center mb-3">
+              <span className="text-[10px] text-primary font-extrabold uppercase tracking-wider block">
+                Quick Demo Access
+              </span>
+              <span className="text-[9px] text-slate-400 font-semibold block mt-0.5">
+                For evaluation and demonstration purposes only
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2 justify-center">
               {demoAccounts.map((acc) => (
                 <button
                   key={acc.username}
                   type="button"
                   disabled={loading}
                   onClick={() => handleDemoLogin(acc)}
-                  className="bg-slate-50 hover:bg-soft-blue border border-slate-200 text-primary text-[10px] font-bold py-2 px-1 rounded-lg text-center transition-all cursor-pointer truncate"
+                  className="bg-[#F8FAFC] hover:bg-blue-55 border border-slate-200 text-slate-700 hover:text-[#1464D2] text-[10px] font-bold py-2 px-3 rounded-xl transition-all cursor-pointer shadow-xs hover:border-[#1464D2]"
                   title={`Login as ${acc.label}`}
                 >
                   {acc.label}

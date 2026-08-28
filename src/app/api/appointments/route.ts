@@ -17,10 +17,31 @@ export async function GET(request: Request) {
     const status = searchParams.get("status") || "Scheduled";
 
     const query: any = {};
-    if (status) query.status = status;
+    if (status) {
+      if (status === "Scheduled") {
+        query.status = { $in: ["Scheduled", "BOOKED"] };
+      } else {
+        query.status = status;
+      }
+    }
 
     if (user.role === "Doctor" || user.role === "Specialist") {
       query.doctorId = user.userId;
+    } else if (user.role === "Patient") {
+      const Patient = (await import("@/models/Patient")).default;
+      const User = (await import("@/models/User")).default;
+      const dbUser = await User.findById(user.userId);
+      const patient = await Patient.findOne({
+        $or: [
+          { mobile: dbUser?.username },
+          { name: user.name }
+        ]
+      });
+      if (patient) {
+        query.patientId = patient._id;
+      } else {
+        return NextResponse.json({ success: true, appointments: [] });
+      }
     } else if (doctorId) {
       query.doctorId = doctorId;
     }
@@ -48,7 +69,7 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
     const body = await request.json();
-    const { patientId, doctorId, facilityId, appointmentDate } = body;
+    const { patientId, doctorId, facilityId, appointmentDate, bookingSource } = body;
 
     let resolvedFacilityId = facilityId;
     let resolvedDoctorId = doctorId;
@@ -90,6 +111,7 @@ export async function POST(request: Request) {
       status: "Scheduled",
       queueNumber: count + 1,
       estimatedWaitMinutes: (count + 1) * 15,
+      bookingSource: bookingSource || "MANUAL",
     });
 
     // Auto-create consultation & dummy health record for teleconsultation video linkage

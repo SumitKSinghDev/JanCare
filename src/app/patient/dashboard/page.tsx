@@ -77,8 +77,52 @@ export default function PatientDashboard() {
   const [prescriptionFilter, setPrescriptionFilter] = useState<"All" | "Active" | "Completed">("All");
   const [orderFilter, setOrderFilter] = useState<"All" | "Requested" | "Preparing" | "Ready" | "Collected">("All");
 
+  const [selectedMedicineCheck, setSelectedMedicineCheck] = useState<string>("");
+  const [realStockAvailability, setRealStockAvailability] = useState<any[]>([]);
+  const [stockLoading, setStockLoading] = useState(false);
+
+  async function checkMedicineAvailability(medName: string) {
+    setSelectedMedicineCheck(medName);
+    setStockLoading(true);
+    try {
+      const facRes = await fetch("/api/facilities");
+      const facData = await facRes.json();
+      if (facData.success) {
+        const activeFacilities = facData.facilities;
+        const availabilityList = [];
+        for (const fac of activeFacilities) {
+          const medRes = await fetch(`/api/medicines?facilityId=${fac._id}&search=${encodeURIComponent(medName)}`);
+          const medData = await medRes.json();
+          if (medData.success && medData.medicines.length > 0) {
+            const matchedMed = medData.medicines[0];
+            availabilityList.push({
+              name: fac.name,
+              distance: fac.type === "CHC" ? "2.1 km" : fac.type === "PHC" ? "4.5 km" : "6.8 km",
+              qty: matchedMed.quantity,
+              MC1: matchedMed.quantity > 0 ? "Available" : "Out of Stock",
+              MC2: matchedMed.status || (matchedMed.quantity === 0 ? "Out of Stock" : matchedMed.quantity < matchedMed.minimumRequired ? "Low Stock" : "Available"),
+              updated: new Date(matchedMed.lastUpdated || fac.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              coordinates: fac.coordinates || "19.8517,74.0006",
+            });
+          }
+        }
+        setRealStockAvailability(availabilityList);
+      }
+    } catch (e) {
+      console.error("Failed to check stock:", e);
+    } finally {
+      setStockLoading(false);
+    }
+  }
+
   useEffect(() => {
     fetchPatientData();
+
+    const handleRefresh = () => {
+      fetchPatientData();
+    };
+    window.addEventListener("jancare_appointment_booked", handleRefresh);
+    return () => window.removeEventListener("jancare_appointment_booked", handleRefresh);
   }, []);
 
   async function fetchPatientData() {
@@ -1127,7 +1171,11 @@ export default function PatientDashboard() {
                       <Download size={12} /> Print PDF
                     </button>
                     <button
-                      onClick={() => setActiveTab("Medicines")}
+                      onClick={() => {
+                        const firstMed = pres.medicines[0]?.name || "Metformin";
+                        checkMedicineAvailability(firstMed);
+                        setActiveTab("Medicines");
+                      }}
                       className="bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded-xl cursor-pointer border-0"
                     >
                       Check Pharmacy Stock
@@ -1257,26 +1305,57 @@ export default function PatientDashboard() {
             </div>
           </div>
 
+          {selectedMedicineCheck && (
+            <div className="bg-blue-50 border border-blue-150 p-4 rounded-2xl flex justify-between items-center text-xs">
+              <div>
+                <span className="font-bold text-slate-700">Checking Live Availability for: </span>
+                <strong className="text-primary font-extrabold">{selectedMedicineCheck}</strong>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedMedicineCheck("");
+                  setRealStockAvailability([]);
+                }}
+                className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg font-bold border-0 cursor-pointer text-[10px]"
+              >
+                Reset / Show All
+              </button>
+            </div>
+          )}
+
           <div className="border border-slate-200/80 bg-white rounded-3xl p-6 shadow-xs space-y-4">
             {mapMode === "Map" ? (
               <div className="space-y-4">
                 <div className="bg-slate-100 border border-slate-200 rounded-2xl h-80 overflow-hidden relative">
                   <iframe
                     className="w-full h-full rounded-2xl border-0"
-                    src="https://www.openstreetmap.org/export/embed.html?bbox=73.95%2C19.80%2C74.05%2C19.90&layer=mapnik&marker=19.8517%2C74.0006"
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${(Number(realStockAvailability.length > 0 ? realStockAvailability[0].coordinates.split(",")[1] : "74.0006") - 0.05).toFixed(4)}%2C${(Number(realStockAvailability.length > 0 ? realStockAvailability[0].coordinates.split(",")[0] : "19.8517") - 0.05).toFixed(4)}%2C${(Number(realStockAvailability.length > 0 ? realStockAvailability[0].coordinates.split(",")[1] : "74.0006") + 0.05).toFixed(4)}%2C${(Number(realStockAvailability.length > 0 ? realStockAvailability[0].coordinates.split(",")[0] : "19.8517") + 0.05).toFixed(4)}&layer=mapnik&marker=${realStockAvailability.length > 0 ? realStockAvailability[0].coordinates : "19.8517%2C74.0006"}`}
                     title="OSM Sinnar Map Grid"
                   />
                   <div className="absolute top-3 left-3 bg-slate-900/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow-md">
-                    Sinnar District Pharmacy Network
+                    {selectedMedicineCheck ? "Matched Stock Coordinates" : "Sinnar District Pharmacy Network"}
                   </div>
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                  {nearbyFacilities.map((fac, idx) => (
+                  {stockLoading ? (
+                    <div className="col-span-full py-8 text-center text-slate-450 font-bold flex flex-col items-center gap-2">
+                      <Loader2 className="animate-spin text-primary" size={24} />
+                      Querying district pharmacy networks...
+                    </div>
+                  ) : (realStockAvailability.length > 0 ? realStockAvailability : nearbyFacilities).map((fac, idx) => (
                     <div key={idx} className="border border-slate-200 p-4 rounded-xl bg-slate-50 flex flex-col justify-between gap-3">
                       <div>
                         <strong className="text-slate-800 text-[11px] block">{fac.name}</strong>
                         <span className="text-[10px] text-slate-500 block mt-0.5">Distance: {fac.distance}</span>
+                        {selectedMedicineCheck && (
+                          <div className="mt-2 space-y-0.5 font-bold">
+                            <span className="text-[9px] text-slate-550 block">Available: {fac.qty} units</span>
+                            <span className={`text-[9px] block ${
+                              fac.MC2 === "Available" ? "text-green-700" : fac.MC2 === "Low" || fac.MC2 === "Low Stock" ? "text-amber-700" : "text-red-705"
+                            }`}>Status: {fac.MC2}</span>
+                          </div>
+                        )}
                       </div>
                       <button
                         onClick={() => handleReserveMedicine(fac.name)}
@@ -1290,7 +1369,12 @@ export default function PatientDashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {nearbyFacilities.map((fac, idx) => (
+                {stockLoading ? (
+                  <div className="py-8 text-center text-slate-450 font-bold flex flex-col items-center gap-2">
+                    <Loader2 className="animate-spin text-primary" size={24} />
+                    Querying district pharmacy networks...
+                  </div>
+                ) : (realStockAvailability.length > 0 ? realStockAvailability : nearbyFacilities).map((fac, idx) => (
                   <div key={idx} className="flex justify-between items-center border border-slate-100 p-4 rounded-2xl hover:bg-slate-50 transition-colors text-xs">
                     <div>
                       <strong className="text-slate-800 text-sm block">{fac.name}</strong>
@@ -1298,11 +1382,15 @@ export default function PatientDashboard() {
                         Distance: {fac.distance} | Stock Updated: {fac.updated}
                       </span>
                       <div className="flex gap-2 mt-1.5">
-                        <span className="text-[9px] bg-green-50 text-green-700 px-2 py-0.5 rounded-md font-bold">MC1 Code: {fac.MC1}</span>
+                        {selectedMedicineCheck ? (
+                          <span className="text-[9px] bg-blue-50 text-primary px-2 py-0.5 rounded-md font-bold">Qty: {fac.qty} units</span>
+                        ) : (
+                          <span className="text-[9px] bg-green-50 text-green-700 px-2 py-0.5 rounded-md font-bold">MC1 Code: {fac.MC1}</span>
+                        )}
                         <span className={`text-[9px] px-2 py-0.5 rounded-md font-bold ${
-                          fac.MC2 === "Available" ? "bg-green-50 text-green-700" : fac.MC2 === "Low Stock" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"
+                          fac.MC2 === "Available" ? "bg-green-50 text-green-700" : fac.MC2 === "Low" || fac.MC2 === "Low Stock" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"
                         }`}>
-                          MC2 Code: {fac.MC2}
+                          {selectedMedicineCheck ? "Status: " : "MC2 Code: "}{fac.MC2}
                         </span>
                       </div>
                     </div>

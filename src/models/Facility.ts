@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IFacility extends Document {
   name: string;
-  type: "SubCenter" | "PHC" | "CHC" | "SDH" | "DH" | "PrivateHospital";
+  type: "SubCenter" | "PHC" | "CHC" | "SDH" | "DH" | "PrivateHospital" | "MedicalStore";
   services: string[]; // e.g. ["General Medicine", "Pediatrics", "Maternity", "Diagnostics", "Telemedicine"]
   division: string;
   district: string;
@@ -22,7 +22,7 @@ const FacilitySchema: Schema<IFacility> = new Schema(
     name: { type: String, required: true, trim: true },
     type: {
       type: String,
-      enum: ["SubCenter", "PHC", "CHC", "SDH", "DH", "PrivateHospital"],
+      enum: ["SubCenter", "PHC", "CHC", "SDH", "DH", "PrivateHospital", "MedicalStore"],
       required: true,
       index: true,
     },
