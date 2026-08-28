@@ -33,6 +33,15 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
   // Voice states
   const [voiceOn, setVoiceOn] = useState(true);
   const [isListening, setIsListening] = useState(false);
+  const [isDebugEnabled, setIsDebugEnabled] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hasDebugQuery = window.location.search.includes("debug=true");
+      const hasDebugStorage = localStorage.getItem("jancare_debug") === "true";
+      setIsDebugEnabled(hasDebugQuery || hasDebugStorage);
+    }
+  }, []);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isListeningRef = useRef(false);
@@ -469,7 +478,7 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
             </button>
           </form>
 
-          {debugInfo && debugInfo.intent === "BOOK_APPOINTMENT" && (
+          {debugInfo && debugInfo.intent === "BOOK_APPOINTMENT" && isDebugEnabled && (
             <div className="bg-slate-900 text-slate-350 p-4.5 font-mono text-[9px] border-t border-slate-800 space-y-1 select-text">
               <div className="font-bold text-slate-400 pb-1 border-b border-slate-800">🛠️ Developer Debug Panel (Step 17)</div>
               <div>AI Intent: <span className="text-green-400 font-bold">{debugInfo.intent}</span></div>
