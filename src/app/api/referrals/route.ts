@@ -146,7 +146,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const user = await authenticateRequest(["Doctor", "Specialist", "FacilityAdmin", "SystemAdmin"]);
+    const user = await authenticateRequest(["Doctor", "Specialist", "FacilityAdmin", "SystemAdmin", "ASHA", "ANM"]);
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
     }

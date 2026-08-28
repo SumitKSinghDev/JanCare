@@ -48,9 +48,17 @@ export default function AshaDashboard() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [patients, setPatients] = useState<any[]>([]);
   const [referrals, setReferrals] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [followups, setFollowups] = useState<any[]>([]);
+  
   const [filterType, setFilterType] = useState<"all" | "registered" | "referred" | "followup" | "priority">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Active sub-filters
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [referralFilter, setReferralFilter] = useState<"All" | "New" | "Accepted" | "In Progress" | "Completed">("All");
+  const [followupFilter, setFollowupFilter] = useState<"All" | "Due Today" | "Overdue" | "Completed">("All");
 
   // Connectivity state (Simulated & Browser linked)
   const [isOnline, setIsOnline] = useState(true);
@@ -60,6 +68,22 @@ export default function AshaDashboard() {
 
   // App Shell active state navigation tab
   const [activeTab, setActiveTab] = useState("Dashboard");
+
+  useEffect(() => {
+    if (activeTab === "Dashboard") {
+      fetchProfileAndPatients();
+    } else if (activeTab === "Appointments") {
+      fetchAppointments();
+    } else if (activeTab === "Referrals") {
+      fetchReferrals();
+    } else if (activeTab === "Follow-ups") {
+      fetchFollowups();
+    } else if (activeTab === "Priority Cases") {
+      fetchPriorityCases();
+    } else if (activeTab === "My Patients") {
+      fetchProfileAndPatients();
+    }
+  }, [activeTab]);
 
   // Registration form inputs
   const [regName, setRegName] = useState("");
@@ -140,6 +164,104 @@ export default function AshaDashboard() {
       console.error("Failed to load dashboard data:", error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchAppointments() {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/appointments");
+      const data = await res.json();
+      if (data.success) {
+        setAppointments(data.appointments);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchReferrals() {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/referrals");
+      const data = await res.json();
+      if (data.success) {
+        setReferrals(data.referrals);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchFollowups() {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/followups");
+      const data = await res.json();
+      if (data.success) {
+        setFollowups(data.followups);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchPriorityCases() {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/patients");
+      const data = await res.json();
+      if (data.success) {
+        setPatients(data.patients);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleAcceptReferral(referralId: string) {
+    try {
+      const res = await fetch("/api/referrals", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ referralId, status: "Accepted" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Referral accepted successfully!");
+        fetchReferrals();
+      } else {
+        alert("Failed to accept referral: " + data.error);
+      }
+    } catch (e: any) {
+      alert("Error: " + e.message);
+    }
+  }
+
+  async function handleCompleteFollowUp(followupId: string) {
+    try {
+      const res = await fetch("/api/followups", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ followupId, status: "Completed" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Follow-up marked completed!");
+        fetchFollowups();
+      } else {
+        alert("Failed to update follow-up: " + data.error);
+      }
+    } catch (e: any) {
+      alert("Error: " + e.message);
     }
   }
 
@@ -560,110 +682,191 @@ export default function AshaDashboard() {
         </div>
       )}
 
-      {/* 2. PATIENTS REGISTRY VIEW */}
       {activeTab === "My Patients" && (
-        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
-            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Outreach Patient Registry</h2>
-            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 text-xs">
-              <Search size={14} className="text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search name, ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-0 outline-hidden pl-2 text-xs"
-              />
-            </div>
-          </div>
+        <div className="space-y-6">
+          {!selectedPatient ? (
+            <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
+                <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Outreach Patient Registry</h2>
+                <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 text-xs">
+                  <Search size={14} className="text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search name, ID..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-transparent border-0 outline-hidden pl-2 text-xs text-slate-700 font-bold"
+                  />
+                </div>
+              </div>
 
-          {/* Segmented Filters */}
-          <div className="flex flex-wrap gap-2 pb-2">
-            {[
-              { type: "all", label: "All Patients" },
-              { type: "registered", label: "Registered by Me" },
-              { type: "referred", label: "Doctor Referrals" },
-              { type: "followup", label: "Follow-ups Due" },
-              { type: "priority", label: "Priority Cases" },
-            ].map((btn) => (
-              <button
-                key={btn.type}
-                onClick={() => setFilterType(btn.type as any)}
-                className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer border-0 ${
-                  filterType === btn.type
-                    ? "bg-[#1464D2] text-white shadow-xs"
-                    : "bg-slate-100 text-slate-650 hover:bg-slate-200"
-                }`}
-              >
-                {btn.label}
-              </button>
-            ))}
-          </div>
+              {/* Segmented Filters */}
+              <div className="flex flex-wrap gap-2 pb-2">
+                {[
+                  { type: "all", label: "All Patients" },
+                  { type: "registered", label: "Registered by Me" },
+                  { type: "referred", label: "Doctor Referrals" },
+                  { type: "followup", label: "Follow-ups Due" },
+                  { type: "priority", label: "Priority Cases" },
+                ].map((btn) => (
+                  <button
+                    key={btn.type}
+                    onClick={() => setFilterType(btn.type as any)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer border-0 ${
+                      filterType === btn.type
+                        ? "bg-[#1464D2] text-white shadow-xs"
+                        : "bg-slate-100 text-slate-655 hover:bg-slate-200"
+                    }`}
+                  >
+                    {btn.label}
+                  </button>
+                ))}
+              </div>
 
-          <div className="overflow-x-auto text-xs">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
-                  <th className="py-2.5 px-4">Patient Ref ID</th>
-                  <th className="py-2.5 px-4">Name</th>
-                  <th className="py-2.5 px-4">Acquisition / Source</th>
-                  <th className="py-2.5 px-4">Age/Sex</th>
-                  <th className="py-2.5 px-4">Mobile</th>
-                  <th className="py-2.5 px-4">Village</th>
-                  <th className="py-2.5 px-4 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredPatients.length > 0 ? (
-                  filteredPatients.map((pat) => (
-                    <tr key={pat._id || pat.id} className="hover:bg-slate-50/50">
-                      <td className="py-3 px-4 font-mono font-semibold text-slate-500">{pat.patientRefId || "OFFLINE"}</td>
-                      <td className="py-3 px-4 font-bold text-slate-700">
-                        <div className="flex flex-col">
-                          <span>{pat.name}</span>
-                          {pat.isUrgent && (
-                            <span className="inline-flex items-center text-[8px] font-extrabold text-red-600 bg-red-50 px-1 py-0.5 rounded mt-0.5 w-max">Urgent Attention</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex flex-col gap-0.5">
-                          {pat.source === "DOCTOR_REFERRED" ? (
-                            <>
-                              <span className="inline-flex items-center text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full w-max">🔵 Doctor Referral</span>
-                              <span className="text-[9px] text-slate-455">Referred by {pat.referredBy}</span>
-                            </>
-                          ) : (
-                            <span className="inline-flex items-center text-[9px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full w-max">🟢 Registered by Me</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-slate-500">{pat.age}y / {pat.gender}</td>
-                      <td className="py-3 px-4 text-slate-500">{pat.mobile}</td>
-                      <td className="py-3 px-4 text-slate-500">{pat.village}</td>
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => {
-                            setSelectedPatientId(pat._id || pat.id);
-                            setActiveTab("Vitals & Symptoms");
-                          }}
-                          className="bg-primary hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-lg cursor-pointer border-0 text-[10px]"
-                        >
-                          Record Vitals
-                        </button>
-                      </td>
+              <div className="overflow-x-auto text-xs">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                      <th className="py-2.5 px-4">Patient Ref ID</th>
+                      <th className="py-2.5 px-4">Name</th>
+                      <th className="py-2.5 px-4">Acquisition / Source</th>
+                      <th className="py-2.5 px-4">Age/Sex</th>
+                      <th className="py-2.5 px-4">Mobile</th>
+                      <th className="py-2.5 px-4">Village</th>
+                      <th className="py-2.5 px-4 text-center">Action</th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-400">
-                      No patients match the selected filter.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredPatients.length > 0 ? (
+                      filteredPatients.map((pat) => (
+                        <tr key={pat._id || pat.id} className="hover:bg-slate-50/50">
+                          <td className="py-3 px-4 font-mono font-semibold text-slate-500">{pat.patientRefId || "OFFLINE"}</td>
+                          <td className="py-3 px-4 font-bold text-slate-700">
+                            <div className="flex flex-col">
+                              <span>{pat.name}</span>
+                              {pat.isUrgent && (
+                                <span className="inline-flex items-center text-[8px] font-extrabold text-red-650 bg-red-50 px-1 py-0.5 rounded mt-0.5 w-max">Urgent Attention</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex flex-col gap-0.5 font-sans">
+                              {pat.source === "DOCTOR_REFERRED" ? (
+                                <>
+                                  <span className="inline-flex items-center text-[9px] font-bold text-blue-650 bg-blue-50 px-1.5 py-0.5 rounded-full w-max">Doctor Referral</span>
+                                  <span className="text-[9px] text-slate-455">Referred by {pat.referredBy || "Dr. XYZ"}</span>
+                                </>
+                              ) : (
+                                <span className="inline-flex items-center text-[9px] font-bold text-green-650 bg-green-50 px-1.5 py-0.5 rounded-full w-max">Registered by Me</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-slate-500">{pat.age}y / {pat.gender}</td>
+                          <td className="py-3 px-4 text-slate-500">{pat.mobile}</td>
+                          <td className="py-3 px-4 text-slate-500">{pat.village}</td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex justify-center gap-1.5">
+                              <button
+                                onClick={() => setSelectedPatient(pat)}
+                                className="bg-[#F8FAFC] hover:bg-slate-100 text-slate-750 font-bold py-1 px-2.5 rounded-lg border border-slate-200 cursor-pointer text-[10px]"
+                              >
+                                View Details
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedPatientId(pat._id || pat.id);
+                                  setActiveTab("Vitals & Symptoms");
+                                }}
+                                className="bg-primary hover:bg-blue-600 text-white font-bold py-1 px-2.5 rounded-lg cursor-pointer border-0 text-[10px]"
+                              >
+                                Record Vitals
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-slate-400 font-mono italic">
+                          No patients match the selected filter.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            /* Patient Details Panel (Step 6) */
+            <div className="bg-white border border-slate-200/80 p-6 sm:p-8 rounded-3xl shadow-xs space-y-6 text-left animate-in zoom-in-98 duration-200">
+              <div className="border-b border-slate-100 pb-4">
+                <button
+                  onClick={() => setSelectedPatient(null)}
+                  className="text-primary hover:underline cursor-pointer border-0 bg-transparent text-xs font-bold flex items-center gap-1"
+                >
+                  ← Back to Patient Registry
+                </button>
+                <h2 className="text-lg font-extrabold text-slate-800 mt-2">Patient Case Details: {selectedPatient.name}</h2>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* Demographics Card */}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 text-xs">
+                  <strong className="text-slate-800 font-extrabold block text-sm uppercase tracking-wider">Demographics</strong>
+                  <div className="space-y-2 text-slate-655 font-semibold">
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Patient Reference ID</span> {selectedPatient.patientRefId || "OFFLINE"}</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Gender / Age</span> {selectedPatient.gender} / {selectedPatient.age} Years</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Mobile Number</span> {selectedPatient.mobile || "Not configured"}</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Village Node</span> {selectedPatient.village}, {selectedPatient.taluka}, {selectedPatient.district}</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Associated ASHA</span> {currentUser?.name || "Sharda Patil"}</p>
+                  </div>
+                </div>
+
+                {/* Vitals Summary Card */}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 text-xs md:col-span-2">
+                  <strong className="text-slate-800 font-extrabold block text-sm uppercase tracking-wider">Baseline Vitals Timeline</strong>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 font-bold text-slate-705">
+                    <div className="bg-white border border-slate-100 p-3 rounded-xl">
+                      <span className="text-[9px] text-slate-400 block uppercase">Temperature</span>
+                      <span className="text-base text-slate-850">98.6 °F</span>
+                    </div>
+                    <div className="bg-white border border-slate-100 p-3 rounded-xl">
+                      <span className="text-[9px] text-slate-400 block uppercase">SpO2 Level</span>
+                      <span className="text-base text-slate-850">98%</span>
+                    </div>
+                    <div className="bg-white border border-slate-100 p-3 rounded-xl">
+                      <span className="text-[9px] text-slate-400 block uppercase">Pulse Rate</span>
+                      <span className="text-base text-slate-850">72 bpm</span>
+                    </div>
+                    <div className="bg-white border border-slate-100 p-3 rounded-xl">
+                      <span className="text-[9px] text-slate-400 block uppercase">Blood Pressure</span>
+                      <span className="text-base text-slate-850">120/80 mmHg</span>
+                    </div>
+                    <div className="bg-white border border-slate-100 p-3 rounded-xl">
+                      <span className="text-[9px] text-slate-400 block uppercase">Triage level</span>
+                      <span className="text-green-700 mt-1 block flex items-center gap-1 font-extrabold text-[11px]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> Routine
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Clinic outreach timeline history */}
+              <div className="border-t border-slate-100 pt-6 space-y-4">
+                <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800">Care History Logs</h3>
+                <div className="space-y-3 text-xs font-semibold">
+                  <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50">
+                    <div className="flex justify-between font-bold border-b border-slate-200 pb-1.5 mb-2.5">
+                      <span>ASHA Triage Visit</span>
+                      <span className="text-slate-450 font-mono">26 Aug 2026</span>
+                    </div>
+                    <p className="text-slate-655"><span className="text-slate-450 block text-[9px] uppercase">Recorded Symptoms</span> Fever, Mild headache</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1008,21 +1211,388 @@ export default function AshaDashboard() {
         </div>
       )}
 
-      {/* 5. OTHER TABVIEWS */}
-      {activeTab !== "Dashboard" && activeTab !== "My Patients" && activeTab !== "Register Patient" && activeTab !== "Vitals & Symptoms" && (
-        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 min-h-[400px]">
-          <h2 className="text-lg font-extrabold text-slate-800">{activeTab} Workspace</h2>
-          <p className="text-xs text-slate-500">Panel for ASHA {activeTab} information logs.</p>
-          
-          <div className="border border-slate-100 p-8 rounded-2xl bg-slate-50 text-xs text-slate-400 text-center flex flex-col items-center justify-center space-y-2">
-            <Activity size={32} className="text-slate-300 animate-pulse" />
-            <span>Currently showing {activeTab} details.</span>
+      {/* 5. ASHA PROFILE WORKSPACE */}
+      {activeTab === "Profile" && (
+        <div className="bg-white border border-slate-200/80 p-6 sm:p-8 rounded-3xl shadow-xs space-y-6 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-4">
+            <h2 className="text-lg font-extrabold text-slate-800">ASHA Profile</h2>
+            <p className="text-xs text-slate-500">Your health worker registration profile and jurisdiction details.</p>
+          </div>
+
+          <div className="grid md:grid-cols-12 gap-6 items-start">
+            {/* Avatar card */}
+            <div className="md:col-span-4 bg-[#F8FAFC] border border-slate-200 rounded-3xl p-6 flex flex-col items-center text-center space-y-3">
+              <div className="h-20 w-20 bg-blue-50 border-2 border-blue-200 text-primary font-extrabold rounded-full flex items-center justify-center text-xl shadow-xs">
+                {currentUser?.name?.split(" ").map((n: string) => n[0]).join("") || "ASHA"}
+              </div>
+              <div>
+                <strong className="text-sm font-extrabold text-slate-850 block">{currentUser?.name || "Sharda Patil"}</strong>
+                <span className="text-[9px] bg-green-50 text-green-700 font-bold px-2.5 py-0.5 rounded-full mt-1.5 inline-block border border-green-200/55">
+                  ASHA ID: {currentUser?.username || "ASHA-NSK-001"}
+                </span>
+              </div>
+              <div className="w-full pt-4 border-t border-slate-200 text-left space-y-2 text-[11px] text-slate-600 font-semibold">
+                <div className="flex justify-between">
+                  <span>Role Grid:</span>
+                  <span className="font-mono text-slate-450 uppercase">{currentUser?.role || "ASHA"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Status:</span>
+                  <span className="text-green-600">Active</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile fields details grid */}
+            <div className="md:col-span-8 space-y-4">
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 text-xs">
+                <strong className="text-slate-800 font-extrabold block text-xs uppercase tracking-wider border-b border-slate-100 pb-1.5">Outreach Geography</strong>
+                <div className="grid sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
+                  <div>
+                    <span className="text-[9px] text-slate-450 block uppercase">District Node</span>
+                    <span>Nashik</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-450 block uppercase">Taluka Node</span>
+                    <span>Sinnar</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-450 block uppercase">Assigned Village</span>
+                    <span>Demo Village</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-450 block uppercase">Associated PHC</span>
+                    <span>PHC 1 Demo</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 text-xs">
+                <strong className="text-slate-800 font-extrabold block text-xs uppercase tracking-wider border-b border-slate-100 pb-1.5">Preferred Languages</strong>
+                <p className="text-slate-650 font-semibold">Marathi, Hindi, English</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. PRIORITY CASES DIRECTORY */}
+      {activeTab === "Priority Cases" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-extrabold text-slate-800">Priority Cases Directory</h2>
+            <p className="text-xs text-slate-500">Patients categorized by clinical vitals severity levels.</p>
+          </div>
+
+          <div className="grid gap-3 text-xs font-semibold">
+            {patients.filter(p => p.triageStatus === "Urgent" || p.triageStatus === "Priority").length === 0 ? (
+              <div className="py-12 text-center text-slate-400 text-xs italic bg-slate-50 rounded-2xl border border-slate-100">
+                No priority cases registered in your village node.
+              </div>
+            ) : (
+              patients
+                .filter(p => p.triageStatus === "Urgent" || p.triageStatus === "Priority")
+                .map(p => {
+                  const isUrgent = p.triageStatus === "Urgent";
+                  return (
+                    <div key={p._id} className="border border-slate-200 p-4.5 rounded-2xl bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <strong className="text-slate-800 text-sm">{p.name}</strong>
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase ${
+                            isUrgent ? "bg-red-50 text-red-700 border border-red-100" : "bg-amber-50 text-amber-700 border border-amber-100"
+                          }`}>{p.triageStatus}</span>
+                        </div>
+                        <p className="text-slate-400 mt-1">ID: {p.patientRefId} | {p.age} Yrs / {p.gender}</p>
+                        <p className="text-slate-650 mt-1">District: {p.district} | village: {p.village}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedPatient(p);
+                          setActiveTab("My Patients");
+                        }}
+                        className="bg-primary hover:bg-blue-600 text-white font-bold px-3 py-2 rounded-xl text-[10px] cursor-pointer border-0 shrink-0"
+                      >
+                        Open Profile
+                      </button>
+                    </div>
+                  );
+                })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 7. APPOINTMENTS SCHEDULE */}
+      {activeTab === "Appointments" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-extrabold text-slate-800">Coordinated Appointments</h2>
+            <p className="text-xs text-slate-500">View scheduled clinic or tele-consultation sessions for your village patients.</p>
+          </div>
+
+          {appointments.length === 0 ? (
+            <div className="py-12 text-center text-slate-400 text-xs italic bg-slate-50 rounded-2xl border border-slate-100">
+              No appointments scheduled.
+            </div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-[#F8FAFC]/50">
+                    <th className="py-2.5 px-4">Date / Time</th>
+                    <th className="py-2.5 px-4">Patient Name</th>
+                    <th className="py-2.5 px-4">Doctor</th>
+                    <th className="py-2.5 px-4">Source</th>
+                    <th className="py-2.5 px-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {appointments.map((app) => (
+                    <tr key={app._id} className="hover:bg-slate-50/50">
+                      <td className="py-3 px-4 font-mono font-bold text-slate-700">
+                        {new Date(app.appointmentDate).toLocaleDateString()} at {app.appointmentTime || "11:30 AM"}
+                      </td>
+                      <td className="py-3 px-4 text-slate-800 font-bold">{app.patientId?.name || "Ramesh Kumar"}</td>
+                      <td className="py-3 px-4 text-slate-550 font-semibold">{app.doctorId?.name || "Dr. XYZ"}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-0.5 rounded font-bold text-[8px] uppercase ${
+                          app.bookingSource === "AI_ASSISTANT" ? "bg-purple-50 text-purple-700 border border-purple-100" : "bg-blue-50 text-blue-700 border border-blue-100"
+                        }`}>{app.bookingSource || "MANUAL"}</span>
+                      </td>
+                      <td className="py-3 px-4 font-semibold text-slate-600">{app.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 8. REFERRALS TASK LIST */}
+      {activeTab === "Referrals" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-extrabold text-slate-800">Incoming Referrals</h2>
+            <p className="text-xs text-slate-500">Track referred cases assigned to you by doctors for home visits.</p>
+          </div>
+
+          <div className="flex gap-2 pb-2">
+            {["All", "New", "Accepted", "Completed"].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setReferralFilter(filter as any)}
+                className={`px-3 py-1 rounded-lg text-xs font-bold border cursor-pointer ${
+                  referralFilter === filter
+                    ? "bg-primary text-white border-primary"
+                    : "bg-[#F8FAFC] text-slate-500 border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+
+          {referrals.length === 0 ? (
+            <div className="py-12 text-center text-slate-400 text-xs italic bg-slate-50 rounded-2xl border border-slate-100">
+              No referrals assigned to you.
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-4">
+              {referrals
+                .filter(ref => referralFilter === "All" || (referralFilter === "New" && ref.status === "Created") || (referralFilter === "Accepted" && ref.status === "Accepted") || (referralFilter === "Completed" && ref.status === "Completed"))
+                .map((ref) => (
+                  <div key={ref._id} className="border border-slate-200 p-4.5 rounded-2xl bg-slate-50 space-y-3 text-xs">
+                    <div className="flex justify-between border-b border-slate-200 pb-2">
+                      <strong className="text-slate-800 block text-sm">{ref.patientId?.name}</strong>
+                      <span className="text-[10px] text-slate-450 font-mono font-semibold">{new Date(ref.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="space-y-1 text-slate-650 font-semibold">
+                      <p><span className="text-slate-450 block text-[9px] uppercase">Reason</span> {ref.reason}</p>
+                      <p><span className="text-slate-450 block text-[9px] uppercase">Referring Doctor</span> {ref.referringDoctorId?.name || "Dr. XYZ"}</p>
+                      <p><span className="text-slate-450 block text-[9px] uppercase">Instructions</span> {ref.instructions || "None"}</p>
+                      <p><span className="text-slate-450 block text-[9px] uppercase">Priority</span> {ref.priority}</p>
+                      <p><span className="text-slate-450 block text-[9px] uppercase">Status</span> {ref.status}</p>
+                    </div>
+                    {ref.status === "Created" && (
+                      <button
+                        onClick={() => handleAcceptReferral(ref._id)}
+                        className="w-full bg-primary hover:bg-blue-600 text-white font-extrabold py-2.5 rounded-xl border-0 cursor-pointer text-xs mt-2"
+                      >
+                        Accept Referral Task
+                      </button>
+                    )}
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 9. FOLLOW-UP CARE CHECKS */}
+      {activeTab === "Follow-ups" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-extrabold text-slate-800">Follow-up Tasks</h2>
+            <p className="text-xs text-slate-500">Coordinate recovery timelines, check compliance, and record follow-up vitals.</p>
+          </div>
+
+          {followups.length === 0 ? (
+            <div className="py-12 text-center text-slate-400 text-xs italic bg-slate-50 rounded-2xl border border-slate-100">
+              No follow-up checks scheduled.
+            </div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-[#F8FAFC]/50">
+                    <th className="py-2.5 px-4">Due Date</th>
+                    <th className="py-2.5 px-4">Patient</th>
+                    <th className="py-2.5 px-4">Task Description</th>
+                    <th className="py-2.5 px-4">Status</th>
+                    <th className="py-2.5 px-4 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {followups.map((f) => (
+                    <tr key={f._id} className="hover:bg-slate-50/50">
+                      <td className="py-3 px-4 font-mono font-bold text-slate-700">
+                        {new Date(f.dueDate).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 px-4 text-slate-805 font-bold">{f.patientId?.name || "Ramesh Kumar"}</td>
+                      <td className="py-3 px-4 text-slate-600 font-semibold">{f.notes || f.type}</td>
+                      <td className="py-3 px-4 font-semibold">
+                        <span className={`px-2 py-0.5 rounded font-bold text-[8px] uppercase ${
+                          f.status === "Upcoming" ? "bg-amber-50 text-amber-700 border border-amber-100" : "bg-green-50 text-green-700 border border-green-100"
+                        }`}>{f.status}</span>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {f.status === "Upcoming" ? (
+                          <div className="flex justify-center gap-1.5">
+                            <button
+                              onClick={() => {
+                                setSelectedPatientId(f.patientId?._id);
+                                setActiveTab("Vitals & Symptoms");
+                              }}
+                              className="bg-[#F8FAFC] hover:bg-slate-100 text-slate-750 font-bold py-1 px-2.5 rounded-lg border border-slate-200 cursor-pointer text-[10px]"
+                            >
+                              Record Vitals
+                            </button>
+                            <button
+                              onClick={() => handleCompleteFollowUp(f._id)}
+                              className="bg-primary hover:bg-blue-600 text-white font-bold py-1 px-2.5 rounded-lg border-0 cursor-pointer text-[10px]"
+                            >
+                              Complete
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 font-bold text-[9px]">Completed</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 10. OFFLINE QUEUE & SYNC */}
+      {activeTab === "Offline & Sync" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
+            <div>
+              <h2 className="text-lg font-extrabold text-slate-800">Offline & Synchronization</h2>
+              <p className="text-xs text-slate-500">Manage local data queue and synchronization states.</p>
+            </div>
             <button
-              onClick={() => setActiveTab("Dashboard")}
-              className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent mt-2 text-xs"
+              onClick={toggleConnectivity}
+              className={`font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer text-white ${
+                isOnline ? "bg-[#1464D2]" : "bg-amber-600"
+              }`}
             >
-              Back to Overview Dashboard
+              {isOnline ? "Simulate Offline Mode" : "Connect & Sync Now"}
             </button>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4 text-xs font-semibold">
+            <div className="bg-[#F8FAFC] border border-slate-200 p-4.5 rounded-2xl space-y-2">
+              <span className="text-[9px] text-slate-400 uppercase tracking-wider block font-bold">Network Connection</span>
+              <div className="flex items-center gap-2">
+                {isOnline ? (
+                  <>
+                    <Wifi className="text-green-600" size={16} />
+                    <span className="text-green-700 font-bold text-sm">Online Status</span>
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="text-amber-600" size={16} />
+                    <span className="text-amber-700 font-bold text-sm">Offline Storing Mode</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-[#F8FAFC] border border-slate-200 p-4.5 rounded-2xl space-y-2">
+              <span className="text-[9px] text-slate-400 uppercase tracking-wider block font-bold">Pending Sync Logs</span>
+              <strong className="text-slate-800 text-lg block">{offlineCount} Records Queue</strong>
+            </div>
+
+            <div className="bg-[#F8FAFC] border border-slate-200 p-4.5 rounded-2xl space-y-2">
+              <span className="text-[9px] text-slate-400 uppercase tracking-wider block font-bold">Status Sync</span>
+              <strong className="text-slate-850 text-sm block">{syncStatus}</strong>
+            </div>
+          </div>
+
+          {/* Sync activity logs */}
+          <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50 space-y-2 text-xs">
+            <strong className="text-slate-850 block">Synchronization Audit Logs</strong>
+            <div className="bg-white border border-slate-150 p-3 rounded-xl max-h-40 overflow-y-auto space-y-1.5 text-[10px] text-slate-500 font-mono">
+              {syncLogs.length === 0 ? (
+                <div className="italic text-slate-400 text-center py-4">No recent activity. Try offline actions.</div>
+              ) : (
+                syncLogs.map((log, idx) => <div key={idx}>{log}</div>)
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 11. VILLAGE MAP */}
+      {activeTab === "Village / Map" && (
+        <div className="bg-white border border-slate-200/80 p-6 sm:p-8 rounded-3xl shadow-xs space-y-6 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-extrabold text-slate-800">ASHA Outreach Geography</h2>
+            <p className="text-xs text-slate-500">Your assigned villages and nearby health facilities.</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs font-semibold text-slate-700">
+            <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+              <span className="text-[9px] text-slate-450 block uppercase font-bold">State</span>
+              <span>Maharashtra</span>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+              <span className="text-[9px] text-slate-450 block uppercase font-bold">District</span>
+              <span>Nashik</span>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+              <span className="text-[9px] text-slate-450 block uppercase font-bold">Taluka</span>
+              <span>Sinnar</span>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+              <span className="text-[9px] text-slate-450 block uppercase font-bold">Outreach Village</span>
+              <span>Demo Village</span>
+            </div>
+          </div>
+
+          {/* Map layout */}
+          <div className="border border-slate-200 rounded-3xl overflow-hidden shadow-xs h-64 bg-slate-105 flex flex-col justify-center items-center text-center p-6 relative">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#1464D2_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+            <MapPin className="text-[#1464D2] animate-bounce shrink-0" size={36} />
+            <strong className="text-slate-850 block mt-2 text-sm">Demo Village Map Node</strong>
+            <p className="text-slate-500 text-xs mt-1 max-w-sm font-semibold">Outreach coordinates centered at Sinnar Sub-District. Protected geography is online.</p>
           </div>
         </div>
       )}
