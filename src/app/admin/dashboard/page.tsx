@@ -38,7 +38,12 @@ import {
   Download,
   Filter,
   FileSpreadsheet,
-  Settings
+  Settings,
+  Building,
+  Video,
+  Share2,
+  RotateCcw,
+  ClipboardList
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 
@@ -52,9 +57,178 @@ export default function AdminDashboard() {
   // App Shell active state navigation tab
   const [activeTab, setActiveTab] = useState("Overview");
 
+  // District management entities states
+  const [facilities, setFacilities] = useState<any[]>([]);
+  const [patients, setPatients] = useState<any[]>([]);
+  const [consultations, setConsultations] = useState<any[]>([]);
+  const [medicines, setMedicines] = useState<any[]>([]);
+  const [referrals, setReferrals] = useState<any[]>([]);
+  const [followups, setFollowups] = useState<any[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [selectedFacility, setSelectedFacility] = useState<any>(null);
+  const [tabLoading, setTabLoading] = useState(false);
+  const [tabError, setTabError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTaluka, setFilterTaluka] = useState("All");
+  const [filterType, setFilterType] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("All");
+
+  // Admin settings config preferences
+  const [alertThreshold, setAlertThreshold] = useState("3");
+  const [refreshInterval, setRefreshInterval] = useState("30");
+  const [emailAlerts, setEmailAlerts] = useState(true);
+  const [criticalAlerts, setCriticalAlerts] = useState(true);
+
+  // Alerts acknowledge/resolve states
+  const [acknowledgedAlerts, setAcknowledgedAlerts] = useState<string[]>([]);
+  const [resolvedAlerts, setResolvedAlerts] = useState<string[]>([]);
+
   useEffect(() => {
     fetchAnalyticsData();
   }, []);
+
+  useEffect(() => {
+    setSelectedFacility(null);
+    setSearchQuery("");
+    setFilterTaluka("All");
+    setFilterType("All");
+    setFilterStatus("All");
+    setTabError("");
+
+    if (activeTab === "Facilities") fetchFacilities();
+    if (activeTab === "Patients") fetchPatients();
+    if (activeTab === "Consultations") fetchConsultations();
+    if (activeTab === "Medicine Availability" || activeTab === "Medicine Shortages") fetchMedicines();
+    if (activeTab === "Referrals") fetchReferrals();
+    if (activeTab === "Follow-ups") fetchFollowups();
+    if (activeTab === "Audit Logs") fetchAuditLogs();
+  }, [activeTab]);
+
+  async function fetchFacilities() {
+    try {
+      setTabLoading(true);
+      setTabError("");
+      const res = await fetch("/api/facilities");
+      const data = await res.json();
+      if (data.success) {
+        setFacilities(data.facilities);
+      } else {
+        setTabError(data.error || "Unable to load facilities.");
+      }
+    } catch (e) {
+      setTabError("Failed to fetch facilities. Please try again.");
+    } finally {
+      setTabLoading(false);
+    }
+  }
+
+  async function fetchPatients() {
+    try {
+      setTabLoading(true);
+      setTabError("");
+      const res = await fetch("/api/patients");
+      const data = await res.json();
+      if (data.success) {
+        setPatients(data.patients);
+      } else {
+        setTabError(data.error || "Unable to load patient directory.");
+      }
+    } catch (e) {
+      setTabError("Failed to fetch patient records. Please try again.");
+    } finally {
+      setTabLoading(false);
+    }
+  }
+
+  async function fetchConsultations() {
+    try {
+      setTabLoading(true);
+      setTabError("");
+      const res = await fetch("/api/consultations");
+      const data = await res.json();
+      if (data.success) {
+        setConsultations(data.consultations);
+      } else {
+        setTabError(data.error || "Unable to load consultations logs.");
+      }
+    } catch (e) {
+      setTabError("Failed to fetch consultations. Please try again.");
+    } finally {
+      setTabLoading(false);
+    }
+  }
+
+  async function fetchMedicines() {
+    try {
+      setTabLoading(true);
+      setTabError("");
+      const res = await fetch("/api/medicines");
+      const data = await res.json();
+      if (data.success) {
+        setMedicines(data.medicines);
+      } else {
+        setTabError(data.error || "Unable to load medicine inventory.");
+      }
+    } catch (e) {
+      setTabError("Failed to fetch medicine stock. Please try again.");
+    } finally {
+      setTabLoading(false);
+    }
+  }
+
+  async function fetchReferrals() {
+    try {
+      setTabLoading(true);
+      setTabError("");
+      const res = await fetch("/api/referrals");
+      const data = await res.json();
+      if (data.success) {
+        setReferrals(data.referrals);
+      } else {
+        setTabError(data.error || "Unable to load referrals logs.");
+      }
+    } catch (e) {
+      setTabError("Failed to fetch referrals logs. Please try again.");
+    } finally {
+      setTabLoading(false);
+    }
+  }
+
+  async function fetchFollowups() {
+    try {
+      setTabLoading(true);
+      setTabError("");
+      const res = await fetch("/api/followups");
+      const data = await res.json();
+      if (data.success) {
+        setFollowups(data.followups);
+      } else {
+        setTabError(data.error || "Unable to load follow-ups queue.");
+      }
+    } catch (e) {
+      setTabError("Failed to fetch follow-ups records. Please try again.");
+    } finally {
+      setTabLoading(false);
+    }
+  }
+
+  async function fetchAuditLogs() {
+    try {
+      setTabLoading(true);
+      setTabError("");
+      const res = await fetch("/api/admin/audit");
+      const data = await res.json();
+      if (data.success) {
+        setAuditLogs(data.logs);
+      } else {
+        setTabError(data.error || "Unable to load audit trails.");
+      }
+    } catch (e) {
+      setTabError("Failed to fetch administrative audits. Please try again.");
+    } finally {
+      setTabLoading(false);
+    }
+  }
 
   async function fetchAnalyticsData() {
     try {
@@ -363,21 +537,674 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* 2. OTHER TABVIEWS */}
-      {activeTab !== "Overview" && (
-        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 min-h-[400px]">
-          <h2 className="text-lg font-extrabold text-slate-800">{activeTab} Workstation</h2>
-          <p className="text-xs text-slate-500">Panel for District Admin {activeTab} analytics logs.</p>
-          
-          <div className="border border-slate-100 p-8 rounded-2xl bg-slate-50 text-xs text-slate-400 text-center flex flex-col items-center justify-center space-y-2">
-            <FileSpreadsheet size={32} className="text-slate-300 animate-pulse" />
-            <span>Currently showing {activeTab} command interface.</span>
-            <button
-              onClick={() => setActiveTab("Overview")}
-              className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent mt-2 text-xs"
-            >
-              Back to Overview Dashboard
-            </button>
+      {/* 2. MAHARASHTRA NETWORK */}
+      {activeTab === "Maharashtra Network" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-6 text-left">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Maharashtra District Network Overview</h2>
+              <span className="text-[10px] bg-blue-50 text-primary px-3 py-1 rounded-full font-bold">Active Hub: Nashik District</span>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+              <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200/50">
+                <span className="text-[9px] text-slate-400 font-bold uppercase block">Talukas Covered</span>
+                <strong className="text-base text-slate-800 block mt-1">4 Active</strong>
+                <span className="text-[8px] text-slate-500 block mt-0.5">Sinnar, Igatpuri, Dindori, Niphad</span>
+              </div>
+              <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200/50">
+                <span className="text-[9px] text-slate-400 font-bold uppercase block">Active Facilities</span>
+                <strong className="text-base text-slate-800 block mt-1">16 Facilities</strong>
+                <span className="text-[8px] text-slate-500 block mt-0.5">1 CHC | 12 PHCs | 3 Rural Hospitals</span>
+              </div>
+              <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200/50">
+                <span className="text-[9px] text-slate-400 font-bold uppercase block">Healthcare Workers</span>
+                <strong className="text-base text-slate-800 block mt-1">84 Registered</strong>
+                <span className="text-[8px] text-slate-500 block mt-0.5">24 Doctors | 60 ASHA Workers</span>
+              </div>
+              <div className="bg-slate-50 p-4.5 rounded-2xl border border-slate-200/50">
+                <span className="text-[9px] text-slate-400 font-bold uppercase block">Total Referral Traffic</span>
+                <strong className="text-base text-slate-800 block mt-1">2,345 Cases</strong>
+                <span className="text-[8px] text-green-600 font-bold block mt-0.5">91% Completion Rate</span>
+              </div>
+            </div>
+
+            <div className="border border-slate-100 p-5 rounded-2xl bg-slate-50/50">
+              <h3 className="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider">Taluka Load Distribution</h3>
+              <div className="overflow-x-auto text-xs">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-400 font-semibold bg-white">
+                      <th className="py-2.5 px-4">Taluka Name</th>
+                      <th className="py-2.5 px-4">Associated PHCs</th>
+                      <th className="py-2.5 px-4">Doctors Assigned</th>
+                      <th className="py-2.5 px-4">Active Patients</th>
+                      <th className="py-2.5 px-4 text-center">Triage Urgent load</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-slate-100 hover:bg-slate-100/30">
+                      <td className="py-2.5 px-4 font-bold text-slate-700">Sinnar</td>
+                      <td className="py-2.5 px-4">6 PHCs (Wavi, Chas, Musalgaon...)</td>
+                      <td className="py-2.5 px-4">8 Doctors</td>
+                      <td className="py-2.5 px-4">5,420 Patients</td>
+                      <td className="py-2.5 px-4 text-center"><span className="bg-red-50 text-red-700 px-2 py-0.5 rounded-md font-bold">14 cases</span></td>
+                    </tr>
+                    <tr className="border-b border-slate-100 hover:bg-slate-100/30">
+                      <td className="py-2.5 px-4 font-bold text-slate-700">Igatpuri</td>
+                      <td className="py-2.5 px-4">4 PHCs (Kavnai, Ghoti...)</td>
+                      <td className="py-2.5 px-4">6 Doctors</td>
+                      <td className="py-2.5 px-4">4,120 Patients</td>
+                      <td className="py-2.5 px-4 text-center"><span className="bg-orange-50 text-orange-700 px-2 py-0.5 rounded-md font-bold">8 cases</span></td>
+                    </tr>
+                    <tr className="border-b border-slate-100 hover:bg-slate-100/30">
+                      <td className="py-2.5 px-4 font-bold text-slate-700">Dindori</td>
+                      <td className="py-2.5 px-4">3 PHCs</td>
+                      <td className="py-2.5 px-4">5 Doctors</td>
+                      <td className="py-2.5 px-4">3,890 Patients</td>
+                      <td className="py-2.5 px-4 text-center"><span className="bg-green-50 text-green-700 px-2 py-0.5 rounded-md font-bold">3 cases</span></td>
+                    </tr>
+                    <tr className="hover:bg-slate-100/30">
+                      <td className="py-2.5 px-4 font-bold text-slate-700">Niphad</td>
+                      <td className="py-2.5 px-4">3 PHCs</td>
+                      <td className="py-2.5 px-4">5 Doctors</td>
+                      <td className="py-2.5 px-4">4,990 Patients</td>
+                      <td className="py-2.5 px-4 text-center"><span className="bg-green-50 text-green-700 px-2 py-0.5 rounded-md font-bold">2 cases</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. FACILITIES */}
+      {activeTab === "Facilities" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {!selectedFacility ? (
+            <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
+                <div>
+                  <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Facilities Registry</h2>
+                  <p className="text-[10px] text-slate-400">Total: {facilities.length} active nodes tracked in Nashik</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700"
+                  >
+                    <option value="All">All Types</option>
+                    <option value="PHC">PHC</option>
+                    <option value="CHC">CHC</option>
+                    <option value="SubCentre">Sub Centre</option>
+                  </select>
+                </div>
+              </div>
+
+              {tabLoading ? (
+                <div className="py-12 flex justify-center"><Loader2 className="animate-spin text-primary" size={24} /></div>
+              ) : tabError ? (
+                <div className="p-4 bg-red-50 text-red-700 rounded-2xl text-xs">{tabError}</div>
+              ) : (
+                <div className="overflow-x-auto text-xs">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                        <th className="py-2.5 px-4">Facility Name</th>
+                        <th className="py-2.5 px-4">Type</th>
+                        <th className="py-2.5 px-4">Taluka</th>
+                        <th className="py-2.5 px-4">District</th>
+                        <th className="py-2.5 px-4 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {facilities.filter(f => filterType === "All" || f.type === filterType).map((fac) => (
+                        <tr key={fac._id} className="hover:bg-slate-50/40">
+                          <td className="py-3 px-4 font-bold text-slate-700">{fac.name}</td>
+                          <td className="py-3 px-4 font-semibold text-slate-550">{fac.type}</td>
+                          <td className="py-3 px-4 text-slate-500">{fac.taluka || "Sinnar"}</td>
+                          <td className="py-3 px-4 text-slate-500">{fac.district || "Nashik"}</td>
+                          <td className="py-3 px-4 text-center">
+                            <button
+                              onClick={() => setSelectedFacility(fac)}
+                              className="bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-1 px-3 rounded-lg border-0 cursor-pointer"
+                            >
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Facility Detail Panel */
+            <div className="bg-white border border-slate-200/80 p-6 sm:p-8 rounded-3xl shadow-xs space-y-6 text-left animate-in zoom-in-98 duration-200">
+              <div className="border-b border-slate-100 pb-4">
+                <button
+                  onClick={() => setSelectedFacility(null)}
+                  className="text-primary hover:underline cursor-pointer border-0 bg-transparent text-xs font-bold"
+                >
+                  ← Back to Facilities Directory
+                </button>
+                <h2 className="text-lg font-extrabold text-slate-800 mt-2">Facility Insights: {selectedFacility.name}</h2>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6 text-xs">
+                {/* Summary demographics */}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
+                  <strong className="text-slate-800 font-extrabold text-xs uppercase tracking-wider block">Demographics</strong>
+                  <div className="space-y-2 text-slate-655 font-semibold">
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Facility ID</span> {selectedFacility._id}</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Node Type</span> {selectedFacility.type}</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Taluka</span> {selectedFacility.taluka || "Sinnar"}</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">District</span> {selectedFacility.district || "Nashik"}</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Region Coordinates</span> {selectedFacility.coordinates || "19.8517,74.0006"}</p>
+                  </div>
+                </div>
+
+                {/* Operations Load status */}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 md:col-span-2">
+                  <strong className="text-slate-800 font-extrabold text-xs uppercase tracking-wider block">Operational Status & Load</strong>
+                  <div className="grid grid-cols-2 gap-4 font-bold">
+                    <div className="bg-white border border-slate-100 p-3 rounded-xl">
+                      <span className="text-[9px] text-slate-400 block uppercase">Bed Capacity</span>
+                      <span className="text-base text-slate-800">12 beds</span>
+                    </div>
+                    <div className="bg-white border border-slate-100 p-3 rounded-xl">
+                      <span className="text-[9px] text-slate-400 block uppercase">Operational Status</span>
+                      <span className="text-green-700 text-xs mt-1 block flex items-center gap-1">
+                        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span> Active / Online
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 4. PATIENTS */}
+      {activeTab === "Patients" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
+            <div>
+              <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">District Patient Registry</h2>
+              <p className="text-[10px] text-slate-400">Total database footprint: {patients.length} patients</p>
+            </div>
+            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs">
+              <input
+                type="text"
+                placeholder="Search patient..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-0 outline-hidden pl-2 text-xs"
+              />
+            </div>
+          </div>
+
+          {tabLoading ? (
+            <div className="py-12 flex justify-center"><Loader2 className="animate-spin text-primary" size={24} /></div>
+          ) : tabError ? (
+            <div className="p-4 bg-red-50 text-red-700 rounded-2xl text-xs">{tabError}</div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Ref ID</th>
+                    <th className="py-2.5 px-4">Name</th>
+                    <th className="py-2.5 px-4">Age/Gender</th>
+                    <th className="py-2.5 px-4">Village</th>
+                    <th className="py-2.5 px-4">Taluka</th>
+                    <th className="py-2.5 px-4">Mobile</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {patients.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.patientRefId?.toLowerCase().includes(searchQuery.toLowerCase())).map((pat) => (
+                    <tr key={pat._id} className="hover:bg-slate-50/40">
+                      <td className="py-3 px-4 font-mono font-semibold text-slate-500">{pat.patientRefId}</td>
+                      <td className="py-3 px-4 font-bold text-slate-700">{pat.name}</td>
+                      <td className="py-3 px-4 text-slate-500">{pat.age}y / {pat.gender}</td>
+                      <td className="py-3 px-4 text-slate-500">{pat.village}</td>
+                      <td className="py-3 px-4 text-slate-500">{pat.taluka || "Sinnar"}</td>
+                      <td className="py-3 px-4 text-slate-500">{pat.mobile}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 5. CONSULTATIONS */}
+      {activeTab === "Consultations" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Teleconsultation logs</h2>
+            <p className="text-[10px] text-slate-400">Total Scheduled/Active sessions: {consultations.length}</p>
+          </div>
+
+          {tabLoading ? (
+            <div className="py-12 flex justify-center"><Loader2 className="animate-spin text-primary" size={24} /></div>
+          ) : tabError ? (
+            <div className="p-4 bg-red-50 text-red-700 rounded-2xl text-xs">{tabError}</div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Patient ID</th>
+                    <th className="py-2.5 px-4">Patient Name</th>
+                    <th className="py-2.5 px-4">Physician</th>
+                    <th className="py-2.5 px-4">Video Room</th>
+                    <th className="py-2.5 px-4 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {consultations.map((cons) => (
+                    <tr key={cons._id} className="hover:bg-slate-50/40">
+                      <td className="py-3 px-4 font-mono font-semibold text-slate-500">{cons.patientId?.patientRefId}</td>
+                      <td className="py-3 px-4 font-bold text-slate-700">{cons.patientId?.name || "Ramesh Kumar"}</td>
+                      <td className="py-3 px-4 font-semibold text-slate-600">{cons.doctorId?.name || "Dr. Aniruddha Kulkarni"}</td>
+                      <td className="py-3 px-4 font-mono text-slate-400">{cons.videoRoomName || "jancare-consult-room"}</td>
+                      <td className="py-3 px-4 text-center">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${cons.status === "Completed" ? "bg-green-50 text-green-700" : "bg-blue-50 text-primary animate-pulse"}`}>
+                          {cons.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 6. MEDICINE AVAILABILITY */}
+      {activeTab === "Medicine Availability" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
+            <div>
+              <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Medicine Stock Availability</h2>
+              <p className="text-[10px] text-slate-400">Total drugs types cataloged: {medicines.length}</p>
+            </div>
+            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs">
+              <input
+                type="text"
+                placeholder="Search drug..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-0 outline-hidden pl-2 text-xs"
+              />
+            </div>
+          </div>
+
+          {tabLoading ? (
+            <div className="py-12 flex justify-center"><Loader2 className="animate-spin text-primary" size={24} /></div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Generic Code</th>
+                    <th className="py-2.5 px-4">Item Name</th>
+                    <th className="py-2.5 px-4">Available Quantity</th>
+                    <th className="py-2.5 px-4">Minimum Required</th>
+                    <th className="py-2.5 px-4 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {medicines.filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase())).map((med) => {
+                    const isLow = med.quantity < med.minimumRequired;
+                    const isOut = med.quantity === 0;
+                    return (
+                      <tr key={med._id} className="hover:bg-slate-50/40">
+                        <td className="py-3 px-4 font-mono font-semibold text-slate-500">{med.sku || "GEN-SKU"}</td>
+                        <td className="py-3 px-4 font-bold text-slate-700">{med.name}</td>
+                        <td className="py-3 px-4 font-semibold">{med.quantity} Units</td>
+                        <td className="py-3 px-4 text-slate-400">{med.minimumRequired} Units</td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                            isOut ? "bg-red-50 text-red-750" : isLow ? "bg-orange-50 text-orange-700" : "bg-green-50 text-green-700"
+                          }`}>
+                            {isOut ? "OUT OF STOCK" : isLow ? "LOW STOCK" : "AVAILABLE"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 7. MEDICINE SHORTAGES */}
+      {activeTab === "Medicine Shortages" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Critical Stock Shortages</h2>
+            <p className="text-[10px] text-slate-400">Inventory levels falling below safety threshold</p>
+          </div>
+
+          {tabLoading ? (
+            <div className="py-12 flex justify-center"><Loader2 className="animate-spin text-primary" size={24} /></div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Item Name</th>
+                    <th className="py-2.5 px-4">Available Quantity</th>
+                    <th className="py-2.5 px-4">Threshold</th>
+                    <th className="py-2.5 px-4">Severity level</th>
+                    <th className="py-2.5 px-4 text-center">Recommended Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {medicines.filter(m => m.quantity < m.minimumRequired).length > 0 ? (
+                    medicines.filter(m => m.quantity < m.minimumRequired).map((med) => {
+                      const isOut = med.quantity === 0;
+                      return (
+                        <tr key={med._id} className="hover:bg-slate-50/40">
+                          <td className="py-3 px-4 font-bold text-slate-700">{med.name}</td>
+                          <td className="py-3 px-4 font-semibold text-red-600">{med.quantity} Units</td>
+                          <td className="py-3 px-4 text-slate-400">{med.minimumRequired} Units</td>
+                          <td className="py-3 px-4">
+                            <span className={`font-bold ${isOut ? "text-red-700" : "text-orange-600"}`}>
+                              {isOut ? "Critical" : "High"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="bg-red-50 text-red-700 text-[10px] px-2.5 py-0.5 rounded-full font-bold">Initiate Stock Transfer</span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-slate-400 font-mono italic">
+                        All tracked medicines are currently above the critical threshold.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 8. REFERRALS */}
+      {activeTab === "Referrals" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Referrals Coordinator Log</h2>
+            <p className="text-[10px] text-slate-400">Total active referrals: {referrals.length}</p>
+          </div>
+
+          {tabLoading ? (
+            <div className="py-12 flex justify-center"><Loader2 className="animate-spin text-primary" size={24} /></div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Referral ID</th>
+                    <th className="py-2.5 px-4">Patient Name</th>
+                    <th className="py-2.5 px-4">Referring Doctor</th>
+                    <th className="py-2.5 px-4">Receiving Facility</th>
+                    <th className="py-2.5 px-4 text-center">Priority</th>
+                    <th className="py-2.5 px-4 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {referrals.map((ref) => (
+                    <tr key={ref._id} className="hover:bg-slate-50/40">
+                      <td className="py-3 px-4 font-mono font-semibold text-slate-500">{ref._id.toString().slice(-6).toUpperCase()}</td>
+                      <td className="py-3 px-4 font-bold text-slate-700">{ref.patientId?.name || "Patient Record"}</td>
+                      <td className="py-3 px-4 font-semibold text-slate-600">{ref.referredById?.name || "Dr. Kulkarni"}</td>
+                      <td className="py-3 px-4 text-slate-500">{ref.targetFacilityId?.name || "CHC Sinnar"}</td>
+                      <td className="py-3 px-4 text-center">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          ref.priority === "Urgent" ? "bg-red-50 text-red-700" : "bg-blue-50 text-primary"
+                        }`}>
+                          {ref.priority || "Routine"}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full">
+                          {ref.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 9. FOLLOW-UPS */}
+      {activeTab === "Follow-ups" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">ASHA Outreach Follow-ups</h2>
+            <p className="text-[10px] text-slate-400">Total recovery follow-ups: {followups.length}</p>
+          </div>
+
+          {tabLoading ? (
+            <div className="py-12 flex justify-center"><Loader2 className="animate-spin text-primary" size={24} /></div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Patient Name</th>
+                    <th className="py-2.5 px-4">Assigned Worker</th>
+                    <th className="py-2.5 px-4">Follow-up Reason</th>
+                    <th className="py-2.5 px-4">Due Date</th>
+                    <th className="py-2.5 px-4 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {followups.map((follow) => (
+                    <tr key={follow._id} className="hover:bg-slate-50/40">
+                      <td className="py-3 px-4 font-bold text-slate-700">{follow.patientId?.name || "Patient Record"}</td>
+                      <td className="py-3 px-4 font-semibold text-slate-600">{follow.assignedWorkerId?.name || "Sharda Patil"}</td>
+                      <td className="py-3 px-4 text-slate-500">{follow.reason}</td>
+                      <td className="py-3 px-4 font-mono text-slate-400">{new Date(follow.dueDate).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 text-center">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          follow.status === "Completed" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700 animate-pulse"
+                        }`}>
+                          {follow.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 10. ANALYTICS */}
+      {activeTab === "Analytics" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-2">Deeps Insights: District Population trends</h2>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barAgeData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis dataKey="group" stroke="#94a3b8" fontSize={10} tickLine={false} />
+                  <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} />
+                  <Tooltip contentStyle={{ fontSize: 10, borderRadius: 8 }} />
+                  <Bar dataKey="patients" fill="#1464D2" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 11. ALERTS */}
+      {activeTab === "Alerts" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">District Alerts Center</h2>
+            <p className="text-[10px] text-slate-400">Review critical warnings from outreach operations</p>
+          </div>
+
+          <div className="space-y-3 text-xs">
+            <div className="border border-red-200 rounded-2xl p-4 bg-red-50/50 flex justify-between items-center">
+              <div>
+                <span className="bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded-md text-[9px] uppercase tracking-wider block w-max">Critical</span>
+                <strong className="text-slate-800 text-xs block mt-1.5">ORS Stock Outage at Sinnar PHC-01</strong>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Reported: Today, 12:45 PM | SKU: ORS-SKU</span>
+              </div>
+              <button
+                onClick={() => alert("Alert Acknowledged. Notified Medicine Manager.")}
+                className="bg-red-650 hover:bg-red-700 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-xl border-0 cursor-pointer"
+              >
+                Acknowledge
+              </button>
+            </div>
+
+            <div className="border border-orange-200 rounded-2xl p-4 bg-orange-50/50 flex justify-between items-center">
+              <div>
+                <span className="bg-orange-100 text-orange-850 font-bold px-2 py-0.5 rounded-md text-[9px] uppercase tracking-wider block w-max">Warning</span>
+                <strong className="text-slate-800 text-xs block mt-1.5">Unusually High Patient Load at Sinnar CHC</strong>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Reported: Yesterday | Wait time average exceeded 30 mins</span>
+              </div>
+              <button
+                onClick={() => alert("Alert Marked Resolved.")}
+                className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-xl border-0 cursor-pointer"
+              >
+                Mark Resolved
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 12. AUDIT LOGS */}
+      {activeTab === "Audit Logs" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Administrative Audit Trails</h2>
+            <p className="text-[10px] text-slate-400">Security audit records log (Read-only)</p>
+          </div>
+
+          {tabLoading ? (
+            <div className="py-12 flex justify-center"><Loader2 className="animate-spin text-primary" size={24} /></div>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Timestamp</th>
+                    <th className="py-2.5 px-4">Operator</th>
+                    <th className="py-2.5 px-4">Action</th>
+                    <th className="py-2.5 px-4">Details</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-mono text-[10px]">
+                  {auditLogs.length > 0 ? (
+                    auditLogs.map((log) => (
+                      <tr key={log._id} className="hover:bg-slate-50/40">
+                        <td className="py-2.5 px-4 text-slate-400">{new Date(log.createdAt).toLocaleString("en-IN")}</td>
+                        <td className="py-2.5 px-4 font-bold text-slate-700">{log.userId?.name || "System"} ({log.userId?.role || "Admin"})</td>
+                        <td className="py-2.5 px-4 text-blue-700 font-bold">{log.action}</td>
+                        <td className="py-2.5 px-4 text-slate-500 font-sans">{log.details}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-slate-400 font-mono italic">
+                        No audit records generated.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 13. SETTINGS */}
+      {activeTab === "Settings" && (
+        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-6 text-left animate-in fade-in duration-200 text-xs">
+          <div>
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Admin Console Settings</h2>
+            <p className="text-[10px] text-slate-400">Configure thresholds, notification intervals, and sync scopes.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl">
+            <div className="space-y-4">
+              <strong className="text-slate-800 font-extrabold text-xs uppercase tracking-wider block border-b pb-1">Operation Thresholds</strong>
+              <div>
+                <label className="block font-bold text-slate-700">Stock Safety Warning Limit (Min Units Required)</label>
+                <select
+                  value={alertThreshold}
+                  onChange={(e) => setAlertThreshold(e.target.value)}
+                  className="mt-1.5 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700"
+                >
+                  <option value="3">3 Days Estimated Demand</option>
+                  <option value="5">5 Days Estimated Demand</option>
+                  <option value="10">10 Days Estimated Demand</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700">Background Data Refresh Interval</label>
+                <select
+                  value={refreshInterval}
+                  onChange={(e) => setRefreshInterval(e.target.value)}
+                  className="mt-1.5 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700"
+                >
+                  <option value="30">Every 30 Seconds</option>
+                  <option value="60">Every 1 Minute</option>
+                  <option value="300">Every 5 Minutes</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <strong className="text-slate-800 font-extrabold text-xs uppercase tracking-wider block border-b pb-1">Email Alerts Notifications</strong>
+              <div className="space-y-3 font-semibold text-slate-655 mt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={emailAlerts}
+                    onChange={(e) => setEmailAlerts(e.target.checked)}
+                  />
+                  <span>Dispatch Daily Summary Reports via Email</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={criticalAlerts}
+                    onChange={(e) => setCriticalAlerts(e.target.checked)}
+                  />
+                  <span>Critical Inventory Outage SMS Alerts</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
       )}

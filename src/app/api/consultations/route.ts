@@ -7,7 +7,7 @@ import { authenticateRequest } from "@/lib/authMiddleware";
 
 export async function GET(request: Request) {
   try {
-    const user = await authenticateRequest(["Doctor", "Specialist", "Patient", "ASHA", "ANM", "SystemAdmin"]);
+    const user = await authenticateRequest(["Doctor", "Specialist", "Patient", "ASHA", "ANM", "SystemAdmin", "FacilityAdmin", "DistrictAdmin"]);
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
     }
