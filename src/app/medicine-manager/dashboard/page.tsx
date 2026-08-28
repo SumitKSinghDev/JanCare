@@ -191,6 +191,200 @@ export default function MedicineManagerDashboard() {
   // Flat list of Maharashtra districts
   const districtList = divisions.flatMap((d) => d.districts).sort();
 
+  // 1. Render Maharashtra Network Selector panel
+  const renderNetworkSelector = () => (
+    <div className="bg-white border border-slate-200 rounded-3xl p-5 space-y-4 text-left">
+      <div>
+        <strong className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Maharashtra District Selector</strong>
+        <p className="text-[10px] text-slate-400">Choose district to view active healthcare nodes.</p>
+      </div>
+      
+      <div className="space-y-2">
+        <label className="block text-[10px] font-bold text-slate-500">Active District Selector</label>
+        <select
+          value={selectedDistrict}
+          onChange={(e) => setSelectedDistrict(e.target.value)}
+          className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:bg-white focus:outline-hidden"
+        >
+          {districtList.map((dist) => (
+            <option key={dist} value={dist}>
+              {dist}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Nodes/Facilities in District */}
+      <div className="space-y-2 pt-2">
+        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Healthcare Facilities ({facilities.length})</span>
+        <div className="space-y-1.5 max-h-60 overflow-y-auto">
+          {facilities.length > 0 ? (
+            facilities.map((fac) => (
+              <button
+                key={fac._id}
+                onClick={() => setSelectedFacility(fac)}
+                className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                  selectedFacility?._id === fac._id
+                    ? "bg-blue-50/50 border-blue-200 text-[#1464D2]"
+                    : "bg-[#F8FAFC] border-slate-150 text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                <div>
+                  <strong className="text-[11px] block">{fac.name}</strong>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase mt-0.5">{fac.type} - {fac.village}</span>
+                </div>
+                <ChevronRight size={14} className="text-slate-400 shrink-0" />
+              </button>
+            ))
+          ) : (
+            <p className="text-[11px] text-slate-400 italic">No facility nodes in this district.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // 2. Render Stock catalog inventory table
+  const renderStockCatalog = () => (
+    <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 text-left">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
+        <div>
+          <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
+            {selectedFacility ? `${selectedFacility.name} Inventory` : "Facility Inventory"}
+          </h3>
+          <span className="text-[10px] text-slate-400 block mt-0.5">District Network Node Stock Catalog</span>
+        </div>
+        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs max-w-xs w-full sm:w-auto">
+          <Search size={14} className="text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search medicines..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="bg-transparent border-0 outline-hidden pl-2 text-xs w-full font-bold text-slate-700"
+          />
+        </div>
+      </div>
+
+      <div className="overflow-x-auto text-xs">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+              <th className="py-2.5 px-4">Medicine / Generic</th>
+              <th className="py-2.5 px-4">Strength/Form</th>
+              <th className="py-2.5 px-4">Category</th>
+              <th className="py-2.5 px-4 text-center">Available Stock</th>
+              <th className="py-2.5 px-4 text-center">Status</th>
+              <th className="py-2.5 px-4 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {filteredMedicines.length > 0 ? (
+              filteredMedicines.map((med) => (
+                <tr key={med.id || med._id} className="hover:bg-slate-50/50">
+                  <td className="py-3 px-4 font-bold text-slate-700">
+                    <div className="flex flex-col">
+                      <span>{med.name}</span>
+                      {med.genericName && (
+                        <span className="text-[10px] text-slate-450 font-mono font-semibold mt-0.5">({med.genericName})</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-slate-500 font-mono">{med.strength} / {med.form}</td>
+                  <td className="py-3 px-4 text-slate-500">{med.category}</td>
+                  <td className="py-3 px-4 text-center font-bold font-mono text-slate-700">{med.quantity}</td>
+                  <td className="py-3 px-4 text-center">
+                    {med.status === "Out of Stock" ? (
+                      <span className="inline-flex items-center text-[9px] font-bold text-red-655 bg-red-50 px-2 py-0.5 rounded-full">Out of Stock</span>
+                    ) : med.status === "Low" ? (
+                      <span className="inline-flex items-center text-[9px] font-bold text-amber-655 bg-amber-50 px-2 py-0.5 rounded-full">Low Stock</span>
+                    ) : (
+                      <span className="inline-flex items-center text-[9px] font-bold text-green-655 bg-green-50 px-2 py-0.5 rounded-full">Available</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <button
+                      onClick={() => {
+                        setSelectedMedicine(med);
+                        setShowMovementModal(true);
+                      }}
+                      className="bg-[#1464D2] hover:bg-blue-600 text-white font-bold py-1.5 px-3 rounded-xl cursor-pointer border-0 text-[10px] flex items-center gap-1.5"
+                    >
+                      <ArrowRightLeft size={10} /> Record Movement
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="py-8 text-center text-slate-400">
+                  No stock items registered for this facility node.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  // 3. Render Stock Movements Log Table
+  const renderMovementsLog = () => (
+    <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 text-left">
+      <div className="border-b border-slate-100 pb-3">
+        <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Recent Inventory Transactions</h3>
+        <span className="text-[10px] text-slate-400 block mt-0.5">Audit log of adjustments and shipments</span>
+      </div>
+
+      <div className="overflow-x-auto text-[11px]">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
+              <th className="py-2.5 px-4">Timestamp</th>
+              <th className="py-2.5 px-4">Medicine</th>
+              <th className="py-2.5 px-4 text-center">Type</th>
+              <th className="py-2.5 px-4 text-center">Volume</th>
+              <th className="py-2.5 px-4">Operator</th>
+              <th className="py-2.5 px-4">Notes</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {movements.length > 0 ? (
+              movements.map((mv) => {
+                const dateStr = new Date(mv.createdAt).toLocaleString();
+                const isAdd = ["STOCK_RECEIVED", "ADJUSTMENT"].includes(mv.type) || (mv.type === "ADJUSTMENT" && mv.quantity > 0);
+                return (
+                  <tr key={mv._id} className="hover:bg-slate-50/50">
+                    <td className="py-2.5 px-4 text-slate-400">{dateStr}</td>
+                    <td className="py-2.5 px-4 text-slate-800 font-sans font-bold">{mv.medicineId?.name || "Generic"}</td>
+                    <td className="py-2.5 px-4 text-center font-bold font-sans">
+                      <span className={`inline-flex px-1.5 py-0.5 rounded text-[8px] uppercase ${
+                        isAdd ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+                      }`}>{mv.type}</span>
+                    </td>
+                    <td className={`py-2.5 px-4 text-center font-bold ${
+                      isAdd ? "text-green-600" : "text-red-655"
+                    }`}>
+                      {isAdd ? "+" : ""}{mv.quantity}
+                    </td>
+                    <td className="py-2.5 px-4 text-slate-600 font-sans">{mv.performedBy?.name || "Staff"}</td>
+                    <td className="py-2.5 px-4 text-slate-500 font-sans max-w-xs truncate" title={mv.notes}>{mv.notes}</td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={6} className="py-6 text-center text-slate-400">
+                  No recent transactions recorded.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
@@ -210,257 +404,110 @@ export default function MedicineManagerDashboard() {
       user={currentUser}
     >
       <div className="space-y-6">
-        
-        {/* Banner Header */}
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.12),transparent)] pointer-events-none" />
-          <div className="space-y-1 relative z-10">
-            <h2 className="text-xl font-extrabold tracking-tight">Medicine Management Portal</h2>
-            <p className="text-xs text-slate-300">Monitor and update drug availability across Primary Health Centers (PHC) and pharmacies.</p>
-          </div>
-        </div>
-
-        {/* KPIs Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-              <Package size={20} />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">Stock Items</span>
-              <span className="text-lg font-extrabold text-slate-800">{totalItems} Unique</span>
-            </div>
-          </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-            <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-              <AlertTriangle size={20} />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">Low Stock</span>
-              <span className="text-lg font-extrabold text-amber-600">{lowStockCount} Items</span>
-            </div>
-          </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-            <div className="p-3 bg-red-50 text-red-600 rounded-xl">
-              <TrendingDown size={20} />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">Out of Stock</span>
-              <span className="text-lg font-extrabold text-red-600">{outOfStockCount} Items</span>
-            </div>
-          </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
-            <div className="p-3 bg-green-50 text-green-600 rounded-xl">
-              <Layers size={20} />
-            </div>
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">Reservations</span>
-              <span className="text-lg font-extrabold text-green-600">{pendingReservations} Logged</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Dual Column Layout: District List & Facility Table */}
-        <div className="grid lg:grid-cols-12 gap-6 items-start">
-          
-          {/* Left panel: Maharashtra Network Selector */}
-          <div className="lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-5 space-y-4">
-            <div>
-              <strong className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Maharashtra District Selector</strong>
-              <p className="text-[10px] text-slate-400">Choose district to view active healthcare nodes.</p>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="block text-[10px] font-bold text-slate-500">Active District Selector</label>
-              <select
-                value={selectedDistrict}
-                onChange={(e) => setSelectedDistrict(e.target.value)}
-                className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:bg-white focus:outline-hidden"
-              >
-                {districtList.map((dist) => (
-                  <option key={dist} value={dist}>
-                    {dist}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Nodes/Facilities in District */}
-            <div className="space-y-2 pt-2">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Healthcare Facilities ({facilities.length})</span>
-              <div className="space-y-1.5 max-h-60 overflow-y-auto">
-                {facilities.length > 0 ? (
-                  facilities.map((fac) => (
-                    <button
-                      key={fac._id}
-                      onClick={() => setSelectedFacility(fac)}
-                      className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                        selectedFacility?._id === fac._id
-                          ? "bg-blue-50/50 border-blue-200 text-[#1464D2]"
-                          : "bg-[#F8FAFC] border-slate-150 text-slate-700 hover:bg-slate-100"
-                      }`}
-                    >
-                      <div>
-                        <strong className="text-[11px] block">{fac.name}</strong>
-                        <span className="text-[9px] text-slate-400 font-bold uppercase mt-0.5">{fac.type} - {fac.village}</span>
-                      </div>
-                      <ChevronRight size={14} className="text-slate-400 shrink-0" />
-                    </button>
-                  ))
-                ) : (
-                  <p className="text-[11px] text-slate-400 italic">No facility nodes in this district.</p>
-                )}
+        {/* 1. DASHBOARD VIEW */}
+        {activeTab === "Dashboard" && (
+          <>
+            {/* Banner Header */}
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 sm:p-8 rounded-3xl text-white shadow-lg relative overflow-hidden">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.12),transparent)] pointer-events-none" />
+              <div className="space-y-1 relative z-10">
+                <h2 className="text-xl font-extrabold tracking-tight">Medicine Management Portal</h2>
+                <p className="text-xs text-slate-300">Monitor and update drug availability across Primary Health Centers (PHC) and pharmacies.</p>
               </div>
             </div>
-          </div>
 
-          {/* Right panel: Active Stock and updates */}
-          <div className="lg:col-span-8 space-y-6">
-            
-            {/* Stock Availability */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
+            {/* KPIs Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                  <Package size={20} />
+                </div>
                 <div>
-                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
-                    {selectedFacility ? `${selectedFacility.name} Inventory` : "Facility Inventory"}
-                  </h3>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">District Network Node Stock Catalog</span>
-                </div>
-                <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 text-xs max-w-xs w-full sm:w-auto">
-                  <Search size={14} className="text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Search medicines..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-transparent border-0 outline-hidden pl-2 text-xs w-full"
-                  />
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Stock Items</span>
+                  <span className="text-lg font-extrabold text-slate-800">{totalItems} Unique</span>
                 </div>
               </div>
-
-              {/* Medicines Table */}
-              <div className="overflow-x-auto text-xs">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
-                      <th className="py-2.5 px-4">Medicine / Generic</th>
-                      <th className="py-2.5 px-4">Strength/Form</th>
-                      <th className="py-2.5 px-4">Category</th>
-                      <th className="py-2.5 px-4 text-center">Available Stock</th>
-                      <th className="py-2.5 px-4 text-center">Status</th>
-                      <th className="py-2.5 px-4 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredMedicines.length > 0 ? (
-                      filteredMedicines.map((med) => (
-                        <tr key={med.id || med._id} className="hover:bg-slate-50/50">
-                          <td className="py-3 px-4 font-bold text-slate-700">
-                            <div className="flex flex-col">
-                              <span>{med.name}</span>
-                              {med.genericName && (
-                                <span className="text-[10px] text-slate-450 font-mono font-semibold mt-0.5">({med.genericName})</span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-slate-500 font-mono">{med.strength} / {med.form}</td>
-                          <td className="py-3 px-4 text-slate-500">{med.category}</td>
-                          <td className="py-3 px-4 text-center font-bold font-mono text-slate-700">{med.quantity}</td>
-                          <td className="py-3 px-4 text-center">
-                            {med.status === "Out of Stock" ? (
-                              <span className="inline-flex items-center text-[9px] font-bold text-red-650 bg-red-50 px-2 py-0.5 rounded-full">Out of Stock</span>
-                            ) : med.status === "Low" ? (
-                              <span className="inline-flex items-center text-[9px] font-bold text-amber-650 bg-amber-50 px-2 py-0.5 rounded-full">Low Stock</span>
-                            ) : (
-                              <span className="inline-flex items-center text-[9px] font-bold text-green-650 bg-green-50 px-2 py-0.5 rounded-full">Available</span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button
-                              onClick={() => {
-                                setSelectedMedicine(med);
-                                setShowMovementModal(true);
-                              }}
-                              className="bg-[#1464D2] hover:bg-blue-600 text-white font-bold py-1.5 px-3 rounded-xl cursor-pointer border-0 text-[10px] flex items-center gap-1.5"
-                            >
-                              <ArrowRightLeft size={10} /> Record Movement
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={6} className="py-8 text-center text-slate-400">
-                          No stock items registered for this facility node.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Low Stock</span>
+                  <span className="text-lg font-extrabold text-amber-600">{lowStockCount} Items</span>
+                </div>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="p-3 bg-red-50 text-red-600 rounded-xl">
+                  <TrendingDown size={20} />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Out of Stock</span>
+                  <span className="text-lg font-extrabold text-red-600">{outOfStockCount} Items</span>
+                </div>
+              </div>
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-4">
+                <div className="p-3 bg-green-50 text-green-600 rounded-xl">
+                  <Layers size={20} />
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Reservations</span>
+                  <span className="text-lg font-extrabold text-green-600">{pendingReservations} Logged</span>
+                </div>
               </div>
             </div>
 
-            {/* Recent Facility Stock Movements */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
-              <div>
-                <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
-                  Recent Stock movements Log
-                </h3>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Audit log of recent inventory transactions</span>
+            {/* Dual Column Layout */}
+            <div className="grid lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-4 space-y-4">
+                {renderNetworkSelector()}
               </div>
-
-              <div className="overflow-x-auto text-xs">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
-                      <th className="py-2.5 px-4">Date</th>
-                      <th className="py-2.5 px-4">Medicine</th>
-                      <th className="py-2.5 px-4 text-center">Tx Type</th>
-                      <th className="py-2.5 px-4 text-center">Qty Change</th>
-                      <th className="py-2.5 px-4">Operator</th>
-                      <th className="py-2.5 px-4">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
-                    {movements.length > 0 ? (
-                      movements.map((mv) => {
-                        const dateStr = new Date(mv.createdAt).toLocaleDateString() + " " + new Date(mv.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        const isAdd = mv.quantity > 0;
-                        return (
-                          <tr key={mv._id} className="hover:bg-slate-50/50">
-                            <td className="py-2.5 px-4 text-slate-400">{dateStr}</td>
-                            <td className="py-2.5 px-4 text-slate-800 font-sans font-bold">{mv.medicineId?.name || "Generic"}</td>
-                            <td className="py-2.5 px-4 text-center font-bold font-sans">
-                              <span className={`inline-flex px-1.5 py-0.5 rounded text-[8px] uppercase ${
-                                isAdd ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-                              }`}>{mv.type}</span>
-                            </td>
-                            <td className={`py-2.5 px-4 text-center font-bold ${
-                              isAdd ? "text-green-600" : "text-red-650"
-                            }`}>
-                              {isAdd ? "+" : ""}{mv.quantity}
-                            </td>
-                            <td className="py-2.5 px-4 text-slate-600 font-sans">{mv.performedBy?.name || "Staff"}</td>
-                            <td className="py-2.5 px-4 text-slate-500 font-sans max-w-xs truncate" title={mv.notes}>{mv.notes}</td>
-                          </tr>
-                        );
-                      })
-                    ) : (
-                      <tr>
-                        <td colSpan={6} className="py-6 text-center text-slate-400">
-                          No recent transactions recorded.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              <div className="lg:col-span-8 space-y-6">
+                {renderStockCatalog()}
+                {renderMovementsLog()}
               </div>
             </div>
+          </>
+        )}
 
+        {/* 2. MEDICINE INVENTORY VIEW */}
+        {activeTab === "Medicine Inventory" && (
+          <div className="space-y-6 animate-in fade-in duration-250">
+            {renderStockCatalog()}
           </div>
+        )}
 
-        </div>
+        {/* 3. STOCK MOVEMENTS VIEW */}
+        {activeTab === "Stock Movements" && (
+          <div className="space-y-6 animate-in fade-in duration-250">
+            {renderMovementsLog()}
+          </div>
+        )}
 
+        {/* 4. MAHARASHTRA NETWORK VIEW */}
+        {activeTab === "Maharashtra Network" && (
+          <div className="space-y-6 animate-in fade-in duration-250">
+            {renderNetworkSelector()}
+          </div>
+        )}
+
+        {/* 5. STUB WORKSPACES FOR OTHERS */}
+        {activeTab !== "Dashboard" && activeTab !== "Medicine Inventory" && activeTab !== "Stock Movements" && activeTab !== "Maharashtra Network" && (
+          <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 min-h-[400px]">
+            <h2 className="text-lg font-extrabold text-slate-800">{activeTab} Workspace</h2>
+            <p className="text-xs text-slate-500">Workspace panel for {activeTab} information logs.</p>
+            
+            <div className="border border-slate-100 p-8 rounded-2xl bg-slate-50 text-xs text-slate-400 text-center flex flex-col items-center justify-center space-y-2">
+              <Layers size={32} className="text-slate-300 animate-pulse" />
+              <span>Currently showing {activeTab} details.</span>
+              <button
+                onClick={() => setActiveTab("Dashboard")}
+                className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent mt-2 text-xs"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Record Stock Movement Modal popup */}
