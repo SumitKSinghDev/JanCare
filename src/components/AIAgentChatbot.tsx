@@ -139,7 +139,7 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
         setMessages((prev) => [...prev, { sender: "agent", text: data.response }]);
         
         // Dispatch booking event to reload parent dashboard data
-        if (data.toolCalled === "bookAppointment") {
+        if (data.toolCalled === "bookAppointment" && data.toolResult?.action === "BOOKED") {
           window.dispatchEvent(new CustomEvent("jancare_appointment_booked"));
         }
 

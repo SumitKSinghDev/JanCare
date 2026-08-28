@@ -49,6 +49,7 @@ export default function PatientDashboard() {
   const { t, language, setLanguage } = useTranslation();
   
   const [user, setUser] = useState<any>(null);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -159,6 +160,13 @@ export default function PatientDashboard() {
       const consData = await consRes.json();
       if (consData.success) {
         setConsultations(consData.consultations);
+      }
+
+      // Fetch appointments
+      const apptsRes = await fetch(`/api/appointments?patientId=${meData.user.patientId || ""}&status=Scheduled`);
+      const apptsData = await apptsRes.json();
+      if (apptsData.success) {
+        setAppointments(apptsData.appointments);
       }
 
       // Fetch prescriptions
@@ -445,6 +453,7 @@ export default function PatientDashboard() {
   }
 
   const activeConsultation = consultations.find((c) => c.status === "Scheduled" || c.status === "Active");
+  const activeAppointment = appointments.find((a) => a.status === "Scheduled" || a.status === "BOOKED");
   const latestConsult = consultations[0];
   const latestRecord = latestConsult?.healthRecordId;
   const latestVitals = latestRecord?.vitals;
@@ -678,14 +687,26 @@ export default function PatientDashboard() {
           {/* Widgets grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Widget 1 */}
-            <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between h-36">
+            <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between h-36 animate-in fade-in duration-150">
               <div>
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-primary bg-blue-50 px-2.5 py-0.5 rounded-full w-fit">
                   <Calendar size={10} /> Next Appointment
                 </span>
-                {activeConsultation ? (
+                {activeAppointment ? (
                   <>
-                    <h3 className="text-xs font-extrabold text-slate-800 mt-2">Today, 11:30 AM</h3>
+                    <h3 className="text-xs font-extrabold text-slate-800 mt-2">
+                      {new Date(activeAppointment.appointmentDate).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short"
+                      })} • {activeAppointment.appointmentTime || "11:30 AM"}
+                    </h3>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">{activeAppointment.doctorId?.name || "Dr. Kulkarni"}</span>
+                  </>
+                ) : activeConsultation ? (
+                  <>
+                    <h3 className="text-xs font-extrabold text-slate-800 mt-2">
+                      Today • {activeConsultation.videoRoomName ? "Online Call" : "11:30 AM"}
+                    </h3>
                     <span className="text-[10px] text-slate-500 block mt-0.5">{activeConsultation.doctorId?.name || "Dr. Kulkarni"}</span>
                   </>
                 ) : (
@@ -696,10 +717,10 @@ export default function PatientDashboard() {
                 )}
               </div>
               <button
-                onClick={() => activeConsultation ? setActiveTab("Video Consultation") : setActiveTab("Appointments")}
+                onClick={() => (activeConsultation || activeAppointment) ? setActiveTab("Video Consultation") : setActiveTab("Appointments")}
                 className="w-full bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded-xl border-0 cursor-pointer text-center"
               >
-                {activeConsultation ? "Join Consult" : "Book Slot"}
+                {activeConsultation ? "Join Consult" : activeAppointment ? "Join Call" : "Book Slot"}
               </button>
             </div>
 
@@ -990,16 +1011,25 @@ export default function PatientDashboard() {
             
             {consultations.length > 0 ? (
               <div className="space-y-4">
-                {consultations.map((cons, idx) => (
-                  <div key={idx} className="border border-slate-200/60 p-4.5 rounded-2xl bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex gap-3 items-start">
-                      <div className="p-3 bg-blue-50 text-primary rounded-xl shrink-0"><Calendar size={20} /></div>
-                      <div>
-                        <strong className="text-slate-800 text-sm block">Tele-Consultation</strong>
-                        <span className="text-xs text-slate-500 block mt-0.5">Doctor: {cons.doctorId?.name || "Dr. Aniruddha Kulkarni"}</span>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">Date: {new Date(cons.createdAt).toLocaleDateString()} | Room: {cons.videoRoomName}</span>
+                {consultations.map((cons, idx) => {
+                  const matchedAppt = appointments.find(
+                    (a) => a.doctorId?._id === cons.doctorId?._id
+                  );
+                  const apptTime = matchedAppt?.appointmentTime || "11:30 AM";
+                  const apptDate = matchedAppt?.appointmentDate
+                    ? new Date(matchedAppt.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                    : new Date(cons.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+                  return (
+                    <div key={idx} className="border border-slate-200/60 p-4.5 rounded-2xl bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-in fade-in duration-150">
+                      <div className="flex gap-3 items-start">
+                        <div className="p-3 bg-blue-50 text-primary rounded-xl shrink-0"><Calendar size={20} /></div>
+                        <div>
+                          <strong className="text-slate-800 text-sm block">Tele-Consultation (Online)</strong>
+                          <span className="text-xs text-slate-500 block mt-0.5">Doctor: {cons.doctorId?.name || "Dr. Aniruddha Kulkarni"}</span>
+                          <span className="text-[10px] text-slate-400 block mt-0.5">Slot: {apptDate} • {apptTime} | Room: {cons.videoRoomName}</span>
+                        </div>
                       </div>
-                    </div>
 
                     <div className="flex items-center gap-3">
                       <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${
@@ -1020,7 +1050,8 @@ export default function PatientDashboard() {
                       )}
                     </div>
                   </div>
-                ))}
+                );
+              })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-center space-y-1">
