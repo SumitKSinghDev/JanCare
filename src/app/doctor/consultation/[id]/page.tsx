@@ -290,6 +290,128 @@ export default function ConsultationWorkspace() {
     printWindow.document.close();
   }
 
+  function handlePrintClinicalSummary() {
+    const doctorName = currentUser?.name || "Dr. Aniruddha Kulkarni";
+    const dateStr = new Date().toLocaleDateString();
+    const patientName = patient?.name || "Ramesh Kumar";
+    const patientRefId = patient?.patientRefId || "JC-R-0283";
+    const age = patient?.age || 54;
+    const gender = patient?.gender || "Male";
+    
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    
+    let html = `
+      <html>
+        <head>
+          <title>Clinical_Report_${patientRefId}</title>
+          <style>
+            body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; }
+            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 20px; }
+            .logo { font-size: 24px; font-weight: bold; color: #1464D2; }
+            .details { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; }
+            .section-title { font-size: 14px; font-weight: bold; text-transform: uppercase; color: #0f172a; margin-top: 30px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+            .content-box { font-size: 13px; background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-top: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+            th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e2e8f0; }
+            th { background-color: #f8fafc; font-weight: bold; }
+            .footer { margin-top: 50px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; font-size: 10px; color: #94a3b8; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <div class="logo">जनCare Health Initiative</div>
+              <div style="font-size:12px;color:#64748b;">Clinical Summary & Outpatient Consultation Record</div>
+            </div>
+            <div style="text-align:right; font-size:12px; color:#64748b;">
+              <strong>Consultation Summary</strong><br/>
+              Date: ${dateStr}
+            </div>
+          </div>
+          
+          <div class="details">
+            <div>
+              <strong>Patient Name:</strong> ${patientName}<br/>
+              <strong>Patient Ref ID:</strong> ${patientRefId}<br/>
+              <strong>Age / Gender:</strong> ${age}y / ${gender}
+            </div>
+            <div style="text-align:right;">
+              <strong>Consulting Physician:</strong> ${doctorName}<br/>
+              <strong>Session ID:</strong> ${id}<br/>
+              <strong>Facility:</strong> Sinnar Rural Hospital (CHC)
+            </div>
+          </div>
+          
+          <div class="section-title">Intake Baseline Vitals</div>
+          <div class="content-box">
+            Temperature: ${healthRecord?.vitals?.temperature || "98.6"} °F | 
+            BP: ${healthRecord?.vitals?.bloodPressureSystolic || "120"}/${healthRecord?.vitals?.bloodPressureDiastolic || "80"} mmHg | 
+            SpO2: ${healthRecord?.vitals?.spo2 || "98"}% | 
+            Pulse: ${healthRecord?.vitals?.heartRate || "72"} bpm
+          </div>
+
+          <div class="section-title">Clinical Assessment & Diagnosis</div>
+          <div class="content-box">
+            <strong>Diagnosis:</strong> ${diagnosis || "Acute viral syndrome / General checkup"}<br/><br/>
+            <strong>Progress Notes:</strong> ${notes || "Patient presented symptoms of mild cough. Vitals monitored. Prescribed generic medications and scheduled outreach checks."}
+          </div>
+
+          <div class="section-title">Prescribed Generic Medications</div>
+          ${medicines.length > 0 ? `
+            <table>
+              <thead>
+                <tr>
+                  <th>Drug Name</th>
+                  <th>Strength</th>
+                  <th>Form</th>
+                  <th>Dosage</th>
+                  <th>Duration</th>
+                  <th>Instructions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${medicines.map((med: any) => `
+                  <tr>
+                    <td><strong>${med.name}</strong></td>
+                    <td>${med.strength}</td>
+                    <td>${med.form}</td>
+                    <td>${med.dosage}</td>
+                    <td>${med.durationDays} Days</td>
+                    <td>${med.instructions || "After meals"}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          ` : `
+            <div class="content-box">No clinical medications prescribed during this session.</div>
+          `}
+
+          <div class="section-title">Post-Consultation Coordination Plan</div>
+          <div class="content-box">
+            ${needFollowUp ? `<strong>Community Follow-up:</strong> Scheduled ASHA home check due in ${followUpDate ? new Date(followUpDate).toLocaleDateString() : "Next week"} (Type: ${followUpType}). Notes: ${followUpNotes || "N/A"}<br/>` : ""}
+            ${needReferral ? `<strong>Physical Referrals:</strong> Hospital visitation ordered at: ${facilities.find((f: any) => f._id === referralFacility)?.name || "Primary Health Center"}. Reason: ${referralReason || "N/A"}` : ""}
+            ${!needFollowUp && !needReferral ? "No post-consultation referrals scheduled." : ""}
+          </div>
+
+          <div class="footer">
+            Digitally generated by JanCare platform for Smart India Hackathon. Government of Maharashtra sandbox.
+          </div>
+          
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(html);
+    printWindow.document.close();
+  }
+
   // Submit complete clinical consultation logs
   async function handleConcludeConsultation() {
     if (!diagnosis) {
@@ -523,7 +645,13 @@ export default function ConsultationWorkspace() {
           <div className="bg-primary text-white px-1.5 py-0.5 rounded-md font-bold text-xs">जन</div>
           <span className="font-bold text-sm text-deep-blue">Live Consultation Workspace</span>
         </div>
-        <div className="flex items-center gap-4 text-xs font-semibold text-text-secondary">
+        <div className="flex items-center gap-3 text-xs font-semibold text-text-secondary">
+          <button
+            onClick={handlePrintClinicalSummary}
+            className="bg-primary hover:bg-blue-600 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-xl border-0 cursor-pointer shadow-sm shadow-primary/15 transition-all flex items-center gap-1"
+          >
+            🖨️ Print Report PDF
+          </button>
           <span className="flex items-center gap-1.5 bg-slate-100 px-3 py-1 rounded-full">
             <Clock size={12} className="text-primary" /> Session Timer: {formatTime(callTimer)}
           </span>
