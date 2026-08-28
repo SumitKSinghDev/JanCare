@@ -9,7 +9,7 @@ import { authenticateRequest } from "@/lib/authMiddleware";
 
 export async function GET(request: Request) {
   try {
-    const user = await authenticateRequest(["Doctor", "Specialist", "FacilityAdmin", "DistrictAdmin", "SystemAdmin", "ASHA", "ANM"]);
+    const user = await authenticateRequest(["Doctor", "Specialist", "FacilityAdmin", "DistrictAdmin", "SystemAdmin", "ASHA", "ANM", "Patient"]);
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
     }
@@ -18,9 +18,11 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const facilityId = searchParams.get("facilityId");
+    const patientId = searchParams.get("patientId");
 
     const query: any = {};
     if (status) query.status = status;
+    if (patientId) query.patientId = patientId;
 
     if (user.role === "Doctor" || user.role === "Specialist") {
       // Find referrals referred by doctor or sent to their associated facility
@@ -40,6 +42,20 @@ export async function GET(request: Request) {
       ];
     } else if (user.role === "ASHA" || user.role === "ANM") {
       query.assignedAshaId = user.userId;
+    } else if (user.role === "Patient") {
+      const PatientModel = (await import("@/models/Patient")).default;
+      const dbUser = await User.findById(user.userId);
+      const patient = await PatientModel.findOne({
+        $or: [
+          { mobile: dbUser?.username },
+          { name: user.name }
+        ]
+      });
+      if (patient) {
+        query.patientId = patient._id;
+      } else {
+        return NextResponse.json({ success: true, referrals: [] });
+      }
     }
 
     const referrals = await Referral.find(query)

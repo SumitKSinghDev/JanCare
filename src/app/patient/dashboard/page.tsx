@@ -52,6 +52,8 @@ export default function PatientDashboard() {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [followups, setFollowups] = useState<any[]>([]);
+  const [referrals, setReferrals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -98,6 +100,7 @@ export default function PatientDashboard() {
             const matchedMed = medData.medicines[0];
             availabilityList.push({
               name: fac.name,
+              medicineId: matchedMed._id,
               distance: fac.type === "CHC" ? "2.1 km" : fac.type === "PHC" ? "4.5 km" : "6.8 km",
               qty: matchedMed.quantity,
               MC1: matchedMed.quantity > 0 ? "Available" : "Out of Stock",
@@ -176,6 +179,20 @@ export default function PatientDashboard() {
         setPrescriptions(presData.prescriptions);
       }
 
+      // Fetch followups
+      const followRes = await fetch(`/api/followups?patientId=${meData.user.patientId || ""}`);
+      const followData = await followRes.json();
+      if (followData.success) {
+        setFollowups(followData.followups);
+      }
+
+      // Fetch referrals
+      const refRes = await fetch(`/api/referrals?patientId=${meData.user.patientId || ""}`);
+      const refData = await refRes.json();
+      if (refData.success) {
+        setReferrals(refData.referrals);
+      }
+
       // Mock ABHA linkage check
       if (meData.user.patientRefId) {
         setAbhaLinked(true);
@@ -242,21 +259,47 @@ export default function PatientDashboard() {
     }
   }
 
-  // Handle simulated medicine reservation
-  function handleReserveMedicine(facilityName: string) {
-    const randomId = `JC-MED-${Math.floor(1000 + Math.random() * 9000)}`;
+  // Handle real medicine reservation in database
+  async function handleReserveMedicine(facilityName: string, medicineId?: string) {
     const pId = user?.patientId || "guest";
     setSelectedFacility(facilityName);
     setOrderStatus("Requested");
-    setOrderTrackingId(randomId);
-    
-    // Save to local storage
-    localStorage.setItem(`jc_active_order_id_${pId}`, randomId);
-    localStorage.setItem(`jc_active_order_status_${pId}`, "Requested");
-    localStorage.setItem(`jc_active_order_facility_${pId}`, facilityName);
-    
-    alert(`Medicines successfully reserved at ${facilityName}! Tracking ID: ${randomId} generated.`);
-    setActiveTab("Medicine Orders");
+
+    if (medicineId) {
+      try {
+        const res = await fetch("/api/medicines/reserve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ medicineId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const trackingId = data.trackingId;
+          setOrderTrackingId(trackingId);
+          localStorage.setItem(`jc_active_order_id_${pId}`, trackingId);
+          localStorage.setItem(`jc_active_order_status_${pId}`, "Requested");
+          localStorage.setItem(`jc_active_order_facility_${pId}`, facilityName);
+          alert(`Medicines successfully reserved at ${facilityName}! Tracking ID: ${trackingId} generated.`);
+          
+          if (selectedMedicineCheck) {
+            checkMedicineAvailability(selectedMedicineCheck);
+          }
+          setActiveTab("Medicine Orders");
+        } else {
+          alert("Failed to reserve medicine: " + data.error);
+        }
+      } catch (err: any) {
+        alert("Error reserving medicine: " + err.message);
+      }
+    } else {
+      const randomId = `JC-MED-${Math.floor(1000 + Math.random() * 9000)}`;
+      setOrderTrackingId(randomId);
+      localStorage.setItem(`jc_active_order_id_${pId}`, randomId);
+      localStorage.setItem(`jc_active_order_status_${pId}`, "Requested");
+      localStorage.setItem(`jc_active_order_facility_${pId}`, facilityName);
+      alert(`Medicines successfully reserved at ${facilityName}! Tracking ID: ${randomId} generated.`);
+      setActiveTab("Medicine Orders");
+    }
   }
 
   // Trigger simulated progression of order status for the hackathon presentation
@@ -1389,7 +1432,7 @@ export default function PatientDashboard() {
                         )}
                       </div>
                       <button
-                        onClick={() => handleReserveMedicine(fac.name)}
+                        onClick={() => handleReserveMedicine(fac.name, fac.medicineId)}
                         className="bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded-lg cursor-pointer border-0"
                       >
                         Reserve Package
@@ -1427,7 +1470,7 @@ export default function PatientDashboard() {
                     </div>
                     
                     <button
-                      onClick={() => handleReserveMedicine(fac.name)}
+                      onClick={() => handleReserveMedicine(fac.name, fac.medicineId)}
                       className="bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl cursor-pointer border-0"
                     >
                       Reserve at Pharmacy
@@ -1525,27 +1568,32 @@ export default function PatientDashboard() {
             <h2 className="text-lg font-extrabold text-slate-800">Hospital Referrals</h2>
             <p className="text-xs text-slate-500">Outpatient clinical transfers to secondary care clinics.</p>
           </div>
-
           <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Active Referrals</h3>
-            
-            {latestConsult ? (
-              <div className="border border-slate-200 p-5 rounded-2xl bg-slate-50 space-y-3 text-xs leading-relaxed max-w-2xl">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider">Awaiting Referral Admission</span>
-                  <span className="text-[10px] text-slate-400">Date Logged: Today</span>
-                </div>
-                <div className="text-slate-700">
-                  From: <strong className="text-slate-800">Sinnar Rural Hub (CHC)</strong><br />
-                  To: <strong className="text-slate-800">Nashik District Civil Hospital</strong>
-                </div>
-                <div className="border-t border-slate-200/60 pt-2 text-[10px] text-slate-500">
-                  Reason: Specialty cardiologist clinical evaluation required. ABHA health locker link verified.
-                </div>
+
+            {referrals.length > 0 ? (
+              <div className="space-y-4">
+                {referrals.map((ref) => (
+                  <div key={ref._id} className="border border-slate-200 p-5 rounded-2xl bg-slate-50 space-y-3 text-xs leading-relaxed max-w-2xl">
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[10px] px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
+                        ref.status === "Completed" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700 animate-pulse"
+                      }`}>{ref.status || "Awaiting Admission"}</span>
+                      <span className="text-[10px] text-slate-400">Date Logged: {new Date(ref.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="text-slate-700">
+                      From: <strong className="text-slate-800">{ref.referringFacilityId?.name || "Sinnar PHC / Chatbot Hub"}</strong><br />
+                      To: <strong className="text-slate-800">{ref.destinationFacilityId?.name || "Nashik District Civil Hospital"}</strong>
+                    </div>
+                    <div className="border-t border-slate-200/60 pt-2 text-[10px] text-slate-500">
+                      Reason: {ref.reason || "Referral evaluation assigned by physician."}
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
-                <Share2 size={28} className="text-slate-300" />
+                <Share2 size={28} className="text-slate-350" />
                 <span className="text-[11px] font-bold">No referrals issued</span>
                 <span className="text-[9px] text-slate-400">Referrals issued during your doctor consult will appear here.</span>
               </div>
@@ -1565,22 +1613,29 @@ export default function PatientDashboard() {
           <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Home Visit Checklist</h3>
             
-            {latestConsult ? (
-              <div className="border border-slate-200 p-5 rounded-2xl bg-slate-50 space-y-3 text-xs max-w-md">
-                <div className="flex justify-between items-center text-slate-700">
-                  <span>Assigned Community Worker</span>
-                  <strong className="text-slate-800">Sharda Patil (ASHA)</strong>
-                </div>
-                <div className="border-t border-slate-200/60 pt-3 space-y-2">
-                  <span className="font-bold block text-[10px] text-slate-400 uppercase tracking-wider">Scheduled Tasks Checklist</span>
-                  <div className="flex gap-2 items-center text-slate-600">• Verify temperature (Maintain normal range)</div>
-                  <div className="flex gap-2 items-center text-slate-600">• Confirm BP compliance (Under 130/90)</div>
-                  <div className="flex gap-2 items-center text-slate-600">• Review Metformin dosage instructions</div>
-                </div>
+            {followups.length > 0 ? (
+              <div className="space-y-4">
+                {followups.map((follow) => (
+                  <div key={follow._id} className="border border-slate-200 p-5 rounded-2xl bg-slate-50 space-y-3 text-xs max-w-md">
+                    <div className="flex justify-between items-center text-slate-700">
+                      <span>Assigned Community Worker</span>
+                      <strong className="text-slate-800">{follow.assignedWorkerId?.name || "Sharda Patil"} ({follow.assignedWorkerId?.role || "ASHA"})</strong>
+                    </div>
+                    <div className="border-t border-slate-200/60 pt-3 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold block text-[10px] text-slate-400 uppercase tracking-wider">Follow-up Task</span>
+                        <span className="bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded-md text-[9px] uppercase">{follow.status}</span>
+                      </div>
+                      <p className="text-slate-600 mt-1 font-semibold">Reason: {follow.reason}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Due Date: {new Date(follow.dueDate).toLocaleDateString()}</p>
+                      {follow.notes && <p className="text-[10px] text-slate-500 italic mt-1 bg-white p-2 rounded-lg border border-slate-100">Notes: {follow.notes}</p>}
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
-                <RotateCcw size={28} className="text-slate-300" />
+                <RotateCcw size={28} className="text-slate-350" />
                 <span className="text-[11px] font-bold">No follow-ups scheduled</span>
                 <span className="text-[9px] text-slate-400">ASHA checks will map dynamically after clinical consultation completes.</span>
               </div>
