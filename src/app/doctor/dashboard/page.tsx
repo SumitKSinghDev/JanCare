@@ -294,8 +294,84 @@ export default function DoctorDashboard() {
         </div>
       )}
 
-      {/* 2. OTHER TABVIEWS */}
-      {activeTab !== "Dashboard" && (
+      {/* 2. PROFILE VIEW */}
+      {activeTab === "Profile" && (
+        <div className="bg-white border border-slate-200/80 p-6 sm:p-8 rounded-3xl shadow-xs space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+            <h2 className="text-lg font-extrabold text-slate-800">Practitioner Profile</h2>
+            <p className="text-xs text-slate-500">Manage your clinical registration details, contact info, and facility associations.</p>
+          </div>
+
+          <div className="grid md:grid-cols-12 gap-6 items-start">
+            {/* Profile Avatar Card */}
+            <div className="md:col-span-4 bg-slate-50 border border-slate-200 rounded-3xl p-6 flex flex-col items-center text-center space-y-3">
+              <div className="h-20 w-20 bg-blue-100 border-2 border-blue-200 text-[#1464D2] font-extrabold rounded-full flex items-center justify-center text-xl shadow-xs">
+                {currentUser?.name?.split(" ").map((n: string) => n[0]).join("") || "DOC"}
+              </div>
+              <div>
+                <strong className="text-sm font-extrabold text-slate-800 block">{currentUser?.name || "Dr. Practitioner"}</strong>
+                <span className="text-[10px] bg-green-50 text-green-700 font-bold px-2 py-0.5 rounded-full mt-1.5 inline-block border border-green-200/50">
+                  Verified MCI Practitioner
+                </span>
+              </div>
+              <div className="w-full pt-4 border-t border-slate-200/80 text-left space-y-2 text-[11px] text-slate-600">
+                <div className="flex justify-between">
+                  <span className="font-bold">Username:</span>
+                  <span className="font-mono">{currentUser?.username}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-bold">Role:</span>
+                  <span className="font-mono">{currentUser?.role}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Details List */}
+            <div className="md:col-span-8 space-y-4">
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-2">Facility Association</h3>
+                <div className="grid sm:grid-cols-2 gap-4 text-xs font-bold">
+                  <div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Associated Facility</span>
+                    <span className="text-slate-705 mt-1 block">{currentUser?.associatedFacility?.name || "Sinnar CHC-01"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Facility Type</span>
+                    <span className="text-slate-705 mt-1 block uppercase">{currentUser?.associatedFacility?.type || "Community Health Centre (CHC)"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block">District Node</span>
+                    <span className="text-slate-705 mt-1 block">{currentUser?.associatedFacility?.district || "Nashik"}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block">State Grid</span>
+                    <span className="text-slate-705 mt-1 block">{currentUser?.associatedFacility?.state || "Maharashtra"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-2">MCI Registration & Status</h3>
+                <div className="grid sm:grid-cols-2 gap-4 text-xs font-bold">
+                  <div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block">MCI License Number</span>
+                    <span className="text-slate-705 mt-1 block font-mono">MCI-78294 (State Health Registry)</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase block">Accepting consultations</span>
+                    <span className="text-green-700 mt-1 block flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span> Active / Online
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. OTHER TABVIEWS */}
+      {activeTab !== "Dashboard" && activeTab !== "Profile" && (
         <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 min-h-[400px]">
           <h2 className="text-lg font-extrabold text-slate-800">{activeTab} Workspace</h2>
           <p className="text-xs text-slate-500">Workspace panel for {activeTab} information logs.</p>
