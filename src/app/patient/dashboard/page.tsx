@@ -61,6 +61,8 @@ export default function PatientDashboard() {
   const [uploadTitle, setUploadTitle] = useState("");
   const [uploadType, setUploadType] = useState("LabReport");
   const [uploadContent, setUploadContent] = useState("");
+  const [uploadFile, setUploadFile] = useState<string | null>(null);
+  const [uploadFileName, setUploadFileName] = useState("");
   const [uploadLoading, setUploadLoading] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -492,6 +494,16 @@ export default function PatientDashboard() {
 
           <div class="section-title">${doc.title}</div>
           <div class="content">${doc.fileContent || "No document file content present."}</div>
+          ${doc.fileUrl ? `
+            <div class="section-title">Attached Scanned Record / Document</div>
+            <div style="margin-top: 15px; text-align: center;">
+              ${doc.fileUrl.startsWith("data:image/") ? `
+                <img src="${doc.fileUrl}" style="max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 12px;" />
+              ` : `
+                <iframe src="${doc.fileUrl}" style="width: 100%; height: 650px; border: 1px solid #e2e8f0; border-radius: 12px;"></iframe>
+              `}
+            </div>
+          ` : ""}
 
           <div class="footer">
             This is a digitally generated clinical record authorized under ABHA consent guidelines. Secure transactional key verified.
@@ -1679,6 +1691,7 @@ export default function PatientDashboard() {
                         title: uploadTitle,
                         type: uploadType,
                         fileContent: uploadContent,
+                        fileUrl: uploadFile || undefined
                       })
                     });
                     const data = await res.json();
@@ -1686,6 +1699,8 @@ export default function PatientDashboard() {
                       alert("Document uploaded successfully!");
                       setUploadTitle("");
                       setUploadContent("");
+                      setUploadFile(null);
+                      setUploadFileName("");
                       // Re-fetch documents
                       const docRes = await fetch("/api/documents");
                       const docData = await docRes.json();
@@ -1736,6 +1751,28 @@ export default function PatientDashboard() {
                     placeholder="Enter diagnostic values, sugar readings, or doctor's summary instructions here..."
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white font-mono"
                   />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-600 mb-1">Attach Scanned Document (Optional PDF/Image)</label>
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadFileName(file.name);
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setUploadFile(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 cursor-pointer"
+                  />
+                  {uploadFileName && (
+                    <span className="text-[10px] text-green-600 font-bold mt-1 block">📎 Attached: {uploadFileName}</span>
+                  )}
                 </div>
                 <button
                   type="submit"

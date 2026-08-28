@@ -273,6 +273,16 @@ export default function ConsultationWorkspace() {
 
           <div class="section-title">${doc.title}</div>
           <div class="content">${doc.fileContent || "No document file content present."}</div>
+          ${doc.fileUrl ? `
+            <div class="section-title">Attached Scanned Record / Document</div>
+            <div style="margin-top: 15px; text-align: center;">
+              ${doc.fileUrl.startsWith("data:image/") ? `
+                <img src="${doc.fileUrl}" style="max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 12px;" />
+              ` : `
+                <iframe src="${doc.fileUrl}" style="width: 100%; height: 650px; border: 1px solid #e2e8f0; border-radius: 12px;"></iframe>
+              `}
+            </div>
+          ` : ""}
 
           <div class="footer">
             This is a digitally generated clinical record authorized under ABHA consent guidelines. Secure transactional key verified.
