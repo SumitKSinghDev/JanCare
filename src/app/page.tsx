@@ -234,45 +234,53 @@ export default function LandingPage() {
         </div>
         <div className="animate-marquee inline-flex gap-10 pl-32 sm:pl-36 items-center">
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>🏥</span> <strong>ABDM Milestone:</strong> India links over 50 Crore Health Locker accounts via ABDM Stack — NHA reports massive compliance growth
+            <span>🧬</span> <strong>BioTech Breakthrough:</strong> India's First Indigenous CAR-T Therapy (NexCAR19) slashes cancer treatment costs by 90%
           </a>
           <span className="text-white/30">•</span>
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>🚁</span> <strong>Rural Medicine:</strong> Maharashtra approves drones for last-mile drug distribution to Sinnar & Igatpuri PHC drug stores
+            <span>🩺</span> <strong>MedTech AI:</strong> CDSCO certifies portable AI-powered point-of-care ECG & biomarker triage devices for rural PHCs
           </a>
           <span className="text-white/30">•</span>
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>🔬</span> <strong>ICMR Update:</strong> New rural chronic disease management guidelines launched — ASHA-led vital logging for early NCD detection
+            <span>🧪</span> <strong>BioTech Sensors:</strong> DBT & BIRAC scale rapid field biosensors for remote drinking water pathogen detection
           </a>
           <span className="text-white/30">•</span>
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>💊</span> <strong>Generic Drugs:</strong> Jan Aushadhi Kendras cross 12,000 outlets — affordable medicines now within 5km reach for 78% rural population
+            <span>🏥</span> <strong>ABDM Milestone:</strong> India links over 50 Crore Health Locker accounts via ABDM Stack — NHA reports 4.5 Cr ABHA records
           </a>
           <span className="text-white/30">•</span>
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>📱</span> <strong>Digital Health:</strong> Ayushman Bharat Digital Mission crosses 4.5 Crore ABHA-linked health records nationwide
+            <span>🚁</span> <strong>Rural Drone Logistics:</strong> Maharashtra approves drone corridors for last-mile drug delivery to remote Sinnar & Igatpuri PHCs
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>⚙️</span> <strong>MedTech Growth:</strong> National Medical Devices Policy unlocks ₹5,000 Cr in indigenous diagnostic telemetry clusters
           </a>
           <span className="text-white/30">•</span>
 
           {/* Exact duplicate for seamless infinite marquee loop */}
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>🏥</span> <strong>ABDM Milestone:</strong> India links over 50 Crore Health Locker accounts via ABDM Stack — NHA reports massive compliance growth
+            <span>🧬</span> <strong>BioTech Breakthrough:</strong> India's First Indigenous CAR-T Therapy (NexCAR19) slashes cancer treatment costs by 90%
           </a>
           <span className="text-white/30">•</span>
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>🚁</span> <strong>Rural Medicine:</strong> Maharashtra approves drones for last-mile drug distribution to Sinnar & Igatpuri PHC drug stores
+            <span>🩺</span> <strong>MedTech AI:</strong> CDSCO certifies portable AI-powered point-of-care ECG & biomarker triage devices for rural PHCs
           </a>
           <span className="text-white/30">•</span>
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>🔬</span> <strong>ICMR Update:</strong> New rural chronic disease management guidelines launched — ASHA-led vital logging for early NCD detection
+            <span>🧪</span> <strong>BioTech Sensors:</strong> DBT & BIRAC scale rapid field biosensors for remote drinking water pathogen detection
           </a>
           <span className="text-white/30">•</span>
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>💊</span> <strong>Generic Drugs:</strong> Jan Aushadhi Kendras cross 12,000 outlets — affordable medicines now within 5km reach for 78% rural population
+            <span>🏥</span> <strong>ABDM Milestone:</strong> India links over 50 Crore Health Locker accounts via ABDM Stack — NHA reports 4.5 Cr ABHA records
           </a>
           <span className="text-white/30">•</span>
           <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
-            <span>📱</span> <strong>Digital Health:</strong> Ayushman Bharat Digital Mission crosses 4.5 Crore ABHA-linked health records nationwide
+            <span>🚁</span> <strong>Rural Drone Logistics:</strong> Maharashtra approves drone corridors for last-mile drug delivery to remote Sinnar & Igatpuri PHCs
+          </a>
+          <span className="text-white/30">•</span>
+          <a href="#health-news" className="text-[11px] font-medium text-white/90 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 no-underline">
+            <span>⚙️</span> <strong>MedTech Growth:</strong> National Medical Devices Policy unlocks ₹5,000 Cr in indigenous diagnostic telemetry clusters
           </a>
           <span className="text-white/30">•</span>
         </div>
@@ -678,39 +686,83 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
                 date: "28 Aug 2026",
-                tag: "ABDM Milestone",
-                title: "India Links Over 50 Crore Health Locker Accounts via ABDM Stack",
-                desc: "The National Health Authority (NHA) reported massive digital compliance growth. Tightly managed patient consent systems are now driving clinical transparency across public clinics."
+                tag: "BioTech Breakthrough",
+                title: "India's First Indigenous CAR-T Cell Therapy Slashes Cancer Treatment Costs by 90%",
+                desc: "NexCAR19, developed indigenously by IIT Bombay and Tata Memorial Centre with BIRAC support, achieves nationwide clinical adoption at a fraction of global costs.",
+                source: "ICMR & BIRAC India",
+                link: "https://main.icmr.nic.in"
+              },
+              {
+                date: "27 Aug 2026",
+                tag: "MedTech / AI Diagnostics",
+                title: "CDSCO Approves Indigenous AI-Powered Point-of-Care Triage Devices for Rural PHCs",
+                desc: "Portable battery-operated diagnostic hardware certified for instant 10-minute ECG analysis and multi-biomarker screening in primary health centers without specialist delay.",
+                source: "CDSCO Medical Devices",
+                link: "https://cdsco.gov.in"
               },
               {
                 date: "26 Aug 2026",
-                tag: "Rural Medicine",
-                title: "Maharashtra Approves Drones for Last-Mile Drug Distribution",
-                desc: "To solve chronic medicine shortages, the State Innovation Society launched remote drone channels linking central Nashik depots to Sinnar and Igatpuri PHC drug stores."
+                tag: "BioTech Sensors",
+                title: "DBT & BIRAC Deploy Rapid Paper-Strip Biosensors for Rural Pathogen Detection",
+                desc: "Field-deployable paper-strip genomic biosensors deployed across Maharashtra rural clinics to detect waterborne bacteria and prevent seasonal infection outbreaks.",
+                source: "BIRAC / DBT India",
+                link: "https://birac.nic.in"
+              },
+              {
+                date: "25 Aug 2026",
+                tag: "MedTech Hardware",
+                title: "National Medical Devices Policy Unlocks ₹5,000 Cr in Indigenous Telemetry R&D",
+                desc: "Specialized MedTech manufacturing clusters established to produce low-cost digital stethoscopes, telemetry kits, and solar-powered vaccine cold-chain carriers.",
+                source: "Dept of Pharmaceuticals",
+                link: "https://pharmaceuticals.gov.in"
               },
               {
                 date: "24 Aug 2026",
-                tag: "Clinical Research",
-                title: "ICMR Launches New Rural Chronic Disease Management Guidelines",
-                desc: "Focusing on preventive screening, the new guidelines establish ASHA-led vital logging protocols for early detection of non-communicable diseases (NCDs) like hypertension."
+                tag: "ABDM Stack Milestone",
+                title: "India Links Over 50 Crore Health Locker Accounts via Unified ABDM Framework",
+                desc: "The National Health Authority reports massive digital compliance growth. Encrypted consent-backed health data exchange now standard across public hospitals.",
+                source: "National Health Authority",
+                link: "https://abdm.gov.in"
+              },
+              {
+                date: "23 Aug 2026",
+                tag: "Rural Drone Logistics",
+                title: "Maharashtra Approves Drone Dispatch Corridors for Remote PHC Drug Stores",
+                desc: "State Innovation Society establishes autonomous drone delivery networks connecting central Nashik medicine warehouses to tribal subcenters in Sinnar and Igatpuri.",
+                source: "Arogya Maharashtra",
+                link: "https://arogya.maharashtra.gov.in"
               }
             ].map((news, idx) => (
-              <div key={idx} className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition-all duration-200">
-                <div className="space-y-2">
+              <div key={idx} className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition-all duration-200 group">
+                <div className="space-y-2.5">
                   <div className="flex justify-between items-center text-[9px] font-bold">
                     <span className="text-slate-400 font-mono">{news.date}</span>
                     <span className="text-primary bg-primary/5 px-2 py-0.5 rounded">{news.tag}</span>
                   </div>
-                  <h4 className="text-xs font-bold text-slate-800 leading-snug">{news.title}</h4>
+                  <a
+                    href={news.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-bold text-slate-800 leading-snug block hover:text-primary transition-colors no-underline"
+                  >
+                    {news.title}
+                  </a>
                   <p className="text-[11px] text-text-secondary leading-relaxed">{news.desc}</p>
                 </div>
                 <div className="border-t border-slate-100 pt-3 mt-3 flex justify-between items-center text-[10px]">
-                  <span className="text-slate-400">Source: MOHFW India</span>
-                  <a href="https://main.mohfw.gov.in" target="_blank" className="text-primary hover:underline font-bold text-decoration-none">Read Official Press Release →</a>
+                  <span className="text-slate-400 font-medium">Source: {news.source}</span>
+                  <a
+                    href={news.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:text-deep-blue hover:underline font-bold inline-flex items-center gap-1 cursor-pointer transition-colors no-underline"
+                  >
+                    Read Official Release →
+                  </a>
                 </div>
               </div>
             ))}
