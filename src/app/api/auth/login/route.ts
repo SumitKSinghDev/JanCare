@@ -26,8 +26,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find user by username, or look up via patientRefId / mobile
-    let user = await User.findOne({ username });
+    // Find user by exact username
+    let user = await User.findOne({ username: username.trim() });
+    
+    // If not found by direct username, check if username is a Patient ID (JC-...) or Mobile Number
     if (!user) {
       const patientMatch = await Patient.findOne({
         $or: [
@@ -35,14 +37,26 @@ export async function POST(request: Request) {
           { mobile: username.trim() },
         ]
       });
+
       if (patientMatch) {
         user = await User.findOne({
           $or: [
             { username: patientMatch.mobile },
-            { username: "patient" },
             { name: patientMatch.name }
           ]
         });
+
+        // If patient exists in database but User account hasn't been created yet, create it on the fly
+        if (!user) {
+          const salt = await bcrypt.genSalt(10);
+          const defaultHash = await bcrypt.hash("password123", salt);
+          user = await User.create({
+            name: patientMatch.name,
+            username: patientMatch.mobile || patientMatch.patientRefId,
+            passwordHash: defaultHash,
+            role: "Patient",
+          });
+        }
       }
     }
 

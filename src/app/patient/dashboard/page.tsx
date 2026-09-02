@@ -398,10 +398,10 @@ export default function PatientDashboard() {
   function handleDownloadPrescription(pres: any) {
     const doctorName = pres.doctorId?.name || "Dr. Aniruddha Kulkarni";
     const dateStr = new Date(pres.createdAt).toLocaleDateString();
-    const patientName = user?.name || "Ramesh Kumar";
-    const patientId = user?.patientRefId || "JC-R-0283";
-    const age = user?.age || 54;
-    const gender = user?.gender || "Male";
+    const patientName = user?.name || "Patient";
+    const patientId = user?.patientRefId || "JC-Patient";
+    const age = user?.age || 30;
+    const gender = user?.gender || "Patient";
     
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
@@ -501,8 +501,8 @@ export default function PatientDashboard() {
   }
 
   function handleDownloadClinicalDocument(doc: any) {
-    const patientName = user?.name || "Ramesh Kumar";
-    const patientId = user?.patientRefId || "JC-R-0283";
+    const patientName = user?.name || "Patient";
+    const patientId = user?.patientRefId || "JC-Patient";
     const dateStr = new Date(doc.createdAt || new Date()).toLocaleDateString();
 
     const printWindow = window.open("", "_blank");
@@ -577,10 +577,10 @@ export default function PatientDashboard() {
   function handleDownloadConsultationReport(c: any) {
     const doctorName = c.doctorId?.name || "Dr. Aniruddha Kulkarni";
     const dateStr = new Date(c.createdAt || c.consultationDate).toLocaleDateString();
-    const patientName = user?.name || "Ramesh Kumar";
-    const patientId = user?.patientRefId || "JC-R-0283";
-    const age = user?.age || 54;
-    const gender = user?.gender || "Male";
+    const patientName = user?.name || "Patient";
+    const patientId = user?.patientRefId || "JC-Patient";
+    const age = user?.age || 30;
+    const gender = user?.gender || "Patient";
     const healthRecord = c.healthRecordId;
 
     const printWindow = window.open("", "_blank");
@@ -656,10 +656,10 @@ export default function PatientDashboard() {
   }
 
   function handleDownloadTimelineReport() {
-    const patientName = user?.name || "Ramesh Kumar";
-    const patientId = user?.patientRefId || "JC-R-0283";
-    const age = user?.age || 54;
-    const gender = user?.gender || "Male";
+    const patientName = user?.name || "Patient";
+    const patientId = user?.patientRefId || "JC-Patient";
+    const age = user?.age || 30;
+    const gender = user?.gender || "Patient";
     
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
@@ -902,7 +902,7 @@ export default function PatientDashboard() {
           <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden space-y-4">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Good morning, {user?.name || "Ramesh Kumar"} 👋</h2>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Good morning, {user?.name || "Patient"} 👋</h2>
               <p className="text-xs text-slate-300">Welcome back. Here is your personalized health dashboard overview.</p>
             </div>
 
@@ -1234,15 +1234,15 @@ export default function PatientDashboard() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="text-[10px] text-slate-400 block">Name</span>
-                    <span className="font-bold text-slate-700">{user?.name || "Ramesh Kumar"}</span>
+                    <span className="font-bold text-slate-700">{user?.name || "Patient"}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 block">Mobile Registered</span>
-                    <span className="font-bold text-slate-700">{user?.mobile || "9822114400"}</span>
+                    <span className="font-bold text-slate-700">{user?.mobile || user?.username || "—"}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 block">Age / Gender</span>
-                    <span className="font-bold text-slate-700">{user?.age || 54}y / {user?.gender || "Male"}</span>
+                    <span className="font-bold text-slate-700">{user?.age || "—"}y / {user?.gender || "—"}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 block">Unique Patient Ref</span>

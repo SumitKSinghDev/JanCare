@@ -47,6 +47,26 @@ export async function GET() {
       if (patient) {
         patientId = patient._id;
         patientRefId = patient.patientRefId;
+        return NextResponse.json({
+          success: true,
+          user: {
+            id: user._id,
+            name: patient.name || user.name,
+            username: user.username,
+            role: user.role,
+            associatedFacility: user.associatedFacility,
+            patientId,
+            patientRefId,
+            age: patient.age,
+            gender: patient.gender,
+            mobile: patient.mobile,
+            division: patient.division,
+            district: patient.district,
+            taluka: patient.taluka,
+            village: patient.village,
+            abhaLinked: patient.abhaLinked,
+          },
+        });
       }
     }
 
