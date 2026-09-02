@@ -164,14 +164,13 @@ CRITICAL RULES:
 7. IMPORTANT: Do NOT list all your capabilities unless the user explicitly asks "what can you do" or similar. For greetings, keep it brief and natural.
 
 8. APPOINTMENT BOOKING & CLINICAL INTAKE:
-   - When a patient asks to book an appointment or consult a doctor:
-     a) If action is "GATHER_DETAILS", warmly ask the user to confirm:
-        1. Their current symptoms / health concern (so our AI triage system calculates the right urgency priority).
-        2. Preferred Health Center (e.g. Sinnar Rural CHC, Igatpuri PHC, or Nashik Civil Hospital).
-        3. Preferred time slot (offer available slots e.g. 11:30 AM or 02:00 PM).
-     b) If action is "OFFER_SLOTS", list the available slots (11:30 AM or 02:00 PM) and ask the user to choose.
-     c) If the user says "Abhi", "Immediately", or explicitly confirms a slot/symptom, the system executes the booking.
-   - After a successful booking (action is "BOOKED" and success is true), you MUST display a clear structured confirmation:
+   - When a patient asks to book an appointment (and action is "GATHER_DETAILS"):
+     DO NOT say the appointment is booked! You MUST ask the user to choose their preferred date and time slot:
+     1. 📅 **तारीख (Date):** आज (Today) या कल (Tomorrow)?
+     2. ⏰ **समय स्लॉट (Time Slot):** सुबह 11:30 AM या दोपहर 02:00 PM?
+     3. 🏥 **स्वास्थ्य केंद्र (Health Center):** सिन्नर CHC या इगतपुरी PHC?
+     Tell them they can simply tap the quick buttons below or reply in chat.
+   - ONLY after the user confirms a slot or date (and database action is "BOOKED" with success: true), you MUST display the structured confirmation:
      ✅ Appointment Confirmed
      • Patient: [patient name]
      • Triage Priority: [🔴 Urgent / 🟠 Priority / 🟢 Routine]
@@ -180,7 +179,7 @@ CRITICAL RULES:
      • Doctor: [doctor name]
      • Date & Time: [date] at [time]
      • Status: Confirmed & Added to Doctor Queue
-   - Do NOT fabricate or hallucinate any fields. Only use the values returned in the system context.
+   - Do NOT fabricate or hallucinate any booking confirmation unless action is "BOOKED".
 
 9. DATE AWARENESS & SYMPTOM CONSULTATION PROACTIVE SUGGESTION:
    - Always evaluate dates relative to CURRENT DATE.
@@ -464,27 +463,30 @@ function extractSymptomsAndTriage(fullConversationText: string) {
               const isTomorrow = msgLower.includes("kal") || msgLower.includes("tomorrow") || msgLower.includes("udya") || msgLower.includes("उद्या") || msgLower.includes("कल");
               const targetDate = isTomorrow ? new Date(Date.now() + 86400000) : new Date();
 
-              // Check if they are requesting immediate booking or specified a slot
-              const isImmediate = msgLower.includes("abhi") || msgLower.includes("now") || msgLower.includes("immediate") || msgLower.includes("त्वरित") || msgLower.includes("लगेच") || msgLower.includes("अभी") || triageData.triage.level === "Urgent";
-
+              // Detect explicit slot selection
               let slotTime = "";
-              if (msgLower.includes("2:00") || msgLower.includes("02:00") || msgLower.includes("2 pm") || msgLower.includes("02 pm") || msgLower.includes("दोन") || msgLower.includes("दुपार")) {
+              if (msgLower.includes("2:00") || msgLower.includes("02:00") || msgLower.includes("2 pm") || msgLower.includes("02 pm") || msgLower.includes("दोन") || msgLower.includes("दुपार") || msgLower.includes("afternoon") || msgLower.includes("दोपहर")) {
                 slotTime = "02:00 PM";
               } else if (msgLower.includes("11:30") || msgLower.includes("morning") || msgLower.includes("सकाळ") || msgLower.includes("सुबह")) {
                 slotTime = "11:30 AM";
-              } else if (isImmediate) {
-                slotTime = !slot1Taken ? "11:30 AM" : !slot2Taken ? "02:00 PM" : "11:30 AM";
               }
 
-              // Check history if confirming previous offer
-              const isConfirming = msgLower.includes("yes") || msgLower.includes("confirm") || msgLower.includes("haan") || msgLower.includes("okay") || msgLower.includes("ok") || msgLower.includes("कर दो") || msgLower.includes("करा") || msgLower.includes("हाँ") || msgLower.includes("हो") || msgLower.includes("होय");
+              // Detect explicit confirmation or slot chip selection
+              const isExplicitConfirm = 
+                msgLower.includes("confirm") || 
+                msgLower.includes("कन्फर्म") || 
+                msgLower.includes("हाँ, कन्फर्म") || 
+                msgLower.includes("होय, कन्फर्म") || 
+                msgLower.includes("book for today") || 
+                msgLower.includes("book for tomorrow") || 
+                msgLower.includes("आज के लिए") || 
+                msgLower.includes("कल के लिए") ||
+                msgLower.includes("abhi book") ||
+                msgLower.includes("urgent call");
 
-              if (!slotTime && isConfirming) {
-                if (!slot1Taken) {
-                  slotTime = "11:30 AM";
-                } else if (!slot2Taken) {
-                  slotTime = "02:00 PM";
-                }
+              // If confirming without specific time, default to first available slot
+              if (!slotTime && isExplicitConfirm) {
+                slotTime = !slot1Taken ? "11:30 AM" : !slot2Taken ? "02:00 PM" : "11:30 AM";
               }
 
               if (slotTime) {
