@@ -75,6 +75,8 @@ export default function LoginPage() {
         router.push("/doctor/dashboard");
       } else if (role === "Patient") {
         router.push("/patient/dashboard");
+      } else if (role === "MedicineManager") {
+        router.push("/medicine-manager/dashboard");
       } else if (role === "FacilityAdmin") {
         router.push("/facility/dashboard");
       } else if (role === "DistrictAdmin" || role === "SystemAdmin") {
@@ -211,6 +213,8 @@ export default function LoginPage() {
         router.push("/doctor/dashboard");
       } else if (role === "Patient") {
         router.push("/patient/dashboard");
+      } else if (role === "MedicineManager") {
+        router.push("/medicine-manager/dashboard");
       } else if (role === "FacilityAdmin") {
         router.push("/facility/dashboard");
       } else if (role === "DistrictAdmin" || role === "SystemAdmin") {

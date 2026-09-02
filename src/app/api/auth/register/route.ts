@@ -41,7 +41,8 @@ export async function POST(request: Request) {
       emergencyContact,
     } = body;
 
-    const resolvedRole = "Patient";
+    const allowedRoles = ["Patient", "ASHA", "ANM", "Doctor", "Specialist", "FacilityAdmin", "DistrictAdmin", "SystemAdmin", "MedicineManager"];
+    const resolvedRole = allowedRoles.includes(role) ? role : "Patient";
 
     if (!name || !username || !password) {
       return NextResponse.json(
@@ -77,16 +78,7 @@ export async function POST(request: Request) {
 
     // If role is Patient, create corresponding Patient profile
     if (resolvedRole === "Patient") {
-      if (!age || !dateOfBirth || !gender || !mobile || !division || !district || !taluka || !village || !emergencyContact) {
-        // Rollback user creation to maintain integrity
-        await User.findByIdAndDelete(user._id);
-        return NextResponse.json(
-          { success: false, error: "Missing patient demographic details for Patient registration" },
-          { status: 400 }
-        );
-      }
-
-      // Generate a unique patientRefId and ensure it is unique
+      // Generate a unique patientRefId
       let uniqueId = false;
       let refId = "";
       while (!uniqueId) {
@@ -97,19 +89,23 @@ export async function POST(request: Request) {
 
       const patient = await Patient.create({
         patientRefId: refId,
-        name,
-        age: Number(age),
-        dateOfBirth: new Date(dateOfBirth),
-        gender,
-        mobile,
+        name: name.trim(),
+        age: Number(age) || 30,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : new Date("1996-01-01"),
+        gender: gender || "Male",
+        mobile: mobile || username,
         email: email || "",
         state: "Maharashtra",
-        division,
-        district,
-        taluka,
-        village,
+        division: division || "Nashik",
+        district: district || "Nashik",
+        taluka: taluka || "Sinnar",
+        village: village || "Demo Village",
         preferredLanguage: preferredLanguage || "Marathi",
-        emergencyContact,
+        emergencyContact: emergencyContact || {
+          name: "Family Member",
+          relation: "Relative",
+          mobile: mobile || username,
+        },
         abhaLinked: false,
       });
 

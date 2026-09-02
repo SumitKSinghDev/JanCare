@@ -157,6 +157,12 @@ export default function RegisterPage() {
           router.push("/asha/dashboard");
         } else if (role === "Doctor" || role === "Specialist") {
           router.push("/doctor/dashboard");
+        } else if (role === "MedicineManager") {
+          router.push("/medicine-manager/dashboard");
+        } else if (role === "FacilityAdmin") {
+          router.push("/facility/dashboard");
+        } else if (role === "DistrictAdmin" || role === "SystemAdmin") {
+          router.push("/admin/dashboard");
         } else {
           router.push("/login");
         }
