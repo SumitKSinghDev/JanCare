@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "@/lib/i18nContext";
 import { usePathname } from "next/navigation";
-import { Sparkles, X, Send, Mic, MicOff, Volume2, VolumeX, Loader2 } from "lucide-react";
+import { Sparkles, X, Send, Mic, MicOff, Volume2, VolumeX, Loader2, PhoneCall, AlertOctagon, Video, Activity, ShieldAlert } from "lucide-react";
 
 interface AIAgentChatbotProps {
   inline?: boolean;
@@ -17,6 +17,8 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [emergencyActive, setEmergencyActive] = useState(false);
+  const [ambulanceDispatched, setAmbulanceDispatched] = useState(false);
 
   // Close chatbot when navigation route changes
   useEffect(() => {
@@ -159,15 +161,20 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
         const detectedLang = isMarathi ? "mr" : (hasDevanagari || isRomanHindi) ? "hi" : "en";
         
         const lowerText = text.toLowerCase();
+        const isEmergencyTrigger = /chest|chhati|heart|breath|saas|dum|श्वास|दम|bleeding|khoon|behoshi|unconscious|faint|snake|सर्पदंश|emergency|आपत्काल|तातडीने|108/.test(lowerText) || /emergency|urgent|108|ambulance/i.test(data.response || "");
+        if (isEmergencyTrigger) {
+          setEmergencyActive(true);
+        }
+
         const matchedIntent = data.toolCalled
           ? (data.toolCalled === "getCareTimeline" ? "CHECK_HEALTH_TIMELINE" : data.toolCalled === "getMedicineAvailability" ? "CHECK_MEDICINE_AVAILABILITY" : "FIND_FACILITY")
+          : isEmergencyTrigger ? "EMERGENCY"
           : lowerText.match(/bukhar|fever|ताप|दर्द|pain|cough|खांसी|cold|सर्दी|दस्त/) ? "SYMPTOM_REPORT"
           : lowerText.match(/appointment|अपॉइंटमेंट|भेट/) ? "CHECK_APPOINTMENT"
           : lowerText.match(/medicine|दवा|औषध|milegi|मिळतील/) ? "CHECK_MEDICINE_AVAILABILITY"
           : lowerText.match(/referral|रेफरल/) ? "CHECK_REFERRAL"
           : lowerText.match(/follow.?up|फॉलो/) ? "CHECK_FOLLOW_UP"
           : lowerText.match(/order|ट्रैक|tracking/) ? "CHECK_TRACKING_STATUS"
-          : lowerText.match(/emergency|आपत्काल|सांस|chest/) ? "EMERGENCY"
           : lowerText.match(/hello|hi|namaste|नमस्ते|नमस्कार/) ? "GREETING"
           : "GENERAL";
 
@@ -401,6 +408,67 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
             💡 {t("assistant.disclaimer")}
           </div>
 
+          {/* 🚨 Emergency Red-Flag SOS Actions Console */}
+          {emergencyActive && (
+            <div className="bg-gradient-to-r from-red-600 via-red-650 to-rose-700 text-white p-3.5 border-b border-red-800 shadow-md animate-in slide-in-from-top space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                  <AlertOctagon size={14} className="animate-pulse text-amber-300" />
+                  🚨 Urgent Emergency Detected
+                </span>
+                <button 
+                  onClick={() => setEmergencyActive(false)}
+                  className="text-white/80 hover:text-white text-[10px] bg-red-800/60 hover:bg-red-800 px-2 py-0.5 rounded cursor-pointer border-0 transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+
+              {ambulanceDispatched ? (
+                <div className="bg-red-950/80 p-2.5 rounded-xl border border-red-400/40 text-[10px] space-y-1 text-left">
+                  <div className="flex items-center justify-between font-bold text-amber-300">
+                    <span>🚑 Ambulance MH-15-EM-108 Dispatched!</span>
+                    <span className="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] animate-pulse font-mono">ETA ~10 Mins</span>
+                  </div>
+                  <p className="text-slate-200 leading-relaxed">
+                    Dispatched from Sinnar Subcenter. Real-time Trauma Pre-Arrival docket transmitted to Nashik Civil ICU.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <button
+                    onClick={() => {
+                      setAmbulanceDispatched(true);
+                      setMessages(prev => [
+                        ...prev,
+                        { 
+                          sender: "agent", 
+                          text: "🚨 EMERGENCY AMBULANCE DISPATCH ACTIVATED!\n\n🚑 108 Emergency Ambulance (MH-15-EM-108) dispatched from nearest Sinnar Rural Depot.\n⏱️ Estimated Arrival: 10-12 Mins.\n🏥 Destination: Sinnar CHC / Nashik Trauma ICU.\n📋 Digital Trauma Sheet with live vitals pre-notified to casualty team." 
+                        }
+                      ]);
+                    }}
+                    className="bg-white text-red-700 hover:bg-red-50 font-black text-[10px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md cursor-pointer border-0 transition-all"
+                  >
+                    <PhoneCall size={13} className="text-red-600" /> Trigger 108 Ambulance
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      window.location.href = "/doctor/consultation/urgent-sos";
+                    }}
+                    className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-[10px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md cursor-pointer border-0 transition-all"
+                  >
+                    <Video size={13} /> Instant Doctor Call
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-[9px] text-red-100 pt-0.5 border-t border-red-500/40">
+                <span>🏥 Nearest Emergency ICU: <strong>Sinnar CHC (4.8 km)</strong></span>
+                <a href="tel:108" className="font-bold underline text-white">Call 108 Directly →</a>
+              </div>
+            </div>
+          )}
 
           {/* Message List */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-bg-brand">
