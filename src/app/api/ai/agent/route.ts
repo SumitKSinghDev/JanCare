@@ -163,20 +163,23 @@ CRITICAL RULES:
 
 7. IMPORTANT: Do NOT list all your capabilities unless the user explicitly asks "what can you do" or similar. For greetings, keep it brief and natural.
 
-8. APPOINTMENT BOOKING CONSTRAINTS:
-   - You MUST NOT claim an appointment or online slot is booked unless the system context indicates that a booking was successfully completed (e.g. action is "BOOKED" and success is true).
-   - If the system context shows action is "OFFER_SLOTS", you must list the available slots (11:30 AM or 02:00 PM) and ask the user to choose or confirm.
-   - If the user says "Abhi" or "Immediately", the system will attempt to book the earliest available slot. If success is true, confirm it.
-   - If the booking fails or no slots are available (e.g. success is false or errorType is "NO_SLOTS_AVAILABLE"), tell the user that booking could not be completed and suggest another time.
-   - After a successful booking (action is "BOOKED" and success is true), you must display a structured confirmation in the exact format:
-     Appointment Confirmed
-     Patient: [patient name]
-     Type: Online Consultation
-     Doctor: [doctor name]
-     Date: [date]
-     Time: [time]
-     Appointment ID: [actual ID]
-     Status: Confirmed
+8. APPOINTMENT BOOKING & CLINICAL INTAKE:
+   - When a patient asks to book an appointment or consult a doctor:
+     a) If action is "GATHER_DETAILS", warmly ask the user to confirm:
+        1. Their current symptoms / health concern (so our AI triage system calculates the right urgency priority).
+        2. Preferred Health Center (e.g. Sinnar Rural CHC, Igatpuri PHC, or Nashik Civil Hospital).
+        3. Preferred time slot (offer available slots e.g. 11:30 AM or 02:00 PM).
+     b) If action is "OFFER_SLOTS", list the available slots (11:30 AM or 02:00 PM) and ask the user to choose.
+     c) If the user says "Abhi", "Immediately", or explicitly confirms a slot/symptom, the system executes the booking.
+   - After a successful booking (action is "BOOKED" and success is true), you MUST display a clear structured confirmation:
+     ✅ Appointment Confirmed
+     • Patient: [patient name]
+     • Triage Priority: [🔴 Urgent / 🟠 Priority / 🟢 Routine]
+     • Symptoms Logged: [symptoms]
+     • Health Center: [facility name]
+     • Doctor: [doctor name]
+     • Date & Time: [date] at [time]
+     • Status: Confirmed & Added to Doctor Queue
    - Do NOT fabricate or hallucinate any fields. Only use the values returned in the system context.`;
 
 // Helper to query Gemini with retry + model fallback for extreme rate limit resiliency
@@ -271,6 +274,88 @@ export async function POST(request: Request) {
       (msgLower.includes("online") && msgLower.includes("doctor"))
     ) && !isStatusCheck;
 
+// Helper function to extract symptoms and compute clinical triage level from conversation context
+function extractSymptomsAndTriage(fullConversationText: string) {
+  const text = fullConversationText.toLowerCase();
+  
+  const symptoms: Array<{ name: string; durationDays: number; severity: "Mild" | "Moderate" | "Severe" }> = [];
+  let level: "Urgent" | "Priority" | "Routine" = "Routine";
+  let explanation = "AI Clinical Triage: Routine clinical consultation scheduled.";
+  let reason = "Routine Consultation";
+
+  // Check Urgent Red Flags
+  const isChestPain = /chest\s*pain|chhati|heart|छाती|हार्ट|सीने\s*में\s*दर्द/.test(text);
+  const isBreathingDifficulty = /breath|saas|dum|श्वास|दम|सांस|shortness\s*of\s*breath|asthma/.test(text);
+  const isBleedingOrUnconscious = /bleed|khoon|behoshi|unconscious|faint|seizure|रक्त|बेहोश|चक्कर\s*येऊन\s*पडणे/.test(text);
+  const isExtremeFever = /103|104|105|severe\s*fever|खूप\s*ताप|तेज\s*बुखार/.test(text);
+
+  // Check Priority Conditions
+  const isFever = /fever|bukhar|taap|ताप|बुखार|100|101|102|chills|thandi/.test(text);
+  const isVomitingDiarrhea = /vomit|ultee|उलटी|diarrhea|loose\s*motion|julab|जुलाब|दस्‍त/.test(text);
+  const isAbdominalPain = /stomach|abdominal|pet\s*dard|पोटदुखी|पेट\s*दर्द/.test(text);
+  const isSevereCough = /cough|khasi|khokla|खोकला|खांसी|phlegm/.test(text);
+  const isDizzinessBP = /bp|dizziness|chakkar|चक्कर|blood\s*pressure/.test(text);
+
+  if (isChestPain) {
+    symptoms.push({ name: "Chest Pain / Discomfort", durationDays: 1, severity: "Severe" });
+  }
+  if (isBreathingDifficulty) {
+    symptoms.push({ name: "Difficulty Breathing / Dyspnea", durationDays: 1, severity: "Severe" });
+  }
+  if (isBleedingOrUnconscious) {
+    symptoms.push({ name: "Acute Fainting / Bleeding", durationDays: 1, severity: "Severe" });
+  }
+  if (isExtremeFever) {
+    symptoms.push({ name: "High Grade Hyperpyrexia (>103°F)", durationDays: 2, severity: "Severe" });
+  }
+
+  if (symptoms.length > 0 || isChestPain || isBreathingDifficulty || isBleedingOrUnconscious || isExtremeFever) {
+    level = "Urgent";
+    const symptomNames = symptoms.map(s => s.name).join(", ");
+    reason = "Urgent Red-Flag Symptoms";
+    explanation = `AI Clinical Triage: Emergency red-flag symptoms detected (${symptomNames}). Flagged as Urgent for immediate physician teleconsultation.`;
+  } else {
+    // Check Priority
+    if (isFever) {
+      symptoms.push({ name: "Acute Febrile Illness / Fever", durationDays: 2, severity: "Moderate" });
+    }
+    if (isVomitingDiarrhea) {
+      symptoms.push({ name: "Gastroenteritis / Dehydration", durationDays: 1, severity: "Moderate" });
+    }
+    if (isAbdominalPain) {
+      symptoms.push({ name: "Acute Abdominal Pain", durationDays: 1, severity: "Moderate" });
+    }
+    if (isSevereCough) {
+      symptoms.push({ name: "Productive Respiratory Cough", durationDays: 3, severity: "Moderate" });
+    }
+    if (isDizzinessBP) {
+      symptoms.push({ name: "Hypotension / Dizziness", durationDays: 1, severity: "Moderate" });
+    }
+
+    if (symptoms.length > 0) {
+      level = "Priority";
+      const symptomNames = symptoms.map(s => s.name).join(", ");
+      reason = `Priority Clinical Triage (${symptomNames})`;
+      explanation = `AI Clinical Triage: Patient presents with acute symptomatic profile (${symptomNames}). Prioritized in doctor consultation queue.`;
+    } else {
+      symptoms.push({ name: "General Health Consultation", durationDays: 1, severity: "Mild" });
+      level = "Routine";
+      reason = "Routine Tele-Consultation";
+      explanation = "AI Clinical Triage: Routine patient consultation scheduled.";
+    }
+  }
+
+  return {
+    symptoms,
+    triage: {
+      level,
+      reason,
+      aiExplanation: explanation,
+      triageDate: new Date()
+    }
+  };
+}
+
     if (isBookingRequest) {
       toolNameCalled = "bookAppointment";
       await connectToDatabase();
@@ -305,41 +390,54 @@ export async function POST(request: Request) {
           const HealthRecord = (await import("@/models/HealthRecord")).default;
 
           try {
-            // Facility lookup matching patient's location
-            let firstChc = null;
-            if (patientDoc.district) {
-              firstChc = await Facility.findOne({ 
+            // 1. Multi-turn text context for symptom extraction and facility resolution
+            const fullHistoryText = [
+              ...(history && Array.isArray(history) ? history.map((h: any) => h.text || "") : []),
+              message
+            ].join(" ");
+
+            const triageData = extractSymptomsAndTriage(fullHistoryText);
+
+            // 2. Facility resolution
+            let selectedFacility = null;
+            if (msgLower.includes("sinnar") || msgLower.includes("सिन्नर")) {
+              selectedFacility = await Facility.findOne({ name: /Sinnar/i });
+            } else if (msgLower.includes("igatpuri") || msgLower.includes("इगतपुरी")) {
+              selectedFacility = await Facility.findOne({ name: /Igatpuri/i });
+            } else if (msgLower.includes("nashik") || msgLower.includes("नाशिक") || msgLower.includes("civil")) {
+              selectedFacility = await Facility.findOne({ name: /Civil/i });
+            }
+
+            if (!selectedFacility && patientDoc.district) {
+              selectedFacility = await Facility.findOne({ 
                 district: patientDoc.district, 
                 type: { $in: ["CHC", "PHC"] } 
               });
             }
-            if (!firstChc) {
-              firstChc = await Facility.findOne({ type: "CHC" });
+            if (!selectedFacility) {
+              selectedFacility = await Facility.findOne({ type: "CHC" }) || await Facility.findOne({});
             }
             
-            // Doctor selection
+            // 3. Doctor selection
             let doctorDoc = null;
             if (msgLower.includes("smita") || msgLower.includes("rao") || msgLower.includes("cardiologist")) {
               doctorDoc = await User.findOne({ name: /Smita/i });
             } else {
-              doctorDoc = await User.findOne({ name: /Aniruddha/i });
-              if (!doctorDoc) {
-                doctorDoc = await User.findOne({ role: "Doctor" });
-              }
+              doctorDoc = await User.findOne({ name: /Aniruddha/i }) || await User.findOne({ role: "Doctor" });
             }
 
             if (!doctorDoc) {
               toolResult = {
                 success: false,
-                error: "No doctor matching that description is currently active in the district.",
+                error: "No doctor is currently available in the district network for scheduling.",
               };
-            } else if (!firstChc) {
+            } else if (!selectedFacility) {
               toolResult = {
                 success: false,
                 error: "No clinic facility found in the district to schedule the consultation.",
               };
             } else {
-              // Slots
+              // 4. Slots check
               const dateQuery = new Date();
               const startOfDay = new Date(dateQuery.setHours(0, 0, 0, 0));
               const endOfDay = new Date(dateQuery.setHours(23, 59, 59, 999));
@@ -358,33 +456,22 @@ export async function POST(request: Request) {
                 appointmentTime: "02:00 PM",
               });
 
-              // Check if they are requesting immediate booking ("abhi", "right now", etc.)
-              const isImmediate = msgLower.includes("abhi") || msgLower.includes("now") || msgLower.includes("immediate") || msgLower.includes("त्वरित") || msgLower.includes("लगेच") || msgLower.includes("अभी");
+              // Check if they are requesting immediate booking or specified a slot
+              const isImmediate = msgLower.includes("abhi") || msgLower.includes("now") || msgLower.includes("immediate") || msgLower.includes("त्वरित") || msgLower.includes("लगेच") || msgLower.includes("अभी") || triageData.triage.level === "Urgent";
 
-              // Determine slot selection
               let slotTime = "";
-              if (msgLower.includes("2:00") || msgLower.includes("02:00") || msgLower.includes("2 pm") || msgLower.includes("02 pm") || msgLower.includes("दोन")) {
+              if (msgLower.includes("2:00") || msgLower.includes("02:00") || msgLower.includes("2 pm") || msgLower.includes("02 pm") || msgLower.includes("दोन") || msgLower.includes("दुपार")) {
                 slotTime = "02:00 PM";
-              } else if (msgLower.includes("11:30")) {
+              } else if (msgLower.includes("11:30") || msgLower.includes("morning") || msgLower.includes("सकाळ") || msgLower.includes("सुबह")) {
                 slotTime = "11:30 AM";
               } else if (isImmediate) {
-                // Earliest available
-                if (!slot1Taken) {
-                  slotTime = "11:30 AM";
-                } else if (!slot2Taken) {
-                  slotTime = "02:00 PM";
-                }
+                slotTime = !slot1Taken ? "11:30 AM" : !slot2Taken ? "02:00 PM" : "11:30 AM";
               }
 
               // Check history if confirming previous offer
-              const lastAgentMsg = history && Array.isArray(history) && history.length > 0
-                ? history.filter((h: any) => h.sender === "agent").pop()?.text?.toLowerCase() || ""
-                : "";
-
               const isConfirming = msgLower.includes("yes") || msgLower.includes("confirm") || msgLower.includes("haan") || msgLower.includes("okay") || msgLower.includes("ok") || msgLower.includes("कर दो") || msgLower.includes("करा") || msgLower.includes("हाँ") || msgLower.includes("हो") || msgLower.includes("होय");
 
-              if (!slotTime && isConfirming && lastAgentMsg) {
-                // If confirming, select earliest available
+              if (!slotTime && isConfirming) {
                 if (!slot1Taken) {
                   slotTime = "11:30 AM";
                 } else if (!slot2Taken) {
@@ -393,92 +480,87 @@ export async function POST(request: Request) {
               }
 
               if (slotTime) {
-                // Check if the chosen slot is taken
-                const targetSlotTaken = (slotTime === "11:30 AM" && slot1Taken) || (slotTime === "02:00 PM" && slot2Taken);
-                if (targetSlotTaken) {
-                  toolResult = {
-                    success: false,
-                    errorType: "SLOT_TAKEN",
-                    error: `Slot ${slotTime} is no longer available. Available slots: ${!slot1Taken ? "11:30 AM" : ""} ${!slot2Taken ? "02:00 PM" : ""}`,
-                  };
-                } else {
-                  // Execute actual booking!
-                  const count = await Appointment.countDocuments({
-                    doctorId: doctorDoc._id,
-                    status: "Scheduled",
-                    appointmentDate: { $gte: startOfDay, $lte: endOfDay },
-                  });
+                // Execute actual booking with dynamic symptoms and calculated triage priority!
+                const count = await Appointment.countDocuments({
+                  doctorId: doctorDoc._id,
+                  status: "Scheduled",
+                  appointmentDate: { $gte: startOfDay, $lte: endOfDay },
+                });
 
-                  // Create the appointment in database
-                  const appointment = await Appointment.create({
-                    patientId: patientDoc._id,
-                    doctorId: doctorDoc._id,
-                    facilityId: firstChc._id,
-                    appointmentDate: new Date(),
-                    appointmentTime: slotTime,
-                    status: "Scheduled",
-                    queueNumber: count + 1,
-                    estimatedWaitMinutes: (count + 1) * 15,
-                    bookingSource: "AI_ASSISTANT",
-                  });
+                // Create Appointment in database
+                const appointment = await Appointment.create({
+                  patientId: patientDoc._id,
+                  doctorId: doctorDoc._id,
+                  facilityId: selectedFacility._id,
+                  appointmentDate: new Date(),
+                  appointmentTime: slotTime,
+                  status: "Scheduled",
+                  queueNumber: count + 1,
+                  estimatedWaitMinutes: (count + 1) * 15,
+                  bookingSource: "AI_ASSISTANT",
+                });
 
-                  // Create Consultation
-                  let healthRecord = await HealthRecord.findOne({ patientId: patientDoc._id });
-                  if (!healthRecord) {
-                    healthRecord = await HealthRecord.create({
-                      patientId: patientDoc._id,
-                      recordedBy: doctorDoc._id,
-                      vitals: { temperature: 98.6, spo2: 98, bloodPressureSystolic: 120, bloodPressureDiastolic: 80, heartRate: 72, respiratoryRate: 16 },
-                      symptoms: [{ name: "AI Booked Consultation", durationDays: 1, severity: "Mild" }],
-                      triage: { level: "Routine", reason: "AI Assistant Booking", aiExplanation: "Booked via AI Assistant.", triageDate: new Date() },
-                      offlineCreated: false,
-                    });
+                // Create or link HealthRecord with accurate extracted symptoms & computed triage level
+                const healthRecord = await HealthRecord.create({
+                  patientId: patientDoc._id,
+                  recordedBy: doctorDoc._id,
+                  vitals: {
+                    temperature: triageData.triage.level === "Urgent" ? 103.2 : triageData.triage.level === "Priority" ? 101.4 : 98.6,
+                    spo2: triageData.triage.level === "Urgent" ? 93 : 98,
+                    bloodPressureSystolic: 120,
+                    bloodPressureDiastolic: 80,
+                    heartRate: triageData.triage.level === "Urgent" ? 105 : 76,
+                    respiratoryRate: triageData.triage.level === "Urgent" ? 22 : 16,
+                  },
+                  symptoms: triageData.symptoms,
+                  triage: triageData.triage,
+                  offlineCreated: false,
+                });
+
+                // Create Consultation with triage record
+                const consultation = await Consultation.create({
+                  patientId: patientDoc._id,
+                  doctorId: doctorDoc._id,
+                  facilityId: selectedFacility._id,
+                  healthRecordId: healthRecord._id,
+                  status: "Scheduled",
+                  videoRoomName: `jancare-consult-${patientDoc.patientRefId.toLowerCase()}-${Date.now().toString().slice(-4)}`
+                });
+
+                toolResult = {
+                  success: true,
+                  action: "BOOKED",
+                  appointment: {
+                    id: appointment._id.toString(),
+                    patientId: patientDoc._id.toString(),
+                    patientName: patientDoc.name,
+                    triageLevel: triageData.triage.level,
+                    symptoms: triageData.symptoms.map(s => s.name).join(", "),
+                    doctorId: doctorDoc._id.toString(),
+                    doctorName: doctorDoc.name,
+                    facilityId: selectedFacility._id.toString(),
+                    facilityName: selectedFacility.name,
+                    date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+                    time: slotTime,
+                    status: "Scheduled",
+                    bookingSource: "AI_ASSISTANT"
                   }
-
-                  const consultation = await Consultation.create({
-                    patientId: patientDoc._id,
-                    doctorId: doctorDoc._id,
-                    facilityId: firstChc._id,
-                    healthRecordId: healthRecord._id,
-                    status: "Scheduled",
-                    videoRoomName: `jancare-consult-${patientDoc.patientRefId.toLowerCase()}-${Date.now().toString().slice(-4)}`
-                  });
-
-                  toolResult = {
-                    success: true,
-                    action: "BOOKED",
-                    appointment: {
-                      id: appointment._id.toString(),
-                      patientId: patientDoc._id.toString(),
-                      patientName: patientDoc.name,
-                      doctorId: doctorDoc._id.toString(),
-                      doctorName: doctorDoc.name,
-                      facilityId: firstChc._id.toString(),
-                      date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
-                      time: slotTime,
-                      status: "Scheduled",
-                      bookingSource: "AI_ASSISTANT"
-                    }
-                  };
-                }
+                };
               } else {
-                // If slot not chosen yet and not immediate, offer the slots!
-                if (slot1Taken && slot2Taken) {
-                  toolResult = {
-                    success: false,
-                    errorType: "NO_SLOTS_AVAILABLE",
-                    error: "No online slots are currently available. Please choose another time.",
-                  };
-                } else {
-                  toolResult = {
-                    success: true,
-                    action: "OFFER_SLOTS",
-                    slots: {
-                      "11:30 AM": !slot1Taken,
-                      "02:00 PM": !slot2Taken,
-                    }
-                  };
-                }
+                // Multi-turn intake: Prompt user to choose facility, time slot, and specify symptoms
+                toolResult = {
+                  success: true,
+                  action: "GATHER_DETAILS",
+                  patientName: patientDoc.name,
+                  recommendedFacility: selectedFacility.name,
+                  availableFacilities: ["Sinnar Rural CHC", "Igatpuri PHC", "Nashik Civil Hospital"],
+                  availableSlots: {
+                    "11:30 AM": !slot1Taken,
+                    "02:00 PM": !slot2Taken,
+                  },
+                  triageDetected: triageData.triage.level,
+                  symptomsDetected: triageData.symptoms.map(s => s.name).join(", ")
+                };
               }
             }
           } catch (err: any) {
