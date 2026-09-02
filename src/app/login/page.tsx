@@ -41,8 +41,9 @@ export default function LoginPage() {
     { label: "Patient", username: "patient", path: "/patient/dashboard" },
     { label: "Doctor", username: "doctor", path: "/doctor/dashboard" },
     { label: "ASHA", username: "asha", path: "/asha/dashboard" },
-    { label: "Admin", username: "districtadmin", path: "/admin/dashboard" },
     { label: "Medicine Manager", username: "medmanager", path: "/medicine-manager/dashboard" },
+    { label: "Facility Admin", username: "facilityadmin", path: "/facility/dashboard" },
+    { label: "District Admin", username: "districtadmin", path: "/admin/dashboard" },
   ];
 
   async function handleSubmit(e: React.FormEvent) {
