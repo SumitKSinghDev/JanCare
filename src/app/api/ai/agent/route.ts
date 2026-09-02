@@ -461,6 +461,9 @@ function extractSymptomsAndTriage(fullConversationText: string) {
                 appointmentTime: "02:00 PM",
               });
 
+              const isTomorrow = msgLower.includes("kal") || msgLower.includes("tomorrow") || msgLower.includes("udya") || msgLower.includes("उद्या") || msgLower.includes("कल");
+              const targetDate = isTomorrow ? new Date(Date.now() + 86400000) : new Date();
+
               // Check if they are requesting immediate booking or specified a slot
               const isImmediate = msgLower.includes("abhi") || msgLower.includes("now") || msgLower.includes("immediate") || msgLower.includes("त्वरित") || msgLower.includes("लगेच") || msgLower.includes("अभी") || triageData.triage.level === "Urgent";
 
@@ -497,7 +500,7 @@ function extractSymptomsAndTriage(fullConversationText: string) {
                   patientId: patientDoc._id,
                   doctorId: doctorDoc._id,
                   facilityId: selectedFacility._id,
-                  appointmentDate: new Date(),
+                  appointmentDate: targetDate,
                   appointmentTime: slotTime,
                   status: "Scheduled",
                   queueNumber: count + 1,
@@ -545,7 +548,7 @@ function extractSymptomsAndTriage(fullConversationText: string) {
                     doctorName: doctorDoc.name,
                     facilityId: selectedFacility._id.toString(),
                     facilityName: selectedFacility.name,
-                    date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+                    date: targetDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
                     time: slotTime,
                     status: "Scheduled",
                     bookingSource: "AI_ASSISTANT"
@@ -559,6 +562,7 @@ function extractSymptomsAndTriage(fullConversationText: string) {
                   patientName: patientDoc.name,
                   recommendedFacility: selectedFacility.name,
                   availableFacilities: ["Sinnar Rural CHC", "Igatpuri PHC", "Nashik Civil Hospital"],
+                  availableDates: ["आज (Today)", "कल (Tomorrow)"],
                   availableSlots: {
                     "11:30 AM": !slot1Taken,
                     "02:00 PM": !slot2Taken,

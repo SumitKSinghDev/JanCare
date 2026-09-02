@@ -19,6 +19,8 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [emergencyActive, setEmergencyActive] = useState(false);
   const [ambulanceDispatched, setAmbulanceDispatched] = useState(false);
+  const [bookingChips, setBookingChips] = useState<Array<{ label: string; text: string; category?: string }>>([]);
+  const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Close chatbot when navigation route changes
   useEffect(() => {
@@ -36,6 +38,16 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
   const [voiceOn, setVoiceOn] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const [isDebugEnabled, setIsDebugEnabled] = useState(false);
+
+  // Preload speech synthesis voices
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -149,18 +161,32 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
       if (data.success) {
         setMessages((prev) => [...prev, { sender: "agent", text: data.response }]);
         
-        // Dispatch booking event to reload parent dashboard data
-        if (data.toolCalled === "bookAppointment" && data.toolResult?.action === "BOOKED") {
-          window.dispatchEvent(new CustomEvent("jancare_appointment_booked"));
-        }
-
-        // Detect language for debug panel and TTS
+        // Detect language for debug panel, chips, and TTS
         const hasDevanagari = /[\u0900-\u097F]/.test(text);
         const isMarathi = /ताप|माझी|मला|तुमच|आहे|करा|औषध|अपॉइंटमेंट|फॉलो|रेफरल/.test(text);
         const isRomanHindi = /mujhe|bukhar|meri|kab|kaha|paas|dawai|baat|appointment|dard/i.test(text);
         const detectedLang = isMarathi ? "mr" : (hasDevanagari || isRomanHindi) ? "hi" : "en";
-        
         const lowerText = text.toLowerCase();
+
+        // Dispatch booking event to reload parent dashboard data
+        if (data.toolCalled === "bookAppointment" && data.toolResult?.action === "BOOKED") {
+          window.dispatchEvent(new CustomEvent("jancare_appointment_booked"));
+          setBookingChips([]);
+        } else if (data.toolResult?.action === "GATHER_DETAILS" || data.toolResult?.action === "OFFER_SLOTS" || lowerText.includes("book") || lowerText.includes("appointment") || lowerText.includes("अपॉइंटमेंट") || lowerText.includes("भेट")) {
+          // Present interactive quick selection chips
+          const isMr = detectedLang === "mr";
+          const chips: Array<{ label: string; text: string; category?: string }> = [
+            { label: isMr ? "📅 आज (Today)" : "📅 आज (Today)", text: "आज के लिए स्लॉट बुक करें", category: "Date" },
+            { label: isMr ? "📅 उद्या (Tomorrow)" : "📅 कल (Tomorrow)", text: "कल के लिए स्लॉट बुक करें", category: "Date" },
+            { label: "⏰ 11:30 AM (Morning)", text: "11:30 AM का समय स्लॉट", category: "Slot" },
+            { label: "⏰ 02:00 PM (Afternoon)", text: "02:00 PM का समय स्लॉट", category: "Slot" },
+            { label: isMr ? "🏥 सिन्नर CHC" : "🏥 सिन्नर CHC", text: "सिन्नर CHC अस्पताल", category: "Facility" },
+            { label: isMr ? "🏥 इगतपुरी PHC" : "🏥 इगतपुरी PHC", text: "इगतपुरी PHC अस्पताल", category: "Facility" },
+            { label: isMr ? "✅ होय, कन्फर्म करा" : "✅ हाँ, कन्फर्म कर दो", text: "हाँ, कन्फर्म कर दो", category: "Confirm" },
+          ];
+          setBookingChips(chips);
+        }
+
         const isEmergencyTrigger = /chest|chhati|heart|breath|saas|dum|श्वास|दम|bleeding|khoon|behoshi|unconscious|faint|snake|सर्पदंश|emergency|आपत्काल|तातडीने|108/.test(lowerText) || /emergency|urgent|108|ambulance/i.test(data.response || "");
         if (isEmergencyTrigger) {
           setEmergencyActive(true);
@@ -215,23 +241,49 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
   }
 
   function speak(text: string, locale?: string) {
-    if (typeof window !== "undefined" && window.speechSynthesis) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+    try {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
       window.speechSynthesis.cancel();
-      const cleanText = text.replace(/[*#_`•📍💊📅⚠️👋🎙️🧠🔊💬]/g, "").replace(/\n+/g, ". ");
-      const utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 300));
-      
-      // Use the detected content language, falling back to UI language setting
+
+      const cleanText = text.replace(/[*#_`•📍💊📅⚠️👋🎙️🧠🔊💬✅🚑🏥⏱️]/g, "").replace(/\n+/g, ". ");
+      const utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 350));
+      activeUtteranceRef.current = utterance; // Prevent garbage collection bug
+
       const ttsLang = locale || (language === "mr" ? "mr-IN" : language === "hi" ? "hi-IN" : "en-IN");
       utterance.lang = ttsLang;
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
 
-      // Try to find the best matching voice for the locale
       const voices = window.speechSynthesis.getVoices();
-      const matchingVoice = voices.find((v) => v.lang === ttsLang) || voices.find((v) => v.lang.startsWith(ttsLang.split("-")[0]));
+      const matchingVoice = voices.find((v) => v.lang === ttsLang || v.lang.replace("_", "-") === ttsLang) || 
+                            voices.find((v) => v.lang.startsWith(ttsLang.split("-")[0]));
       if (matchingVoice) {
         utterance.voice = matchingVoice;
       }
 
-      window.speechSynthesis.speak(utterance);
+      utterance.onend = () => {
+        activeUtteranceRef.current = null;
+      };
+      utterance.onerror = (e) => {
+        console.warn("TTS error:", e);
+        activeUtteranceRef.current = null;
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+      };
+
+      setTimeout(() => {
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+        window.speechSynthesis.speak(utterance);
+      }, 50);
+    } catch (err) {
+      console.warn("TTS speak exception:", err);
     }
   }
 
@@ -498,6 +550,41 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
             )}
             <div ref={chatEndRef} />
           </div>
+
+          {/* Interactive Booking Option Chips */}
+          {bookingChips.length > 0 && (
+            <div className="px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 flex flex-wrap gap-1.5 animate-in fade-in duration-200">
+              <div className="w-full flex items-center justify-between pb-1">
+                <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+                  ✨ Quick Select: Tap an option to choose
+                </span>
+                <button
+                  onClick={() => setBookingChips([])}
+                  className="text-[9px] text-slate-400 hover:text-slate-600 bg-transparent border-0 cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+              {bookingChips.map((chip, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => sendMessage(chip.text)}
+                  disabled={loading}
+                  className={`text-[10px] font-bold py-1 px-2.5 rounded-lg border transition-all cursor-pointer shadow-2xs ${
+                    chip.category === "Confirm"
+                      ? "bg-green-600 hover:bg-green-700 text-white border-green-600 font-black"
+                      : chip.category === "Date"
+                      ? "bg-white hover:bg-blue-100 text-blue-800 border-blue-200"
+                      : chip.category === "Slot"
+                      ? "bg-white hover:bg-amber-100 text-amber-800 border-amber-200"
+                      : "bg-white hover:bg-slate-100 text-slate-700 border-slate-200"
+                  }`}
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Quick Prompts Bar */}
           <div className="px-4 py-2 bg-slate-50 border-t border-border-brand flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
