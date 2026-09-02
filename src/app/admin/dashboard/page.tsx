@@ -1060,41 +1060,93 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* 11. ALERTS */}
+      {/* 11. ALERTS & AI OUTBREAK RADAR */}
       {activeTab === "Alerts" && (
-        <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
-          <div className="border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">District Alerts Center</h2>
-            <p className="text-[10px] text-slate-400">Review critical warnings from outreach operations</p>
+        <div className="space-y-6 text-left animate-in fade-in duration-200">
+          {/* AI Epidemiological Surveillance Header */}
+          <div className="bg-gradient-to-r from-red-950 via-slate-900 to-slate-900 p-5 sm:p-7 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden border border-red-900/40">
+            <div className="space-y-1 relative z-10">
+              <div className="flex items-center gap-2">
+                <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider">
+                  <Activity size={10} className="animate-pulse" /> Live Epidemiological Radar
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">Nashik District Telemetry</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight mt-1">AI Early Disease Outbreak Detection Center</h2>
+              <p className="text-xs text-slate-300 max-w-2xl">
+                Continuous symptom clustering algorithms analyze frontline ASHA logs across 36 talukas to detect localized epidemics before public clinic saturation.
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-3 text-xs">
-            <div className="border border-red-200 rounded-2xl p-4 bg-red-50/50 flex justify-between items-center">
-              <div>
-                <span className="bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded-md text-[9px] uppercase tracking-wider block w-max">Critical</span>
-                <strong className="text-slate-800 text-xs block mt-1.5">ORS Stock Outage at Sinnar PHC-01</strong>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Reported: Today, 12:45 PM | SKU: ORS-SKU</span>
+          {/* AI Active Cluster Alerts Grid */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Cluster 1: Vector Borne */}
+            <div className="bg-white border-2 border-red-200 p-5 rounded-2xl shadow-xs space-y-3 relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <span className="bg-red-100 text-red-800 font-bold px-2.5 py-0.5 rounded-full text-[9px] uppercase tracking-wider flex items-center gap-1">
+                  🚨 Priority 1 • 89% AI Cluster Confidence
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">Detected 2h ago</span>
               </div>
-              <button
-                onClick={() => alert("Alert Acknowledged. Notified Medicine Manager.")}
-                className="bg-red-650 hover:bg-red-700 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-xl border-0 cursor-pointer"
-              >
-                Acknowledge
-              </button>
+              <div>
+                <h3 className="font-extrabold text-sm text-slate-800">Vector-Borne Febrile Cluster (Suspected Dengue)</h3>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                  <strong>14 Cases</strong> with High Fever (&gt;102°F), Retro-orbital pain, and low platelets reported in <strong>Sinnar Rural Subcenter</strong> across 3 adjacent villages in 48 hours.
+                </p>
+              </div>
+              <div className="bg-red-50 p-3 rounded-xl border border-red-100 text-[10px] text-red-900 space-y-1">
+                <strong>Recommended Public Health Intervention:</strong>
+                <p>Deploy Mobile Medical Unit with Rapid NS1 Ag Kits & trigger municipal anti-larval fogging in Sinnar Sector 4.</p>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => alert("✓ Rapid Response Team Dispatched to Sinnar Subcenter. Notified Nashik Civil Surgeon.")}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] px-3.5 py-2 rounded-xl border-0 cursor-pointer shadow-sm transition-all"
+                >
+                  Dispatch Rapid Response Team
+                </button>
+                <button
+                  onClick={() => alert("Alert shared with local ASHA outreach network for door-to-door survey.")}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] px-3 py-2 rounded-xl border-0 cursor-pointer transition-all"
+                >
+                  Notify ASHAs
+                </button>
+              </div>
             </div>
 
-            <div className="border border-orange-200 rounded-2xl p-4 bg-orange-50/50 flex justify-between items-center">
-              <div>
-                <span className="bg-orange-100 text-orange-850 font-bold px-2 py-0.5 rounded-md text-[9px] uppercase tracking-wider block w-max">Warning</span>
-                <strong className="text-slate-800 text-xs block mt-1.5">Unusually High Patient Load at Sinnar CHC</strong>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Reported: Yesterday | Wait time average exceeded 30 mins</span>
+            {/* Cluster 2: Waterborne Gastroenteritis */}
+            <div className="bg-white border-2 border-amber-200 p-5 rounded-2xl shadow-xs space-y-3 relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <span className="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full text-[9px] uppercase tracking-wider flex items-center gap-1">
+                  ⚠️ Priority 2 • 82% AI Cluster Confidence
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">Detected 5h ago</span>
               </div>
-              <button
-                onClick={() => alert("Alert Marked Resolved.")}
-                className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-xl border-0 cursor-pointer"
-              >
-                Mark Resolved
-              </button>
+              <div>
+                <h3 className="font-extrabold text-sm text-slate-800">Acute Gastroenteritis Waterborne Spike</h3>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                  <strong>9 Cases</strong> of acute diarrhea and dehydration logged in <strong>Igatpuri Tribal Belt</strong> following heavy monsoon rainfall near Kadwa river basin.
+                </p>
+              </div>
+              <div className="bg-amber-50 p-3 rounded-xl border border-amber-100 text-[10px] text-amber-900 space-y-1">
+                <strong>Recommended Public Health Intervention:</strong>
+                <p>Chlorinate local community borewells, surge 500 units ORS depot buffer stock at Igatpuri PHC.</p>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={() => alert("✓ Chlorine distribution and ORS stock buffer surge authorized for Igatpuri PHC.")}
+                  className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-[10px] px-3.5 py-2 rounded-xl border-0 cursor-pointer shadow-sm transition-all"
+                >
+                  Authorize Stock & Chlorination Surge
+                </button>
+                <button
+                  onClick={() => alert("Alert acknowledged by District Water Sanitation Officer.")}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] px-3 py-2 rounded-xl border-0 cursor-pointer transition-all"
+                >
+                  Acknowledge
+                </button>
+              </div>
             </div>
           </div>
         </div>
