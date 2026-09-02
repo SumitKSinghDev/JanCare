@@ -348,7 +348,7 @@ export default function LoginPage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="username" className="block text-xs font-bold text-text-primary">
-                {language === "mr" ? "मोबाईल नंबर / युझरनेम" : "Username (Mobile / Email)"}
+                {language === "mr" ? "युझरनेम / मोबाईल नंबर / पेशंट आयडी (JC-...)" : "Username / Mobile / Patient ID (JC-...)"}
               </label>
               <div className="mt-1.5 relative">
                 <input
@@ -357,8 +357,8 @@ export default function LoginPage() {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-xs focus:bg-white focus:border-primary focus:outline-hidden pl-9 transition-all text-text-primary"
-                  placeholder="e.g. asha or doctor"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 text-xs focus:bg-white focus:border-primary focus:outline-hidden pl-9 transition-all text-text-primary font-medium"
+                  placeholder="e.g. asha, doctor, 9822114400, or JC-7F3K92"
                 />
                 <User className="absolute left-3 top-3 text-slate-400" size={14} />
               </div>
