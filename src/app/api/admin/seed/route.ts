@@ -642,33 +642,30 @@ export async function POST() {
         patientId: patientRamesh._id,
         doctorId: doctorUser._id,
         medicines: [
-          { name: "Paracetamol 500mg", genericName: "Paracetamol", dosage: "500mg", frequency: "TID (Thrice daily)", duration: "3 days", instructions: "After meals" },
-          { name: "Amoxicillin 250mg", genericName: "Amoxicillin", dosage: "250mg", frequency: "BID (Twice daily)", duration: "5 days", instructions: "Complete full course" },
-          { name: "ORS Sachet", genericName: "Oral Rehydration Salts", dosage: "1 packet", frequency: "As needed in 1L water", duration: "3 days", instructions: "Sip throughout the day" }
+          { name: "Paracetamol 500mg", genericName: "Paracetamol", strength: "500mg", form: "Tablet", dosage: "1-1-1 (TID)", durationDays: 3, instructions: "After Food" },
+          { name: "Amoxicillin 250mg", genericName: "Amoxicillin", strength: "250mg", form: "Capsule", dosage: "1-0-1 (BID)", durationDays: 5, instructions: "After Food" },
+          { name: "ORS Sachet", genericName: "Oral Rehydration Salts", strength: "21.8g", form: "Other", dosage: "1 packet in 1L water", durationDays: 3, instructions: "As Needed" }
         ],
-        diagnosis: "Acute Viral Febrile Illness with Mild Dehydration",
-        status: "Active",
+        additionalInstructions: "Acute Viral Febrile Illness with Mild Dehydration. Maintain adequate hydration and rest.",
       },
       {
         consultationId: consultationKavita._id,
         patientId: patientKavita._id,
         doctorId: doctorUser._id,
         medicines: [
-          { name: "Metformin 500mg (PMBJP Generic)", genericName: "Metformin Hydrochloride", dosage: "500mg", frequency: "BID (Morning & Night)", duration: "30 days", instructions: "With meals to reduce GI upset" },
-          { name: "Amlodipine 5mg (PMBJP Generic)", genericName: "Amlodipine Besylate", dosage: "5mg", frequency: "OD (Once daily morning)", duration: "30 days", instructions: "Take regularly" }
+          { name: "Metformin 500mg (PMBJP Generic)", genericName: "Metformin Hydrochloride", strength: "500mg", form: "Tablet", dosage: "1-0-1 (BID)", durationDays: 30, instructions: "After Food" },
+          { name: "Amlodipine 5mg (PMBJP Generic)", genericName: "Amlodipine Besylate", strength: "5mg", form: "Tablet", dosage: "1-0-0 (OD)", durationDays: 30, instructions: "Before Food" }
         ],
-        diagnosis: "Type 2 Diabetes Mellitus with Essential Hypertension",
-        status: "Active",
+        additionalInstructions: "Type 2 Diabetes Mellitus with Essential Hypertension. PMBJP generic drug substitution authorized.",
       },
       {
         consultationId: consultationGanesh._id,
         patientId: patientGanesh._id,
         doctorId: doctorUser._id,
         medicines: [
-          { name: "Cetirizine 10mg", genericName: "Cetirizine Hydrochloride", dosage: "10mg", frequency: "OD at bedtime", duration: "5 days", instructions: "May cause drowsiness" }
+          { name: "Cetirizine 10mg", genericName: "Cetirizine Hydrochloride", strength: "10mg", form: "Tablet", dosage: "0-0-1 (Night)", durationDays: 5, instructions: "After Food" }
         ],
-        diagnosis: "Acute Allergic Rhinitis",
-        status: "Completed",
+        additionalInstructions: "Acute Allergic Rhinitis. Steam inhalation twice daily.",
       }
     ]);
 
