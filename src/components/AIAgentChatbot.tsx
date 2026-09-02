@@ -190,6 +190,9 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
         const isEmergencyTrigger = /chest|chhati|heart|breath|saas|dum|श्वास|दम|bleeding|khoon|behoshi|unconscious|faint|snake|सर्पदंश|emergency|आपत्काल|तातडीने|108/.test(lowerText) || /emergency|urgent|108|ambulance/i.test(data.response || "");
         if (isEmergencyTrigger) {
           setEmergencyActive(true);
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("jancare_urgent_emergency", { detail: { reason: text } }));
+          }
         }
 
         const matchedIntent = data.toolCalled

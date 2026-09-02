@@ -172,11 +172,18 @@ export default function PatientDashboard() {
       }
     };
 
+    const handleUrgentEmergency = () => {
+      setEmergencyDismissed(false);
+      fetchPatientData();
+    };
+
     window.addEventListener("jancare_appointment_booked", handleRefresh);
     window.addEventListener("jancare_switch_tab", handleSwitchTab);
+    window.addEventListener("jancare_urgent_emergency", handleUrgentEmergency);
     return () => {
       window.removeEventListener("jancare_appointment_booked", handleRefresh);
       window.removeEventListener("jancare_switch_tab", handleSwitchTab);
+      window.removeEventListener("jancare_urgent_emergency", handleUrgentEmergency);
     };
   }, []);
 
