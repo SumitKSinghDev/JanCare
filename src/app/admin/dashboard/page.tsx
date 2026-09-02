@@ -733,7 +733,7 @@ export default function AdminDashboard() {
                     <p><span className="text-slate-450 block text-[9px] uppercase">Node Type</span> {selectedFacility.type}</p>
                     <p><span className="text-slate-450 block text-[9px] uppercase">Taluka</span> {selectedFacility.taluka || "Sinnar"}</p>
                     <p><span className="text-slate-450 block text-[9px] uppercase">District</span> {selectedFacility.district || "Nashik"}</p>
-                    <p><span className="text-slate-450 block text-[9px] uppercase">Region Coordinates</span> {selectedFacility.coordinates || "19.8517,74.0006"}</p>
+                    <p><span className="text-slate-450 block text-[9px] uppercase">Region Coordinates</span> {selectedFacility.coordinates ? (typeof selectedFacility.coordinates === "object" ? `${selectedFacility.coordinates.lat || 19.8517}, ${selectedFacility.coordinates.lng || 74.0006}` : String(selectedFacility.coordinates)) : "19.8517, 74.0006"}</p>
                   </div>
                 </div>
 
