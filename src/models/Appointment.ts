@@ -9,7 +9,7 @@ export interface IAppointment extends Document {
   status: "Scheduled" | "Completed" | "Cancelled" | "NoShow" | "BOOKED";
   queueNumber?: number;
   estimatedWaitMinutes?: number;
-  bookingSource?: "MANUAL" | "AI_ASSISTANT" | "ASHA" | "DOCTOR";
+  bookingSource?: "MANUAL" | "AI_ASSISTANT" | "ASHA" | "DOCTOR" | "PATIENT_PORTAL";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,7 +31,7 @@ const AppointmentSchema: Schema<IAppointment> = new Schema(
     estimatedWaitMinutes: { type: Number },
     bookingSource: {
       type: String,
-      enum: ["MANUAL", "AI_ASSISTANT", "ASHA", "DOCTOR"],
+      enum: ["MANUAL", "AI_ASSISTANT", "ASHA", "DOCTOR", "PATIENT_PORTAL"],
       default: "MANUAL",
       index: true
     },
