@@ -66,13 +66,49 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = await authenticateRequest(["Doctor", "Specialist", "SystemAdmin"]);
+    const user = await authenticateRequest(["Doctor", "Specialist", "MedicineManager", "FacilityAdmin", "DistrictAdmin", "SystemAdmin"]);
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
     }
 
     await connectToDatabase();
     const body = await request.json();
+
+    // Check if adding a brand new medicine item to facility inventory
+    if (body.action === "ADD_NEW_MEDICINE") {
+      const { facilityId, name, genericName, strength, form, category, quantity, minimumRequired } = body;
+      if (!facilityId || !name || !genericName) {
+        return NextResponse.json({ success: false, error: "Missing required medicine fields (facilityId, name, genericName)" }, { status: 400 });
+      }
+
+      const newMedicine = await Medicine.create({
+        facilityId,
+        name: name.trim(),
+        genericName: genericName.trim(),
+        strength: strength || "500mg",
+        form: form || "Tablet",
+        category: category || "General Medicine",
+        quantity: Number(quantity) || 0,
+        minimumRequired: Number(minimumRequired) || 50,
+      });
+
+      // Record initial intake movement
+      await StockMovement.create({
+        facilityId,
+        medicineId: newMedicine._id,
+        type: "STOCK_RECEIVED",
+        quantity: Number(quantity) || 0,
+        performedBy: user.userId as any,
+        notes: `New drug inventory initialized: ${name} (${genericName})`,
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Medicine ${name} successfully added to inventory.`,
+        medicine: newMedicine,
+      });
+    }
+
     const { consultationId, patientId, medicines, additionalInstructions } = body;
 
     if (!consultationId || !patientId || !medicines || !Array.isArray(medicines)) {

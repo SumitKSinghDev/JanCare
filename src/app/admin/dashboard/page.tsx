@@ -78,10 +78,31 @@ export default function AdminDashboard() {
   const [refreshInterval, setRefreshInterval] = useState("30");
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [criticalAlerts, setCriticalAlerts] = useState(true);
+  const [seedLoading, setSeedLoading] = useState(false);
 
   // Alerts acknowledge/resolve states
   const [acknowledgedAlerts, setAcknowledgedAlerts] = useState<string[]>([]);
   const [resolvedAlerts, setResolvedAlerts] = useState<string[]>([]);
+
+  async function handleSeedDatabase() {
+    if (!confirm("Are you sure you want to re-seed the complete JanCare database? This will populate 6 patients, 9 facilities, active consultations, referrals, followups, prescriptions, and pharmacy stock.")) return;
+
+    setSeedLoading(true);
+    try {
+      const res = await fetch("/api/admin/seed", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        alert("✅ JanCare Database successfully populated with rich demo data across all modules!");
+        window.location.reload();
+      } else {
+        alert("Seed error: " + (data.error || "Unknown error"));
+      }
+    } catch (err: any) {
+      alert("Seed failed: " + err.message);
+    } finally {
+      setSeedLoading(false);
+    }
+  }
 
   useEffect(() => {
     fetchAnalyticsData();
@@ -362,7 +383,16 @@ export default function AdminDashboard() {
               <p className="text-xs text-slate-300">Nashik District Network, Maharashtra</p>
             </div>
             
-            <div className="flex gap-2 relative z-10 shrink-0 w-full sm:w-auto">
+            <div className="flex flex-wrap gap-2 relative z-10 shrink-0 w-full sm:w-auto">
+              <button
+                onClick={handleSeedDatabase}
+                disabled={seedLoading}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer border-0 shadow-md transition-all"
+              >
+                {seedLoading ? <Loader2 className="animate-spin" size={14} /> : <RotateCcw size={14} />}
+                {seedLoading ? "Seeding..." : "Populate Full Demo DB"}
+              </button>
+
               <button
                 onClick={handleDownloadDistrictReport}
                 className="bg-primary hover:bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer border-0 shadow-md shadow-primary/20 w-full sm:w-auto"
@@ -1257,6 +1287,21 @@ export default function AdminDashboard() {
                 </label>
               </div>
             </div>
+          </div>
+
+          {/* Database Reset & Seed Card */}
+          <div className="border-t border-slate-200/80 pt-6 space-y-3">
+            <strong className="text-slate-800 font-extrabold text-xs uppercase tracking-wider block">Demo Data & Database Seeder</strong>
+            <p className="text-[11px] text-slate-500">Populate or reset the entire MongoDB database with 6 clinical demo patients, 9 Maharashtra facilities (CHCs, PHCs, Jan Aushadhi stores), active consultations, referrals, ASHA follow-ups, and audit logs.</p>
+            
+            <button
+              onClick={handleSeedDatabase}
+              disabled={seedLoading}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-3 rounded-2xl flex items-center gap-2 cursor-pointer border-0 shadow-md shadow-emerald-200/40 transition-all"
+            >
+              {seedLoading ? <Loader2 className="animate-spin" size={14} /> : <RotateCcw size={14} />}
+              {seedLoading ? "Seeding Database..." : "Reset & Populate Full Demo Database"}
+            </button>
           </div>
         </div>
       )}

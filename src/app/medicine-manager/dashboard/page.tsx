@@ -47,6 +47,17 @@ export default function MedicineManagerDashboard() {
   const [movementNotes, setMovementNotes] = useState("");
   const [modalLoading, setModalLoading] = useState(false);
 
+  // Add New Medicine Modal State
+  const [showAddMedModal, setShowAddMedModal] = useState(false);
+  const [newMedName, setNewMedName] = useState("");
+  const [newMedGeneric, setNewMedGeneric] = useState("");
+  const [newMedStrength, setNewMedStrength] = useState("500mg");
+  const [newMedForm, setNewMedForm] = useState("Tablet");
+  const [newMedCategory, setNewMedCategory] = useState("Analgesic & Antipyretic");
+  const [newMedQty, setNewMedQty] = useState("100");
+  const [newMedMinReq, setNewMedMinReq] = useState("50");
+  const [addMedLoading, setAddMedLoading] = useState(false);
+
   // Search
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -173,6 +184,50 @@ export default function MedicineManagerDashboard() {
     }
   }
 
+  // Handle adding brand new medicine item to facility inventory
+  async function handleAddMedicine(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedFacility || !newMedName || !newMedGeneric) {
+      alert("Please fill in Medicine Name and Generic Name.");
+      return;
+    }
+
+    setAddMedLoading(true);
+    try {
+      const res = await fetch("/api/medicines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ADD_NEW_MEDICINE",
+          facilityId: selectedFacility._id,
+          name: newMedName,
+          genericName: newMedGeneric,
+          strength: newMedStrength,
+          form: newMedForm,
+          category: newMedCategory,
+          quantity: Number(newMedQty) || 0,
+          minimumRequired: Number(newMedMinReq) || 50,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ Drug "${newMedName}" successfully added to ${selectedFacility.name} inventory!`);
+        setShowAddMedModal(false);
+        setNewMedName("");
+        setNewMedGeneric("");
+        fetchMedicinesForFacility(selectedFacility._id);
+        fetchMovementsForFacility(selectedFacility._id);
+      } else {
+        alert("Failed to add medicine: " + (data.error || "Unknown error"));
+      }
+    } catch (err: any) {
+      alert("Failed to add medicine: " + err.message);
+    } finally {
+      setAddMedLoading(false);
+    }
+  }
+
   // Calculate Metrics
   const totalItems = medicines.length;
   const lowStockCount = medicines.filter((m) => m.status === "Low").length;
@@ -252,17 +307,27 @@ export default function MedicineManagerDashboard() {
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
             {selectedFacility ? `${selectedFacility.name} Inventory` : "Facility Inventory"}
           </h3>
-          <span className="text-[10px] text-slate-400 block mt-0.5">District Network Node Stock Catalog</span>
+          <span className="text-[10px] text-slate-400 block mt-0.5">District Network Node Stock Catalog & Generic Substitution</span>
         </div>
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs max-w-xs w-full sm:w-auto">
-          <Search size={14} className="text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search medicines..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-0 outline-hidden pl-2 text-xs w-full font-bold text-slate-700"
-          />
+        
+        <div className="flex items-center gap-2">
+          <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs max-w-xs w-full sm:w-auto">
+            <Search size={14} className="text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search medicines..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent border-0 outline-hidden pl-2 text-xs w-full font-bold text-slate-700"
+            />
+          </div>
+
+          <button
+            onClick={() => setShowAddMedModal(true)}
+            className="bg-primary hover:bg-blue-600 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer border-0 shadow-sm transition-all whitespace-nowrap"
+          >
+            <Plus size={14} /> Add Medicine
+          </button>
         </div>
       </div>
 
@@ -593,6 +658,134 @@ export default function MedicineManagerDashboard() {
               </div>
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {/* Add New Medicine Modal */}
+      {showAddMedModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg shadow-2xl p-6 animate-in zoom-in-95 duration-150 space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div>
+                <strong className="text-sm text-slate-800 block uppercase tracking-wider">Add New Medicine to Stock</strong>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Facility: {selectedFacility?.name || "Selected Node"}</span>
+              </div>
+              <button
+                onClick={() => setShowAddMedModal(false)}
+                className="text-slate-400 hover:text-slate-650 font-bold bg-transparent border-0 cursor-pointer text-xs"
+              >
+                Close
+              </button>
+            </div>
+
+            <form onSubmit={handleAddMedicine} className="space-y-3.5 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-700">Medicine Trade Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newMedName}
+                    onChange={(e) => setNewMedName(e.target.value)}
+                    placeholder="e.g. Paracetamol 500mg (PMBJP)"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold focus:bg-white focus:outline-hidden"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-700">Generic Drug Name (Salt) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newMedGeneric}
+                    onChange={(e) => setNewMedGeneric(e.target.value)}
+                    placeholder="e.g. Paracetamol"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold focus:bg-white focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-700">Strength</label>
+                  <input
+                    type="text"
+                    value={newMedStrength}
+                    onChange={(e) => setNewMedStrength(e.target.value)}
+                    placeholder="e.g. 500mg, 10ml"
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:outline-hidden"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-700">Form</label>
+                  <select
+                    value={newMedForm}
+                    onChange={(e) => setNewMedForm(e.target.value)}
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:outline-hidden"
+                  >
+                    <option value="Tablet">Tablet</option>
+                    <option value="Capsule">Capsule</option>
+                    <option value="Syrup">Syrup</option>
+                    <option value="Injection">Injection</option>
+                    <option value="Other">Other / Powder</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-700">Category</label>
+                  <select
+                    value={newMedCategory}
+                    onChange={(e) => setNewMedCategory(e.target.value)}
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:outline-hidden"
+                  >
+                    <option value="Analgesic & Antipyretic">Analgesic & Antipyretic</option>
+                    <option value="Antibiotic">Antibiotic</option>
+                    <option value="Oral Antidiabetic">Oral Antidiabetic</option>
+                    <option value="Antihypertensive">Antihypertensive</option>
+                    <option value="Antihistamine">Antihistamine</option>
+                    <option value="Rehydration">Rehydration</option>
+                    <option value="Antidote">Antidote (ASV)</option>
+                    <option value="Nutritional Supplement">Nutritional Supplement</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-700">Initial Quantity</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={newMedQty}
+                    onChange={(e) => setNewMedQty(e.target.value)}
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold focus:bg-white focus:outline-hidden"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block font-bold text-slate-700">Minimum Required (Alert Threshold)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={newMedMinReq}
+                    onChange={(e) => setNewMedMinReq(e.target.value)}
+                    className="w-full bg-[#F8FAFC] border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold focus:bg-white focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={addMedLoading}
+                  className="w-full bg-primary hover:bg-blue-600 text-white font-extrabold text-xs py-3 rounded-2xl flex items-center justify-center gap-2 cursor-pointer border-0 transition-all shadow-md shadow-blue-200/40"
+                >
+                  {addMedLoading ? (
+                    <Loader2 className="animate-spin" size={14} />
+                  ) : (
+                    "Save & Add to Facility Stock"
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
