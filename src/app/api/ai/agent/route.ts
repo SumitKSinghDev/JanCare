@@ -180,7 +180,12 @@ CRITICAL RULES:
      • Doctor: [doctor name]
      • Date & Time: [date] at [time]
      • Status: Confirmed & Added to Doctor Queue
-   - Do NOT fabricate or hallucinate any fields. Only use the values returned in the system context.`;
+   - Do NOT fabricate or hallucinate any fields. Only use the values returned in the system context.
+
+9. DATE AWARENESS & SYMPTOM CONSULTATION PROACTIVE SUGGESTION:
+   - Always evaluate dates relative to CURRENT DATE.
+   - If an appointment record has a date in the past, DO NOT describe it as an "upcoming" or "active" appointment. Note that it was a previous visit and ask if the patient wants to book a fresh consultation for their current complaints (e.g. "क्या आप इन लक्षणों के लिए आज या कल की डॉक्टर अपॉइंटमेंट बुक करना चाहेंगे?").
+   - When a patient describes new or ongoing symptoms (like dizziness, headache, fever), always offer to schedule a doctor consultation slot for today/tomorrow.`;
 
 // Helper to query Gemini with retry + model fallback for extreme rate limit resiliency
 async function runGeminiWithFallback(
@@ -660,16 +665,17 @@ function extractSymptomsAndTriage(fullConversationText: string) {
 
     if (genAI) {
       try {
-        // Build the current user message with any tool context
-        let userPrompt = message;
+        // Build the current user message with date context and tool results
+        const currentDateStr = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        let userPrompt = `${message}\n\n[CURRENT SYSTEM DATE: ${currentDateStr}]`;
         if (toolNameCalled && toolResult) {
           if (toolNameCalled === "bookAppointment" && !toolResult.success) {
-            userPrompt = `${message}\n\n[SYSTEM CONTEXT — CRITICAL: APPOINTMENT BOOKING FAILED. You must apologize and explain that the booking could not be completed. Do NOT show confirmation or claim success. Error details: ${toolResult.error || "No available slots"}]\n${JSON.stringify(toolResult, null, 2)}`;
+            userPrompt = `${message}\n\n[CURRENT SYSTEM DATE: ${currentDateStr}]\n[SYSTEM CONTEXT — CRITICAL: APPOINTMENT BOOKING FAILED. You must apologize and explain that the booking could not be completed. Do NOT show confirmation or claim success. Error details: ${toolResult.error || "No available slots"}]\n${JSON.stringify(toolResult, null, 2)}`;
           } else {
-            userPrompt = `${message}\n\n[SYSTEM CONTEXT — Database query "${toolNameCalled}" returned this data, use it to answer the user's question]:\n${JSON.stringify(toolResult, null, 2)}`;
+            userPrompt = `${message}\n\n[CURRENT SYSTEM DATE: ${currentDateStr}]\n[SYSTEM CONTEXT — Database query "${toolNameCalled}" returned this data, use it to answer the user's question]:\n${JSON.stringify(toolResult, null, 2)}`;
           }
         } else if (toolNameCalled && !toolResult) {
-          userPrompt = `${message}\n\n[SYSTEM CONTEXT — Database query "${toolNameCalled}" timed out. Inform the user that you could not fetch live data right now.]`;
+          userPrompt = `${message}\n\n[CURRENT SYSTEM DATE: ${currentDateStr}]\n[SYSTEM CONTEXT — Database query "${toolNameCalled}" timed out. Inform the user that you could not fetch live data right now.]`;
         }
 
         const result = await runGeminiWithFallback(
