@@ -1,4 +1,4 @@
-# 🏆 JanCare (जनCare): Hackathon Winning Playbook & Jury Defense Masterplan
+# 🏆 JanCare (जनCare): Hackathon Winning Playbook, Jury Defense & PPT Masterplan
 > **Problem Statement (ID 26133)**: *Accessibility and quality of public healthcare services, particularly in rural and underserved areas*  
 > **Organization**: *Government of Maharashtra, State Innovation Society*  
 > **Target Jurisdiction**: *Nashik Division (Sinnar & Igatpuri Tribal Blocks) $\rightarrow$ Scalable Statewide to all 36 Districts*
@@ -49,7 +49,26 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 
 ---
 
-## 🛠️ 3. Technology Stack & Enterprise Architecture
+## 📊 3. Internal PPT Presentation Deck (Winning 10-Slide Outline)
+
+Use this exact slide-by-slide structure for your hackathon pitch presentation:
+
+| Slide # | Slide Title | Key Content / Visual to Present | Talking Points for Speaker |
+| :-: | :--- | :--- | :--- |
+| **1** | **Title & Vision** | *JanCare: AI-Assisted Rural Healthcare Grid* (PS ID 26133 - Govt of Maharashtra) | "JanCare bridges the last-mile healthcare divide across rural Maharashtra using AI, offline sync, and ABDM interoperability." |
+| **2** | **The Crisis** | 4 Bottlenecks: Access delay (5–10km), ASHA paper burden, Medicine stockouts, English-heavy apps | "Rural patients wait until illnesses become critical. Frontline health workers are burdened with paperwork and medicine availability is opaque." |
+| **3** | **The Solution** | The 7-Step Closed Loop Diagram: Citizen $\rightarrow$ ASHA $\rightarrow$ Doctor $\rightarrow$ Pharmacy $\rightarrow$ 108 Emergency $\rightarrow$ Follow-up | "JanCare is not just a teleconsultation app — it is a complete public health operating system connecting all levels of care." |
+| **4** | **The 5 Knockout USPs** | Comparison Table (Closed-Loop, Offline-First, ABDM M3, AI CDSS, Outbreak Grid) | "Here is why JanCare stands completely apart from generic telemedicine portals." |
+| **5** | **Frontline ASHA & Voice AI** | Screenshot of Multilingual Voice AI + Offline ASHA Sync (IndexedDB to Cloud) | "Patients simply speak in Marathi or Hindi. ASHAs register patients and capture vitals in zero-connectivity tribal hills with Base36 UHIDs." |
+| **6** | **Doctor EMR & AI CDSS** | Screenshot of Doctor Triage Queue + AI Drug Interaction & Jan Aushadhi Generic Match | "Doctors get pre-triaged queues and instant AI safety checks that prevent dangerous drug interactions and promote affordable PMBJP generics." |
+| **7** | **Pharmacy & 108 Emergency** | Screenshot of Real-Time Drug Stock Lock + 108 Ambulance Live GPS Telemetry | "Prescriptions instantly reserve physical medicines at the local PHC depot. Critical emergencies trigger automated 108 ambulance dispatch." |
+| **8** | **District Epidemiological Grid** | Screenshot of District Admin Outbreak Heatmap & Maharashtra GIS Nodes | "District Health Officers monitor live disease clusters (e.g. viral fever outbreaks) before hospitals become overwhelmed." |
+| **9** | **Tech Stack & ABDM Compliance** | Next.js 16.3 Turbopack, MongoDB, Gemini 2.5 Flash, WebRTC, NHA NDHB Consent | "Built with enterprise-grade, stateless architecture compliant with DPDP Act 2023 and ABDM Level-M3 guidelines." |
+| **10** | **Impact & Statewide Rollout** | 10M+ Target Catchment, 150K+ Workers, 5,000+ PHC/CHCs, Scalable across all 36 Districts | "JanCare is ready for immediate pilot deployment in Nashik Division and scalable across all 36 districts of Maharashtra." |
+
+---
+
+## 🛠️ 4. Technology Stack & Enterprise Architecture
 
 * **Frontend & Fullstack**: Next.js 16.3 (Turbopack, App Router), React 19, TypeScript
 * **Styling**: Tailwind CSS v4, Lucide Icons (Responsive mobile-first design)
@@ -58,11 +77,11 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 * **Voice & Speech**: Web Speech API (SpeechRecognition) + SpeechSynthesis in `mr-IN`, `hi-IN`, `en-IN`
 * **Telemedicine**: WebRTC P2P Video Engine
 * **Authentication**: HTTP-only JWT Sessions, bcrypt password hashing, 6 Role-Based Access Controls
-* **Standards & Compliance**: ABDM (Ayushman Bharat Digital Mission) Health Data Consent, DPDP Act 2023, DISHA principles
+* **Compliance**: ABDM (Ayushman Bharat Digital Mission) Health Data Consent, DPDP Act 2023, DISHA principles
 
 ---
 
-## 🔑 4. Demo Login Credentials (Password for all: `password123`)
+## 🔑 5. Demo Login Credentials (Password for all: `password123`)
 
 | Role | Login ID / Patient ID | Dashboard Path | Key Demonstration Scenario |
 | :--- | :--- | :--- | :--- |
@@ -77,7 +96,7 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 
 ---
 
-## 🛡️ 5. Jury Q&A Defense Matrix (Tough Questions & High-Score Answers)
+## 🛡️ 6. Jury Q&A Defense Matrix (Tough Questions & High-Score Answers)
 
 ### Q1: "How will illiterate rural patients or elderly citizens use this app?"
 > **High-Score Answer**:  
