@@ -203,6 +203,16 @@ export async function POST() {
       role: "Patient",
     });
 
+    // Also seed user accounts for other patients to allow direct phone/username logins
+    await User.create([
+      { name: "Ramesh Kumar", username: "9822114400", passwordHash, role: "Patient" },
+      { name: "Sunita Patil", username: "9822114402", passwordHash, role: "Patient" },
+      { name: "Ganesh Shinde", username: "9822114404", passwordHash, role: "Patient" },
+      { name: "Kavita Jadhav", username: "9822114406", passwordHash, role: "Patient" },
+      { name: "Arjun More", username: "9822114408", passwordHash, role: "Patient" },
+      { name: "Meena Wagh", username: "9822114410", passwordHash, role: "Patient" },
+    ]);
+
     const medManagerUser: any = await User.create({
       name: "Pradeep Joshi (Chief Pharmacist)",
       username: "medmanager",

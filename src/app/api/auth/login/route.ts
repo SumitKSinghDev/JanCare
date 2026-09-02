@@ -26,8 +26,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find user
-    const user = await User.findOne({ username });
+    // Find user by username, or look up via patientRefId / mobile
+    let user = await User.findOne({ username });
+    if (!user) {
+      const patientMatch = await Patient.findOne({
+        $or: [
+          { patientRefId: username.toUpperCase().trim() },
+          { mobile: username.trim() },
+        ]
+      });
+      if (patientMatch) {
+        user = await User.findOne({
+          $or: [
+            { username: patientMatch.mobile },
+            { username: "patient" },
+            { name: patientMatch.name }
+          ]
+        });
+      }
+    }
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "User not found or invalid credentials" },
@@ -50,7 +68,13 @@ export async function POST(request: Request) {
     let patientId = null;
     let patientRefId = null;
     if (user.role === "Patient") {
-      const patient = await Patient.findOne({ mobile: user.username });
+      const patient = await Patient.findOne({
+        $or: [
+          { mobile: user.username },
+          { name: user.name },
+          { patientRefId: username.toUpperCase().trim() }
+        ]
+      });
       if (patient) {
         patientId = patient._id;
         patientRefId = patient.patientRefId;
