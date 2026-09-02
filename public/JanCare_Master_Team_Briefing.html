@@ -121,7 +121,7 @@
     }
 
     h3.section-subtitle {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       color: var(--slate-800);
       margin: 24px 0 12px 0;
@@ -153,6 +153,16 @@
 
     .card-accent {
       border-left: 4px solid var(--primary);
+    }
+
+    .card-problem {
+      border-left: 4px solid #ef4444;
+      background: #fef2f2;
+    }
+
+    .card-solution {
+      border-left: 4px solid #10b981;
+      background: #f0fdf4;
     }
 
     .pacing-grid {
@@ -267,8 +277,31 @@
       </div>
     </div>
 
-    <!-- 1. Strategic Evaluation Pacing -->
-    <h2>🎯 1. Strategic Evaluation Pacing (Round 1 vs. Final Evaluation)</h2>
+    <!-- 1. The Core Problem Statement -->
+    <h2>📌 1. The Core Problem Statement & Rural Health Breakdown</h2>
+    <div class="card card-problem">
+      <p><strong>1. Access & Distance Gap:</strong> Over 65% of rural citizens live 5–10 km away from a Primary Health Center (PHC). Minor symptoms often escalate into severe, life-threatening complications because patients delay clinic travel.</p>
+      <p><strong>2. Frontline ASHA Worker Administrative Burden:</strong> Over 10 lakh ASHA workers in India (60,000+ in Maharashtra) maintain manual paper registers without offline digital tools, leading to dropped follow-ups for pregnant mothers and chronic disease patients.</p>
+      <p><strong>3. Medicine Supply Chain & Affordability Failure:</strong> Patients travel miles to clinics only to find essential drugs out of stock, while affordable government generic substitutes under PMBJP (Jan Aushadhi) remain undiscovered and underutilized.</p>
+      <p><strong>4. Digital Literacy & Regional Language Barrier:</strong> Most digital health portals are text-heavy and English-only, alienating rural populations who communicate predominantly in regional languages like Marathi and Hindi.</p>
+    </div>
+
+    <!-- 2. The JanCare Solution -->
+    <h2>🚀 2. The JanCare Solution: The 7-Step Digital Care Grid</h2>
+    <div class="card card-solution">
+      <ul style="margin-bottom: 0;">
+        <li><strong>1. Multilingual Voice AI Triage:</strong> Rural citizens speak naturally in <strong>Marathi, Hindi, or English</strong>. Google Gemini AI classifies triage urgency (<code>🟢 Routine</code>, <code>🟠 Priority</code>, <code>🔴 Urgent</code>) and schedules appointments automatically.</li>
+        <li><strong>2. Offline-First ASHA Doorstep Care:</strong> ASHA workers register patients and record vitals at the doorstep even in zero-connectivity tribal hills with automated local Base36 <code>JC-XXXXXX</code> UHID generation.</li>
+        <li><strong>3. Doctor Telemedicine & EMR Workspace:</strong> Clinicians review AI pre-triage summaries, conduct <strong>WebRTC P2P video consultations</strong>, and sign digital electronic prescriptions.</li>
+        <li><strong>4. PMBJP Generic Medicine Optimizer:</strong> Automatically identifies branded prescriptions and routes patients to the nearest Jan Aushadhi Kendra offering generic equivalents at <strong>up to 80% lower cost</strong>.</li>
+        <li><strong>5. 108 Emergency Ambulance Telemetry:</strong> Life-threatening red-flag symptoms immediately trigger automated 108 ambulance dispatch with live GPS tracking and pre-arrival trauma sheets sent to the hospital ICU.</li>
+        <li><strong>6. Closed-Loop 48-Hour Follow-up Roster:</strong> The system automatically schedules post-consultation home visits for ASHA workers to verify medication compliance and monitor patient recovery.</li>
+        <li><strong>7. District Epidemiological Surveillance:</strong> District Health Officers monitor live GIS heatmaps of disease outbreaks and drug stockouts across the district in real time.</li>
+      </ul>
+    </div>
+
+    <!-- 3. Strategic Evaluation Pacing -->
+    <h2>🎯 3. Strategic Evaluation Pacing (Round 1 vs. Final Evaluation)</h2>
     <p>Judges evaluate hackathons in progressive milestones. <strong>Never reveal 100% of your technical depth in Round 1</strong> — keep knockout punches for the final round to show continuous velocity, deep architecture, and unexpected innovation.</p>
 
     <div class="pacing-grid">
@@ -297,8 +330,8 @@
       </div>
     </div>
 
-    <!-- 2. Exclusive USPs -->
-    <h2>💎 2. Five Exclusive USPs (Why JanCare is Unmatched)</h2>
+    <!-- 4. Exclusive USPs -->
+    <h2>💎 4. Five Exclusive USPs (Why JanCare is Unmatched)</h2>
     <table>
       <thead>
         <tr>
@@ -342,8 +375,8 @@
       </tbody>
     </table>
 
-    <!-- 3. PPT Presentation Outline -->
-    <h2>📊 3. Internal PPT Presentation Deck (Winning 10-Slide Outline)</h2>
+    <!-- 5. PPT Presentation Outline -->
+    <h2>📊 5. Internal PPT Presentation Deck (Winning 10-Slide Outline)</h2>
     <table>
       <thead>
         <tr>
@@ -417,8 +450,8 @@
       </tbody>
     </table>
 
-    <!-- 4. Tech Stack -->
-    <h2>🛠️ 4. Technology Stack & Enterprise Architecture</h2>
+    <!-- 6. Tech Stack -->
+    <h2>🛠️ 6. Technology Stack & Enterprise Architecture</h2>
     <div class="card card-accent">
       <p>• <strong>Fullstack Framework:</strong> Next.js 16.3 (Turbopack, App Router), React 19, TypeScript</p>
       <p>• <strong>UI & Styling:</strong> Tailwind CSS v4, Lucide Icons (Responsive mobile-first design)</p>
@@ -430,8 +463,8 @@
       <p>• <strong>Compliance:</strong> ABDM (Ayushman Bharat Digital Mission) Health Data Consent, DPDP Act 2023, DISHA principles</p>
     </div>
 
-    <!-- 5. Demo Accounts -->
-    <h2>🔑 5. Demo Login Credentials (Password for all: <code>password123</code>)</h2>
+    <!-- 7. Demo Accounts -->
+    <h2>🔑 7. Demo Login Credentials (Password for all: <code>password123</code>)</h2>
     <table>
       <thead>
         <tr>
@@ -493,8 +526,8 @@
       </tbody>
     </table>
 
-    <!-- 6. Comprehensive 17-Question Master Defense Matrix -->
-    <h2>🛡️ 6. Comprehensive 17-Question Master Defense Matrix (All Edge Cases & High-Score Answers)</h2>
+    <!-- 8. Comprehensive 17-Question Master Defense Matrix -->
+    <h2>🛡️ 8. Comprehensive 17-Question Master Defense Matrix (All Edge Cases & High-Score Answers)</h2>
 
     <h3 class="section-subtitle">🏥 A. Demographic, Usability & Offline Edge Cases</h3>
 

@@ -5,7 +5,57 @@
 
 ---
 
-## 🎯 1. Strategic Evaluation Pacing (Round 1 vs. Final Evaluation)
+## 📌 1. The Core Problem Statement & Rural Health Breakdown
+
+In rural India (and specifically across Maharashtra's rural and tribal talukas), public healthcare delivery suffers from **four critical system bottlenecks**:
+
+```
+┌─────────────────────────┐     ┌─────────────────────────┐
+│  1. ACCESS & DISTANCE   │     │  2. ASHA WORKER BURDEN  │
+│  65% live >5-10km from  │     │  Manual paper diaries;  │
+│  PHCs; delayed triage.  │     │  missed ANC/NCD visits. │
+└─────────────────────────┘     └─────────────────────────┘
+             │                               │
+             ▼                               ▼
+┌─────────────────────────┐     ┌─────────────────────────┐
+│ 3. DRUG STOCKOUTS & COST│     │ 4. LANGUAGE BARRIER     │
+│ Essential drugs missing;│     │ English-only apps fail  │
+│ PMBJP generics unused.  │     │ rural & tribal citizens.│
+└─────────────────────────┘     └─────────────────────────┘
+```
+
+1. **Access & Distance Gap**: Over 65% of rural citizens live 5–10 km away from a Primary Health Center (PHC) or Community Health Center (CHC). Minor symptoms often escalate into severe, life-threatening complications because patients delay clinic travel.
+2. **Frontline ASHA Worker Administrative Burden**: Over 10 lakh ASHA workers in India (60,000+ in Maharashtra) maintain manual paper registers without offline digital tools, leading to dropped follow-ups for pregnant mothers and chronic disease patients.
+3. **Medicine Supply Chain & Affordability Failure**: Patients travel miles to clinics only to find essential drugs out of stock, while affordable government generic substitutes under PMBJP (Jan Aushadhi) remain undiscovered and underutilized.
+4. **Digital Literacy & Regional Language Barrier**: Most digital health portals are text-heavy and English-only, alienating rural populations who communicate predominantly in regional languages like Marathi and Hindi.
+
+---
+
+## 🚀 2. The JanCare Solution: The 7-Step Digital Care Grid
+
+JanCare solves Problem Statement 26133 by deploying a **closed-loop, multilingual, offline-resilient healthcare operating system** that connects patients, frontline health workers, medical officers, and pharmacists into a single synchronized grid:
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  1. Citizen  │ ──► │   2. ASHA    │ ──► │  3. Doctor   │ ──► │ 4. Pharmacy  │
+│ Voice Triage │     │ Doorstep Care│     │ Teleconsult  │     │ PMBJP Generics│
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+       ▲                                                              │
+       │                     5. Referral & 108 Ambulance              │
+       └──────────────────────────────────────────────────────────────┘
+```
+
+1. **Multilingual Voice AI Triage**: Rural citizens speak naturally in **Marathi, Hindi, or English**. Google Gemini AI classifies triage urgency (`🟢 Routine`, `🟠 Priority`, `🔴 Urgent`) and schedules appointments automatically.
+2. **Offline-First ASHA Doorstep Care**: ASHA workers register patients and record vitals at the doorstep even in zero-connectivity tribal hills with automated local Base36 `JC-XXXXXX` UHID generation.
+3. **Doctor Telemedicine & EMR Workspace**: Clinicians review AI pre-triage summaries, conduct **WebRTC P2P video consultations**, and sign digital electronic prescriptions.
+4. **PMBJP Generic Medicine Optimizer**: Automatically identifies branded prescriptions and routes patients to the nearest Jan Aushadhi Kendra offering generic equivalents at **up to 80% lower cost**.
+5. **108 Emergency Ambulance Telemetry**: Life-threatening red-flag symptoms immediately trigger automated 108 ambulance dispatch with live GPS tracking and pre-arrival trauma sheets sent to the hospital ICU.
+6. **Closed-Loop 48-Hour Follow-up Roster**: The system automatically schedules post-consultation home visits for ASHA workers to verify medication compliance and monitor patient recovery.
+7. **District Epidemiological Surveillance**: District Health Officers monitor live GIS heatmaps of disease outbreaks and drug stockouts across the district in real time.
+
+---
+
+## 🎯 3. Strategic Evaluation Pacing (Round 1 vs. Final Evaluation)
 
 Judges evaluate hackathons in progressive milestones. **Never reveal 100% of your technical depth in Round 1** — keep knockout punches for the final round to show continuous velocity, deep architecture, and unexpected innovation.
 
@@ -37,7 +87,7 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 
 ---
 
-## 💎 2. Five Exclusive USPs (Why JanCare is Unmatched)
+## 💎 4. Five Exclusive USPs (Why JanCare is Unmatched)
 
 | # | Feature / USP | What Competing Apps Do | What JanCare Does (The Winning Edge) |
 | :-: | :--- | :--- | :--- |
@@ -49,7 +99,7 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 
 ---
 
-## 📊 3. Internal PPT Presentation Deck (Winning 10-Slide Outline)
+## 📊 5. Internal PPT Presentation Deck (Winning 10-Slide Outline)
 
 | Slide # | Slide Title | Key Content / Visual to Present | Talking Points for Speaker |
 | :-: | :--- | :--- | :--- |
@@ -66,7 +116,7 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 
 ---
 
-## 🛠️ 4. Technology Stack & Architecture
+## 🛠️ 6. Technology Stack & Architecture
 
 * **Frontend & Fullstack**: Next.js 16.3 (Turbopack, App Router), React 19, TypeScript
 * **Styling**: Tailwind CSS v4, Lucide Icons (Responsive mobile-first design)
@@ -79,7 +129,7 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 
 ---
 
-## 🔑 5. Demo Login Credentials (Password for all: `password123`)
+## 🔑 7. Demo Login Credentials (Password for all: `password123`)
 
 | Role | Login ID / Patient ID | Dashboard Path | Key Demonstration Scenario |
 | :--- | :--- | :--- | :--- |
@@ -94,7 +144,7 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 
 ---
 
-## 🛡️ 6. Comprehensive 17-Question Master Defense Matrix (All Edge Cases & High-Score Answers)
+## 🛡️ 8. Comprehensive 17-Question Master Defense Matrix (All Edge Cases & High-Score Answers)
 
 ### 🏥 A. Demographic, Usability & Offline Edge Cases
 
