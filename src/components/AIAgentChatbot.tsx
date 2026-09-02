@@ -460,34 +460,20 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
             💡 {t("assistant.disclaimer")}
           </div>
 
-          {/* 🚨 Emergency Red-Flag SOS Actions Console */}
+          {/* 🚨 Emergency Red-Flag SOS Mini Bar */}
           {emergencyActive && (
-            <div className="bg-gradient-to-r from-red-600 via-red-650 to-rose-700 text-white p-3.5 border-b border-red-800 shadow-md animate-in slide-in-from-top space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                  <AlertOctagon size={14} className="animate-pulse text-amber-300" />
-                  🚨 Urgent Emergency Detected
-                </span>
-                <button 
-                  onClick={() => setEmergencyActive(false)}
-                  className="text-white/80 hover:text-white text-[10px] bg-red-800/60 hover:bg-red-800 px-2 py-0.5 rounded cursor-pointer border-0 transition-colors"
-                >
-                  Dismiss
-                </button>
+            <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white px-3.5 py-2 border-b border-red-800 shadow-sm animate-in slide-in-from-top flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <AlertOctagon size={13} className="animate-pulse text-amber-300 shrink-0" />
+                <span className="text-[10px] font-black uppercase tracking-wider truncate">Emergency Alert</span>
               </div>
 
-              {ambulanceDispatched ? (
-                <div className="bg-red-950/80 p-2.5 rounded-xl border border-red-400/40 text-[10px] space-y-1 text-left">
-                  <div className="flex items-center justify-between font-bold text-amber-300">
-                    <span>🚑 Ambulance MH-15-EM-108 Dispatched!</span>
-                    <span className="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] animate-pulse font-mono">ETA ~10 Mins</span>
-                  </div>
-                  <p className="text-slate-200 leading-relaxed">
-                    Dispatched from Sinnar Subcenter. Real-time Trauma Pre-Arrival docket transmitted to Nashik Civil ICU.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex items-center gap-1.5 shrink-0">
+                {ambulanceDispatched ? (
+                  <span className="bg-red-950 text-amber-300 border border-amber-400/40 text-[9px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                    🚑 108 Dispatched (10m)
+                  </span>
+                ) : (
                   <button
                     onClick={() => {
                       setAmbulanceDispatched(true);
@@ -495,29 +481,36 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
                         ...prev,
                         { 
                           sender: "agent", 
-                          text: "🚨 EMERGENCY AMBULANCE DISPATCH ACTIVATED!\n\n🚑 108 Emergency Ambulance (MH-15-EM-108) dispatched from nearest Sinnar Rural Depot.\n⏱️ Estimated Arrival: 10-12 Mins.\n🏥 Destination: Sinnar CHC / Nashik Trauma ICU.\n📋 Digital Trauma Sheet with live vitals pre-notified to casualty team." 
+                          text: "🚨 EMERGENCY 108 AMBULANCE DISPATCHED!\n\n🚑 Vehicle: MH-15-EM-108 (Sinnar Depot)\n⏱️ ETA: ~10 Mins\n🏥 Destination: Sinnar CHC / Nashik Civil ICU." 
                         }
                       ]);
                     }}
-                    className="bg-white text-red-700 hover:bg-red-50 font-black text-[10px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md cursor-pointer border-0 transition-all"
+                    className="bg-white hover:bg-red-50 text-red-700 font-extrabold text-[9px] py-1 px-2 rounded-lg flex items-center gap-1 border-0 cursor-pointer shadow-2xs"
                   >
-                    <PhoneCall size={13} className="text-red-600" /> Trigger 108 Ambulance
+                    <PhoneCall size={10} className="text-red-600" /> 108 Ambulance
                   </button>
+                )}
 
-                  <button
-                    onClick={() => {
-                      window.location.href = "/doctor/consultation/urgent-sos";
-                    }}
-                    className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-[10px] py-2 px-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md cursor-pointer border-0 transition-all"
-                  >
-                    <Video size={13} /> Instant Doctor Call
-                  </button>
-                </div>
-              )}
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("jancare_switch_tab", { detail: { tab: "Video Consultation" } }));
+                    setIsOpen(false);
+                    if (typeof window !== "undefined" && !window.location.pathname.includes("/patient/dashboard")) {
+                      window.location.href = "/patient/dashboard?tab=Video+Consultation";
+                    }
+                  }}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-[9px] py-1 px-2 rounded-lg flex items-center gap-1 border-0 cursor-pointer shadow-2xs"
+                >
+                  <Video size={10} /> Video Call
+                </button>
 
-              <div className="flex items-center justify-between text-[9px] text-red-100 pt-0.5 border-t border-red-500/40">
-                <span>🏥 Nearest Emergency ICU: <strong>Sinnar CHC (4.8 km)</strong></span>
-                <a href="tel:108" className="font-bold underline text-white">Call 108 Directly →</a>
+                <button 
+                  onClick={() => setEmergencyActive(false)}
+                  className="text-white/70 hover:text-white text-[9px] bg-red-800/60 hover:bg-red-800 px-1.5 py-0.5 rounded border-0 cursor-pointer ml-0.5"
+                  title="Dismiss"
+                >
+                  ✕
+                </button>
               </div>
             </div>
           )}

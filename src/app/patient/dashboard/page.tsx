@@ -38,6 +38,8 @@ import {
   Search,
   Package,
   FileSpreadsheet,
+  AlertOctagon,
+  PhoneCall,
   Share2,
   ShoppingBag
 } from "lucide-react";
@@ -92,6 +94,7 @@ export default function PatientDashboard() {
   const [bookingDoctor, setBookingDoctor] = useState("Dr. Aniruddha Kulkarni");
   const [bookingSlotTime, setBookingSlotTime] = useState("11:30 AM");
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
+  const [dashboardAmbulanceTriggered, setDashboardAmbulanceTriggered] = useState(false);
 
   const [showAvailabilityCheck, setShowAvailabilityCheck] = useState(false);
   const [mapMode, setMapMode] = useState<"Map" | "List">("Map");
@@ -142,11 +145,31 @@ export default function PatientDashboard() {
   useEffect(() => {
     fetchPatientData();
 
+    // Check for tab query param in URL
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab");
+      if (tabParam) {
+        setActiveTab(tabParam);
+      }
+    }
+
     const handleRefresh = () => {
       fetchPatientData();
     };
+
+    const handleSwitchTab = (e: any) => {
+      if (e.detail?.tab) {
+        setActiveTab(e.detail.tab);
+      }
+    };
+
     window.addEventListener("jancare_appointment_booked", handleRefresh);
-    return () => window.removeEventListener("jancare_appointment_booked", handleRefresh);
+    window.addEventListener("jancare_switch_tab", handleSwitchTab);
+    return () => {
+      window.removeEventListener("jancare_appointment_booked", handleRefresh);
+      window.removeEventListener("jancare_switch_tab", handleSwitchTab);
+    };
   }, []);
 
   async function fetchPatientData() {
@@ -891,6 +914,47 @@ export default function PatientDashboard() {
                 <Video size={16} /> Join Consultation Call
               </button>
             )}
+          </div>
+
+          {/* 🚨 Emergency Fast-Track SOS Dock */}
+          <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-md border border-red-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-200">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="bg-white/20 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <AlertOctagon size={12} className="animate-pulse text-amber-300" />
+                  24/7 Emergency Medical Response
+                </span>
+                <span className="text-[10px] text-red-100 hidden sm:inline">• Sinnar CHC ICU Active</span>
+              </div>
+              <h3 className="text-sm font-extrabold text-white">Need Urgent Care or Facing an Emergency?</h3>
+              <p className="text-[11px] text-red-100">Trigger 108 Emergency Ambulance or connect instantly with on-duty physician via priority video consultation.</p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+              {dashboardAmbulanceTriggered ? (
+                <div className="bg-red-950/80 px-3.5 py-2 rounded-xl border border-red-400/40 text-[10px] flex items-center gap-2">
+                  <span className="font-bold text-amber-300">🚑 MH-15-EM-108 Dispatched!</span>
+                  <span className="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-mono animate-pulse">ETA ~10m</span>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setDashboardAmbulanceTriggered(true);
+                    alert("🚨 108 EMERGENCY AMBULANCE DISPATCH ACTIVATED!\n\n🚑 Ambulance MH-15-EM-108 dispatched from Sinnar Depot.\n⏱️ ETA: 10-12 Mins.\n🏥 Destination: Sinnar CHC / Nashik Trauma ICU.\n📋 Digital Trauma Sheet pre-transmitted to casualty team.");
+                  }}
+                  className="bg-white hover:bg-red-50 text-red-700 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
+                >
+                  <PhoneCall size={14} className="text-red-600" /> Call 108 Ambulance
+                </button>
+              )}
+
+              <button
+                onClick={() => setActiveTab("Video Consultation")}
+                className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
+              >
+                <Video size={14} /> Instant Video Call
+              </button>
+            </div>
           </div>
 
           {/* Stepper Progress bar: Your Care Journey */}
