@@ -95,6 +95,14 @@ export default function PatientDashboard() {
   const [bookingSlotTime, setBookingSlotTime] = useState("11:30 AM");
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [dashboardAmbulanceTriggered, setDashboardAmbulanceTriggered] = useState(false);
+  const [emergencyDismissed, setEmergencyDismissed] = useState(false);
+
+  // Detect if patient has an active urgent emergency from clinical records or live trigger
+  const hasUrgentCondition = !emergencyDismissed && (
+    dashboardAmbulanceTriggered ||
+    appointments.some((a: any) => a.triagePriority === "Urgent") ||
+    referrals.some((r: any) => r.priority === "Urgent")
+  );
 
   const [showAvailabilityCheck, setShowAvailabilityCheck] = useState(false);
   const [mapMode, setMapMode] = useState<"Map" | "List">("Map");
@@ -916,46 +924,55 @@ export default function PatientDashboard() {
             )}
           </div>
 
-          {/* 🚨 Emergency Fast-Track SOS Dock */}
-          <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-md border border-red-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-200">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="bg-white/20 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <AlertOctagon size={12} className="animate-pulse text-amber-300" />
-                  24/7 Emergency Medical Response
-                </span>
-                <span className="text-[10px] text-red-100 hidden sm:inline">• Sinnar CHC ICU Active</span>
-              </div>
-              <h3 className="text-sm font-extrabold text-white">Need Urgent Care or Facing an Emergency?</h3>
-              <p className="text-[11px] text-red-100">Trigger 108 Emergency Ambulance or connect instantly with on-duty physician via priority video consultation.</p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
-              {dashboardAmbulanceTriggered ? (
-                <div className="bg-red-950/80 px-3.5 py-2 rounded-xl border border-red-400/40 text-[10px] flex items-center gap-2">
-                  <span className="font-bold text-amber-300">🚑 MH-15-EM-108 Dispatched!</span>
-                  <span className="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-mono animate-pulse">ETA ~10m</span>
+          {/* 🚨 Emergency Fast-Track SOS Dock (Rendered Conditionally for Urgent Triage & Emergencies) */}
+          {hasUrgentCondition && (
+            <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-md border border-red-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-200">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="bg-white/20 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <AlertOctagon size={12} className="animate-pulse text-amber-300" />
+                    Urgent Clinical Escalation Active
+                  </span>
+                  <span className="text-[10px] text-red-100 hidden sm:inline">• Sinnar CHC ICU Active</span>
                 </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    setDashboardAmbulanceTriggered(true);
-                    alert("🚨 108 EMERGENCY AMBULANCE DISPATCH ACTIVATED!\n\n🚑 Ambulance MH-15-EM-108 dispatched from Sinnar Depot.\n⏱️ ETA: 10-12 Mins.\n🏥 Destination: Sinnar CHC / Nashik Trauma ICU.\n📋 Digital Trauma Sheet pre-transmitted to casualty team.");
-                  }}
-                  className="bg-white hover:bg-red-50 text-red-700 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
-                >
-                  <PhoneCall size={14} className="text-red-600" /> Call 108 Ambulance
-                </button>
-              )}
+                <h3 className="text-sm font-extrabold text-white">Emergency Response Active for Your Care</h3>
+                <p className="text-[11px] text-red-100">AI triage or clinician flagged high-risk symptoms requiring prioritized emergency response.</p>
+              </div>
 
-              <button
-                onClick={() => setActiveTab("Video Consultation")}
-                className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
-              >
-                <Video size={14} /> Instant Video Call
-              </button>
+              <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                {dashboardAmbulanceTriggered ? (
+                  <div className="bg-red-950/80 px-3.5 py-2 rounded-xl border border-red-400/40 text-[10px] flex items-center gap-2">
+                    <span className="font-bold text-amber-300">🚑 MH-15-EM-108 Dispatched!</span>
+                    <span className="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-mono animate-pulse">ETA ~10m</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setDashboardAmbulanceTriggered(true);
+                      alert("🚨 108 EMERGENCY AMBULANCE DISPATCH ACTIVATED!\n\n🚑 Ambulance MH-15-EM-108 dispatched from Sinnar Depot.\n⏱️ ETA: 10-12 Mins.\n🏥 Destination: Sinnar CHC / Nashik Trauma ICU.\n📋 Digital Trauma Sheet pre-transmitted to casualty team.");
+                    }}
+                    className="bg-white hover:bg-red-50 text-red-700 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
+                  >
+                    <PhoneCall size={14} className="text-red-600" /> Call 108 Ambulance
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setActiveTab("Video Consultation")}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
+                >
+                  <Video size={14} /> Instant Doctor Call
+                </button>
+
+                <button
+                  onClick={() => setEmergencyDismissed(true)}
+                  className="bg-red-800/80 hover:bg-red-800 text-white text-[11px] font-bold px-3 py-2.5 rounded-xl cursor-pointer border-0 transition-all"
+                >
+                  Dismiss
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Stepper Progress bar: Your Care Journey */}
           <div className="bg-white border border-slate-200/80 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xs space-y-3 sm:space-y-4">
