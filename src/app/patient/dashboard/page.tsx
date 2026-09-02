@@ -84,6 +84,15 @@ export default function PatientDashboard() {
   const [orderTrackingId, setOrderTrackingId] = useState<string | null>(null);
   const [orderStatus, setOrderStatus] = useState<"Requested" | "Preparing" | "Ready" | "Collected" | null>(null);
   
+  // Manual Appointment Booking Form State
+  const [bookingSymptoms, setBookingSymptoms] = useState("");
+  const [bookingSeverity, setBookingSeverity] = useState<"Mild" | "Moderate" | "Severe">("Moderate");
+  const [bookingDuration, setBookingDuration] = useState(1);
+  const [bookingFacility, setBookingFacility] = useState("Sinnar Rural CHC");
+  const [bookingDoctor, setBookingDoctor] = useState("Dr. Aniruddha Kulkarni");
+  const [bookingSlotTime, setBookingSlotTime] = useState("11:30 AM");
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
+
   const [showAvailabilityCheck, setShowAvailabilityCheck] = useState(false);
   const [mapMode, setMapMode] = useState<"Map" | "List">("Map");
 
@@ -255,32 +264,53 @@ export default function PatientDashboard() {
     }
   }
 
-  // Handle real slot booking and appointment scheduling
-  async function handleBookAppointment(slotTime: string) {
+  // Handle real slot booking and appointment scheduling with clinical symptom triage
+  async function handleBookAppointment(options?: {
+    slotTime?: string;
+    symptoms?: string;
+    severity?: "Mild" | "Moderate" | "Severe";
+    durationDays?: number;
+  }) {
     if (!user || !user.patientId) {
       alert("Error: No patient profile linked to this user session. Please ensure your ABHA ID or mobile registration details are complete.");
       return;
     }
 
+    const slotTime = options?.slotTime || bookingSlotTime || "11:30 AM";
+    const symptoms = options?.symptoms || bookingSymptoms || "General health consultation";
+    const severity = options?.severity || bookingSeverity || "Mild";
+    const duration = options?.durationDays || bookingDuration || 1;
+
     try {
+      setBookingSubmitting(true);
       const response = await fetch("/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           patientId: user.patientId,
           appointmentDate: new Date(), // Today
+          appointmentTime: slotTime,
+          symptoms: symptoms,
+          symptomSeverity: severity,
+          symptomDuration: duration,
+          bookingSource: "PATIENT_PORTAL",
         }),
       });
 
       const data = await response.json();
       if (data.success) {
-        alert(`Slot ${slotTime} successfully booked! Your appointment is scheduled and consultation room created.`);
+        const priorityLabel = data.triageLevel === "Urgent" ? "🔴 Urgent" : data.triageLevel === "Priority" ? "🟠 Priority" : "🟢 Routine";
+        alert(`✅ Consultation Slot ${slotTime} Successfully Booked!\n• Triage Urgency: ${priorityLabel}\n• Symptoms Logged: ${symptoms}\n• Status: Added to Doctor Queue`);
+        setActiveAction(null);
+        setBookingSymptoms("");
         fetchPatientData(); // Refresh patient dashboard data
       } else {
         alert("Failed to book slot: " + (data.error || "Unknown error"));
       }
     } catch (err: any) {
       alert("Failed to book slot: " + err.message);
+    } finally {
+      setBookingSubmitting(false);
     }
   }
 
@@ -1206,25 +1236,178 @@ export default function PatientDashboard() {
           </div>
 
           {activeAction === "Book Doctor" && (
-            <div className="bg-slate-50 border border-slate-200 p-5 rounded-3xl animate-in fade-in duration-200">
-              <div className="flex justify-between items-center border-b border-slate-200 pb-3 mb-4">
-                <strong className="text-xs text-slate-800 uppercase tracking-wider block">Available Doctor Booking Slots</strong>
+            <div className="bg-slate-50 border border-slate-200 p-5 sm:p-6 rounded-3xl animate-in fade-in duration-200 space-y-4">
+              <div className="flex justify-between items-center border-b border-slate-200 pb-3">
+                <div>
+                  <strong className="text-xs sm:text-sm text-slate-800 uppercase tracking-wider block">Book Doctor Tele-Consultation Slot</strong>
+                  <span className="text-[10px] text-slate-500">Provide your symptoms to enable automatic clinical triage priority assignment.</span>
+                </div>
                 <button onClick={() => setActiveAction(null)} className="text-slate-400 hover:text-slate-600 text-xs font-bold bg-transparent border-0 cursor-pointer">Cancel</button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4 max-w-2xl text-xs">
-                <div className="bg-white border border-slate-200/80 p-4 rounded-2xl flex flex-col justify-between">
-                  <div className="space-y-1">
-                    <span className="text-[9px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md w-fit block">Sinnar CHC Health Hub</span>
-                    <strong className="text-slate-800 text-sm block mt-1.5">Dr. Aniruddha Kulkarni</strong>
-                    <span className="text-slate-500 block">General Physician | Teleconsultation Provider</span>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <button onClick={() => { handleBookAppointment("11:30 AM"); setActiveAction(null); }} className="bg-primary hover:bg-blue-600 text-white px-3.5 py-2 rounded-xl font-bold cursor-pointer border-0 text-[10px]">11:30 AM</button>
-                    <button onClick={() => { handleBookAppointment("02:00 PM"); setActiveAction(null); }} className="bg-primary hover:bg-blue-600 text-white px-3.5 py-2 rounded-xl font-bold cursor-pointer border-0 text-[10px]">02:00 PM</button>
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleBookAppointment({
+                    slotTime: bookingSlotTime,
+                    symptoms: bookingSymptoms || "General consultation",
+                    severity: bookingSeverity,
+                    durationDays: bookingDuration,
+                  });
+                }}
+                className="space-y-4"
+              >
+                {/* 1. Symptoms Input */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Your Symptoms / Health Concern <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    required
+                    rows={2}
+                    value={bookingSymptoms}
+                    onChange={(e) => setBookingSymptoms(e.target.value)}
+                    placeholder="e.g., High fever (102°F) with shivering, severe cough, and chest discomfort since yesterday..."
+                    className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:outline-hidden focus:border-primary transition-all text-slate-800"
+                  />
+                  
+                  {/* Quick Symptom Chips */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    <span className="text-[10px] text-slate-400 font-semibold self-center mr-1">Quick Select:</span>
+                    {[
+                      { label: "High Fever (ताप)", val: "Acute High Fever (>101°F) with body chills" },
+                      { label: "Chest Discomfort", val: "Chest pain and breathing discomfort" },
+                      { label: "Severe Cough (खोकला)", val: "Productive chest cough and sore throat" },
+                      { label: "Stomach Pain (पोटदुखी)", val: "Severe abdominal cramps and vomiting" },
+                      { label: "Dizziness / BP", val: "Dizziness, low blood pressure, and weakness" },
+                      { label: "Routine Checkup", val: "Routine preventive health consultation" },
+                    ].map((chip) => (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        onClick={() => setBookingSymptoms((prev) => prev ? `${prev}, ${chip.val}` : chip.val)}
+                        className="bg-white hover:bg-blue-50 border border-slate-200 text-slate-600 hover:text-primary text-[10px] font-semibold py-1 px-2.5 rounded-lg transition-all cursor-pointer"
+                      >
+                        + {chip.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              </div>
+
+                {/* 2. Severity & Duration */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">Symptom Severity Level</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { label: "Mild 🟢", val: "Mild" as const, color: "hover:border-green-400" },
+                        { label: "Moderate 🟠", val: "Moderate" as const, color: "hover:border-amber-400" },
+                        { label: "Severe 🔴", val: "Severe" as const, color: "hover:border-red-400" },
+                      ].map((sev) => (
+                        <button
+                          key={sev.val}
+                          type="button"
+                          onClick={() => setBookingSeverity(sev.val)}
+                          className={`py-2 px-2 text-center rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
+                            bookingSeverity === sev.val
+                              ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                              : `bg-white text-slate-700 border-slate-200 ${sev.color}`
+                          }`}
+                        >
+                          {sev.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">Duration of Illness (Days)</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[1, 2, 3, 5].map((d) => (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => setBookingDuration(d)}
+                          className={`py-2 px-2 text-center rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
+                            bookingDuration === d
+                              ? "bg-primary text-white border-primary shadow-xs"
+                              : "bg-white text-slate-700 border-slate-200 hover:border-primary/50"
+                          }`}
+                        >
+                          {d} {d === 1 ? "Day" : "Days"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Facility & Doctor Selection */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">Select Primary Health Center</label>
+                    <select
+                      value={bookingFacility}
+                      onChange={(e) => setBookingFacility(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800"
+                    >
+                      <option value="Sinnar Rural CHC">Sinnar Rural CHC (Primary Hub)</option>
+                      <option value="Igatpuri PHC">Igatpuri PHC (Tribal Subcenter)</option>
+                      <option value="Nashik Civil Hospital">Nashik Civil Hospital (Tertiary Trauma)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-700">Consulting Physician</label>
+                    <select
+                      value={bookingDoctor}
+                      onChange={(e) => setBookingDoctor(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800"
+                    >
+                      <option value="Dr. Aniruddha Kulkarni">Dr. Aniruddha Kulkarni (General Medicine / Telehealth)</option>
+                      <option value="Dr. Smita Rao">Dr. Smita Rao (Cardiology & Internal Medicine)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 4. Preferred Time Slot & Submit */}
+                <div className="bg-white border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="space-y-1">
+                    <strong className="text-xs text-slate-800 block">Select Consultation Time Slot (Today)</strong>
+                    <div className="flex gap-2">
+                      {["11:30 AM", "02:00 PM", "04:30 PM"].map((slot) => (
+                        <button
+                          key={slot}
+                          type="button"
+                          onClick={() => setBookingSlotTime(slot)}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                            bookingSlotTime === slot
+                              ? "bg-primary text-white border-primary"
+                              : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                          }`}
+                        >
+                          {slot}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={bookingSubmitting}
+                    className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-6 py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer border-0 shadow-md shadow-primary/20 transition-all w-full sm:w-auto"
+                  >
+                    {bookingSubmitting ? (
+                      <>
+                        <Loader2 className="animate-spin" size={14} /> Scheduling...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle size={14} /> Confirm & Book Consultation
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           )}
 
