@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JanCare — Master Team Handover & Jury Defense Dossier</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    
+    :root {
+      --primary: #1464D2;
+      --primary-dark: #0D47A1;
+      --slate-900: #0F172A;
+      --slate-800: #1E293B;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-100: #F1F5F9;
+      --slate-50: #F8FAFC;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--slate-800);
+      background-color: #F8FAFC;
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .header {
+      border-bottom: 2px solid var(--slate-900);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo-badge {
+      display: inline-block;
+      background: #EFF6FF;
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--slate-600);
+      margin-top: 4px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--slate-100);
+      color: var(--slate-800);
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--slate-900);
+      margin: 32px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    p, li {
+      font-size: 13px;
+      color: var(--slate-700);
+      margin-bottom: 10px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--slate-50);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card-accent {
+      border-left: 4px solid var(--primary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px 0;
+      font-size: 12px;
+    }
+
+    th {
+      background: var(--slate-100);
+      color: var(--slate-800);
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      color: var(--slate-700);
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #0f172a;
+    }
+
+    .qa-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .qa-q {
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .qa-a {
+      font-size: 12.5px;
+      color: var(--slate-700);
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    .badge-urgent { background: #fee2e2; color: #b91c1c; }
+    .badge-priority { background: #fef3c7; color: #b45309; }
+    .badge-routine { background: #dcfce7; color: #15803d; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .container { border: none; box-shadow: none; padding: 0; max-width: 100%; }
+      .actions { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div>
+        <span class="logo-badge">Smart India Hackathon • Public Health Innovation</span>
+        <h1>JanCare (जनCare) — Master Handover Dossier</h1>
+        <div class="subtitle">AI-Assisted Rural Health Operating System • ABDM Compliant • Complete Team & Jury Defense Guide</div>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="window.print()">🖨️ Save as PDF / Print</button>
+        <a class="btn btn-secondary" href="/JanCare_Master_Team_Briefing.md" download>📥 Download .MD</a>
+      </div>
+    </div>
+
+    <!-- 1. Problem Statement -->
+    <h2>📌 1. The Problem: Rural India Healthcare Gaps</h2>
+    <div class="card card-accent">
+      <p><strong>1. Access & Distance Gap:</strong> Over 65% of India’s rural citizens live more than 5–10 km away from a Primary Health Center (PHC). Minor symptoms often escalate into severe emergencies due to delayed medical consultations.</p>
+      <p><strong>2. Frontline Worker Administrative Burden:</strong> Over 10 lakh ASHA workers maintain manual paper logs without offline digital sync, leading to lost follow-ups for pregnant mothers and chronic disease patients.</p>
+      <p><strong>3. Medicine Shortages & Cost:</strong> Patients travel miles to clinics only to find essential drugs out of stock, while affordable government generic substitutes under PMBJP (Jan Aushadhi) remain undiscovered.</p>
+      <p><strong>4. Regional Language Barrier:</strong> Most digital portals are text-heavy and English-only, alienating rural populations who communicate primarily in Marathi or Hindi.</p>
+    </div>
+
+    <!-- 2. How JanCare Solves It -->
+    <h2>🚀 2. How JanCare Solves It: The 7-Step Continuum</h2>
+    <ul>
+      <li><strong>1. Multilingual Voice AI Triage:</strong> Citizens speak in Marathi, Hindi, or English. Gemini AI classifies triage severity (<code>🟢 Routine</code>, <code>🟠 Priority</code>, <code>🔴 Urgent</code>) and books OPD slots.</li>
+      <li><strong>2. Offline-First ASHA Care:</strong> ASHA workers register patients and record vitals at the doorstep even with zero internet connectivity.</li>
+      <li><strong>3. Doctor Telemedicine & EMR:</strong> Clinicians review AI triage notes, conduct WebRTC video calls, and issue digital prescriptions.</li>
+      <li><strong>4. PMBJP Generic Medicine Optimizer:</strong> Identifies branded prescriptions and routes patients to the nearest Jan Aushadhi Kendra offering generic substitutes at up to 80% lower cost.</li>
+      <li><strong>5. 108 Emergency Ambulance Telemetry:</strong> Life-threatening red-flag emergencies trigger real-time 108 ambulance dispatch with live GPS telemetry.</li>
+      <li><strong>6. Closed-Loop Follow-ups:</strong> Auto-schedules post-consultation home visits for ASHA workers to verify medication compliance.</li>
+      <li><strong>7. District Health Intelligence Grid:</strong> Gives District Health Officers real-time heatmaps of disease outbreaks and drug stockouts across the district.</li>
+    </ul>
+
+    <!-- 3. Unique USPs -->
+    <h2>🌟 3. What’s New & Unique (Our Innovation USPs)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature Area</th>
+          <th>Traditional Healthcare Portals</th>
+          <th>JanCare Innovation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Identity Architecture</strong></td>
+          <td>Phone numbers only (fails when rural families share 1 phone)</td>
+          <td><strong>Offline-First <code>JC-XXXXXX</code> UHID</strong> mapped 1-to-1 to Government <strong>ABHA (Ayushman Bharat)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Voice & Dialects</strong></td>
+          <td>Static English/Hindi text forms</td>
+          <td><strong>Bilingual Voice AI Assistant</strong> (Marathi, Hindi, English) with speech recognition & audio TTS</td>
+        </tr>
+        <tr>
+          <td><strong>Queue Management</strong></td>
+          <td>First-come, first-served</td>
+          <td><strong>Clinical Triage Engine</strong> prioritizing patients by severity</td>
+        </tr>
+        <tr>
+          <td><strong>Medicine Affordability</strong></td>
+          <td>Static medicine store directory</td>
+          <td><strong>Automated PMBJP Generic Substitution</strong> with inter-facility stock transfer routing</td>
+        </tr>
+        <tr>
+          <td><strong>Emergency Response</strong></td>
+          <td>Unlinked phone numbers</td>
+          <td><strong>Dynamic Emergency Dashboard Escalation</strong> with 108 ambulance GPS dispatch</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 4. Tech Stack -->
+    <h2>🛠️ 4. Technology Stack & Architecture</h2>
+    <div class="card">
+      <p>• <strong>Fullstack Framework:</strong> Next.js 16.3 (Turbopack, App Router), React 19, TypeScript</p>
+      <p>• <strong>UI & Styling:</strong> Tailwind CSS v4, Lucide Icons (Responsive mobile-first design)</p>
+      <p>• <strong>Database:</strong> MongoDB with Mongoose Schema Validation</p>
+      <p>• <strong>Artificial Intelligence:</strong> Google Gemini 2.5 Flash with fallback cascading retry engine</p>
+      <p>• <strong>Voice & Speech:</strong> Web Speech API (SpeechRecognition) + SpeechSynthesis in <code>mr-IN</code>, <code>hi-IN</code>, <code>en-IN</code></p>
+      <p>• <strong>Telemedicine:</strong> WebRTC P2P Video Engine</p>
+      <p>• <strong>Auth & Security:</strong> HTTP-only JWT Sessions, bcrypt password hashing, 6 Role-Based Access Controls</p>
+      <p>• <strong>Compliance:</strong> ABDM (Ayushman Bharat Digital Mission) Health Data Consent, DPDP Act 2023, DISHA principles</p>
+    </div>
+
+    <!-- 5. Demo Accounts -->
+    <h2>🔑 5. Demo Login Credentials (Password for all: <code>password123</code>)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Login ID / Patient ID</th>
+          <th>Dashboard Path</th>
+          <th>Demo Focus</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Patient (Ramesh)</strong></td>
+          <td><code>patient</code> or <code>JC-7F3K92</code></td>
+          <td><code>/patient/dashboard</code></td>
+          <td>Voice AI Booking, Timeline, Generic Switch</td>
+        </tr>
+        <tr>
+          <td><strong>Patient (Sunita)</strong></td>
+          <td><code>9822114402</code> or <code>JC-9M2X41</code></td>
+          <td><code>/patient/dashboard</code></td>
+          <td><span class="badge badge-urgent">🔴 Urgent</span> Cardiac Triage & Emergency Referral</td>
+        </tr>
+        <tr>
+          <td><strong>Patient (Ganesh)</strong></td>
+          <td><code>9822114404</code> or <code>JC-4K8P19</code></td>
+          <td><code>/patient/dashboard</code></td>
+          <td><span class="badge badge-routine">🟢 Routine</span> Clean Dashboard & Rhinitis Plan</td>
+        </tr>
+        <tr>
+          <td><strong>Doctor</strong></td>
+          <td><code>doctor</code></td>
+          <td><code>/doctor/dashboard</code></td>
+          <td>Triage Queue, WebRTC Video Call, Digital EMR</td>
+        </tr>
+        <tr>
+          <td><strong>ASHA Worker</strong></td>
+          <td><code>asha</code></td>
+          <td><code>/asha/dashboard</code></td>
+          <td>Doorstep Patient Registration, Follow-up Roster</td>
+        </tr>
+        <tr>
+          <td><strong>Medicine Manager</strong></td>
+          <td><code>medmanager</code></td>
+          <td><code>/medicine-manager/dashboard</code></td>
+          <td>Stock Alerts, PMBJP Generic Catalog, Stock Movement</td>
+        </tr>
+        <tr>
+          <td><strong>Facility Admin</strong></td>
+          <td><code>facilityadmin</code></td>
+          <td><code>/facility/dashboard</code></td>
+          <td>Live OPD Token Queue (<code>Token #1</code>), Bed Occupancy</td>
+        </tr>
+        <tr>
+          <td><strong>District Admin</strong></td>
+          <td><code>districtadmin</code></td>
+          <td><code>/admin/dashboard</code></td>
+          <td>Maharashtra GIS Map, 1-Click DB Seeder, Outbreak Analytics</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 6. Jury Q&A -->
+    <h2>❓ 6. Exhaustive Jury Q&A & Edge Cases Cheat Sheet</h2>
+
+    <div class="qa-box">
+      <div class="qa-q">Q1: "Where did this data come from and is it real?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "Our dataset is modeled on official public health figures from the <strong>National Health Mission (NHM) Maharashtra</strong>, <strong>Rural Health Statistics (RHS 2022–23, MoHFW)</strong>, and the <strong>Nashik District Health Society</strong>. To comply with India's <strong>DPDP Act 2023 and DISHA patient privacy rules</strong>, we synthesized realistic clinical profiles that match the actual disease burden of rural and tribal blocks (e.g. Sinnar CHC acute febrile illness, Igatpuri tribal snakebite anti-venom cold-chain tracking)."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q2: "How can you claim 10M+ lives impacted and 150k+ health workers?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "Those figures represent the <strong>Total Addressable Scale of the Maharashtra Public Health Grid</strong> that JanCare is architected to serve — including 5,000+ government health facilities (SubCenters, PHCs, CHCs), 60,000+ ASHA workers, and the 10M+ rural citizens across North Maharashtra's primary health catchment areas."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q3: "What if an ASHA worker loses internet connectivity in a remote village?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare is engineered <strong>offline-first</strong>. The ASHA app generates a collision-free Base36 <code>JC-XXXXXX</code> UHID locally on the device. When the worker reconnects to the network at the PHC, all records auto-synchronize to the central database."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q4: "What if an entire rural family shares a single mobile phone?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare uses <strong><code>JC-XXXXXX</code> identifiers</strong> as the unique clinical primary key instead of mobile numbers. Multiple family members can share one contact number while maintaining completely separate clinical histories and EMR timelines."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q5: "How do you prevent the AI from giving dangerous wrong medical advice?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "The AI acts strictly as a <strong>Clinical Decision Support care navigator</strong>, not a diagnosing physician. It assesses urgency to book the right doctor slot, stamps prominent statutory disclaimers, and red-flag symptoms automatically trigger 108 Emergency Ambulance dispatch."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q6: "How do you handle severe medicine shortages in remote clinics?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "Our Medicine Manager and Facility dashboards feature <strong>Multi-Facility Stock Visibility</strong>. If a local PHC runs out of essential drugs like Anti-Snake Venom, the system alerts the district warehouse and enables 1-click <strong>Inter-Facility Stock Transfers</strong> from the nearest Jan Aushadhi Kendra."</div>
+    </div>
+
+  </div>
+
+</body>
+</html>
