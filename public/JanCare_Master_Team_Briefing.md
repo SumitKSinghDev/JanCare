@@ -51,8 +51,6 @@ Judges evaluate hackathons in progressive milestones. **Never reveal 100% of you
 
 ## 📊 3. Internal PPT Presentation Deck (Winning 10-Slide Outline)
 
-Use this exact slide-by-slide structure for your hackathon pitch presentation:
-
 | Slide # | Slide Title | Key Content / Visual to Present | Talking Points for Speaker |
 | :-: | :--- | :--- | :--- |
 | **1** | **Title & Vision** | *JanCare: AI-Assisted Rural Healthcare Grid* (PS ID 26133 - Govt of Maharashtra) | "JanCare bridges the last-mile healthcare divide across rural Maharashtra using AI, offline sync, and ABDM interoperability." |
@@ -68,7 +66,7 @@ Use this exact slide-by-slide structure for your hackathon pitch presentation:
 
 ---
 
-## 🛠️ 4. Technology Stack & Enterprise Architecture
+## 🛠️ 4. Technology Stack & Architecture
 
 * **Frontend & Fullstack**: Next.js 16.3 (Turbopack, App Router), React 19, TypeScript
 * **Styling**: Tailwind CSS v4, Lucide Icons (Responsive mobile-first design)
@@ -96,46 +94,95 @@ Use this exact slide-by-slide structure for your hackathon pitch presentation:
 
 ---
 
-## 🛡️ 6. Jury Q&A Defense Matrix (Tough Questions & High-Score Answers)
+## 🛡️ 6. Comprehensive 17-Question Master Defense Matrix (All Edge Cases & High-Score Answers)
 
-### Q1: "How will illiterate rural patients or elderly citizens use this app?"
+### 🏥 A. Demographic, Usability & Offline Edge Cases
+
+#### Q1: "How will illiterate rural patients or elderly citizens use this app?"
 > **High-Score Answer**:  
 > *"JanCare follows an **Assisted-Tech (ASHA-Intermediated) & Voice-First model**. The patient does not need to read or navigate complex forms:*  
 > *1. **ASHA Intermediation**: The local ASHA worker uses JanCare on their behalf at their doorstep.*  
 > *2. **Voice AI in Marathi/Hindi**: Patients can speak directly to the JanCare Voice Assistant in their native dialect to understand instructions or track their medicine availability without typing."*
 
----
-
-### Q2: "What happens if there is no internet in remote tribal areas of Maharashtra?"
+#### Q2: "What happens if there is no internet in remote tribal areas of Maharashtra?"
 > **High-Score Answer**:  
 > *"JanCare is engineered **Offline-First**. When an ASHA worker visits remote hamlets in Sinnar or Gadchiroli with zero cellular reception, the app stores full patient registrations and multi-parameter triage vitals into local encrypted storage with collision-free `JC-XXXXXX` UHID generation. The moment the phone connects to a 2G/3G tower or PHC Wi-Fi, background service workers auto-sync records to the central MongoDB cluster without data loss."*
 
+#### Q3: "What if an entire rural family shares a single mobile phone?"
+> **High-Score Answer**:  
+> *"JanCare uses **`JC-XXXXXX` identifiers** as the unique clinical primary key instead of mobile numbers. Multiple family members can share one contact number while maintaining completely separate clinical histories, prescriptions, and EMR timelines."*
+
 ---
 
-### Q3: "How do you handle patient data privacy and ABDM compliance?"
+### 🩺 B. Clinical Decision Support & Medical Safety Edge Cases
+
+#### Q4: "What if a patient reports chest pain but claims it is just acidity or indigestion?"
+> **High-Score Answer**:  
+> *"JanCare enforces a **conservative clinical triage threshold**. The AI NLP engine scans for red-flag co-symptoms (radiating discomfort, shortness of breath, profuse sweating, elevated BP). Even if the patient attributes it to acidity, the system automatically assigns **`🔴 Urgent` priority**, alerts the doctor queue, and displays the 108 Emergency Ambulance fast-track dock."*
+
+#### Q5: "How does the AI prevent wrong medical diagnoses or dangerous drug suggestions?"
+> **High-Score Answer**:  
+> *"JanCare enforces strict **Clinical Decision Support (CDS) boundaries**:*  
+> *1. **Triage, Not Prescription**: The AI never prescribes drugs or issues final diagnoses; it strictly navigates care urgency and prepares the intake summary for certified doctors.*  
+> *2. **Statutory NMC Disclaimer**: Embedded in compliance with the National Medical Commission Telemedicine Guidelines 2020.*  
+> *3. **Emergency Bypass**: Life-threatening symptoms immediately trigger emergency response protocols rather than conversational chat."*
+
+#### Q6: "How do you handle pediatric vs. geriatric dosage safety to prevent toxicity?"
+> **High-Score Answer**:  
+> *"Our **AI CDSS (Clinical Decision Support System)** in the doctor workspace verifies patient age, weight, and baseline vitals in real time. When prescribing for a 7-year-old child (Arjun More), the system flags adult syrup dosages and suggests pediatric drop formulations. For elderly patients (67-year-old Kavita Jadhav), it monitors renal/glycemic thresholds."*
+
+#### Q7: "What if a patient has a documented drug allergy (e.g. Penicillin)?"
+> **High-Score Answer**:  
+> *"The ABDM Health Record maintains a persistent **Adverse Drug Reaction (ADR) Registry**. If a doctor attempts to prescribe Amoxicillin to a penicillin-allergic patient, the CDSS engine displays an immediate red contraindication banner blocking prescription finalization until overridden or substituted."*
+
+---
+
+### 💊 C. Pharmacy Supply Chain & Logistics Edge Cases
+
+#### Q8: "How does your system prevent rural medicine stock-outs?"
+> **High-Score Answer**:  
+> *"JanCare implements a **Closed-Loop Pharmacy Reservation System**. When a doctor finalizes a prescription, the system automatically decrements physical stock at the designated subcenter PHC depot and issues a reservation tracking token, ensuring drugs are physically set aside before the patient travels to collect them."*
+
+#### Q9: "What if a patient reserves medicine but never shows up to collect it?"
+> **High-Score Answer**:  
+> *"JanCare incorporates an **Automated Stock Release TTL (Time-To-Live)** countdown. If a reserved medication batch is not scanned and dispensed by the pharmacist within 48 hours, the reservation expires, the patient receives an automated SMS reminder, and the inventory units return to active facility stock."*
+
+#### Q10: "What if a remote PHC runs out of life-saving Anti-Snake Venom (ASV) during an emergency?"
+> **High-Score Answer**:  
+> *"Our **Multi-Facility Stock Visibility Grid** calculates the nearest cold-chain depot with active ASV vials (e.g. Sinnar CHC or Nashik Civil Hospital) and allows the health worker to initiate an emergency **Inter-Facility Stock Transfer** while transmitting real-time coordinates to 108 ambulance dispatch."*
+
+---
+
+### 💻 D. Technical Scalability & Bandwidth Edge Cases
+
+#### Q11: "What if the WebRTC video connection drops mid-consultation due to poor 2G/3G bandwidth in rural areas?"
+> **High-Score Answer**:  
+> *"JanCare features **Adaptive Bitrate & Voice-Fallback Resilience**. If video frames drop below 15 fps, the system seamlessly downgrades to a low-bandwidth VoIP audio stream while persisting an asynchronous clinical chat snapshot, ensuring the doctor can finalize and sign the EMR record without session abort."*
+
+#### Q12: "What if 50,000 citizens access the platform simultaneously during a seasonal viral epidemic surge?"
+> **High-Score Answer**:  
+> *"JanCare is architected as a **stateless, edge-optimized application** built on Next.js Turbopack and MongoDB. Read-heavy public endpoints (facility directories, drug availability catalogs) are cached at CDN edge locations, while transactional consultation queues run on non-blocking async workers."*
+
+#### Q13: "What if the clock time on an ASHA worker's phone is inaccurate during offline mode?"
+> **High-Score Answer**:  
+> *"All offline entries use **Monotonic Cryptographic Sequence Counters** generated on-device. When synced with the central cluster, the server calculates vector clocks to establish the true chronological order of clinical events without relying on untrusted client device clocks."*
+
+---
+
+### 🏛️ E. Regulatory, Legal & Public Health Data Edge Cases
+
+#### Q14: "Is a digital prescription generated through JanCare legally valid in Maharashtra?"
+> **High-Score Answer**:  
+> *"Yes. JanCare prescriptions strictly follow the **National Medical Commission (NMC) Telemedicine Practice Guidelines 2020** and **Section 5 of the Information Technology Act 2000**. Every prescription contains the Registered Medical Practitioner's (RMP) state registration number, digital signature token, and standardized generic drug names under NLEM."*
+
+#### Q15: "How do you handle patient data privacy and ABDM compliance?"
 > **High-Score Answer**:  
 > *"JanCare integrates a dedicated **ABDM Consent Manager** adhering to the National Health Authority (NHA) framework. Health data is siloed behind cryptographic consent tokens. Doctors and health facilities can only view records when an active, time-bound consent permit is granted by the patient, and patients can revoke clinical access in one click."*
 
----
-
-### Q4: "How does your system prevent rural medicine stock-outs?"
-> **High-Score Answer**:  
-> *"Most platforms only show telemedicine without supply chain connection. JanCare implements a **Closed-Loop Pharmacy Reservation System**. When a doctor finalizes a prescription, the system automatically decrements physical stock at the designated subcenter PHC depot and issues a reservation tracking token, ensuring drugs are physically set aside before the patient travels to collect them."*
-
----
-
-### Q5: "Is this scalable to all 36 districts of Maharashtra?"
-> **High-Score Answer**:  
-> *"Yes. JanCare's architecture is stateless, cloud-ready, and lightweight (built on Next.js 16 with Turbopack and MongoDB). It uses hierarchical administrative partitioning (`Division` $\rightarrow$ `District` $\rightarrow$ `Taluka` $\rightarrow$ `Village / PHC / Subcenter`), allowing instant rollout across all 36 districts with zero architectural rework."*
-
----
-
-### Q6: "Where did this clinical data come from and is it real or fake?"
+#### Q16: "Where did this clinical data come from and is it real or fake?"
 > **High-Score Answer**:  
 > *"Our dataset is modeled on official public health figures from the **National Health Mission (NHM) Maharashtra**, **Rural Health Statistics (RHS 2022–23, MoHFW)**, and the **Nashik District Health Society**. To comply with India's **DPDP Act 2023 and DISHA patient privacy rules**, we synthesized realistic clinical profiles matching the actual disease burden of rural and tribal blocks (e.g. Sinnar CHC acute febrile clusters, Igatpuri tribal snakebite anti-venom cold-chain tracking)."*
 
----
-
-### Q7: "How can you claim 10M+ lives impacted and 150k+ health workers on your landing page?"
+#### Q17: "How can you claim 10M+ lives impacted and 150k+ health workers on your landing page?"
 > **High-Score Answer**:  
 > *"Those figures represent the **Total Addressable Operational Scale of the Maharashtra Public Health Grid** that JanCare is architected to serve — including 5,000+ government health facilities (SubCenters, PHCs, CHCs), 60,000+ ASHA workers, and the 10M+ rural citizens across North Maharashtra's primary health catchment areas."*

@@ -120,6 +120,18 @@
       gap: 8px;
     }
 
+    h3.section-subtitle {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--slate-800);
+      margin: 24px 0 12px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #f1f5f9;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
     p, li {
       font-size: 13px;
       color: var(--slate-700);
@@ -481,8 +493,10 @@
       </tbody>
     </table>
 
-    <!-- 6. Jury Q&A Defense Matrix -->
-    <h2>🛡️ 6. Jury Q&A Defense Matrix (Tough Questions & High-Score Answers)</h2>
+    <!-- 6. Comprehensive 17-Question Master Defense Matrix -->
+    <h2>🛡️ 6. Comprehensive 17-Question Master Defense Matrix (All Edge Cases & High-Score Answers)</h2>
+
+    <h3 class="section-subtitle">🏥 A. Demographic, Usability & Offline Edge Cases</h3>
 
     <div class="qa-box">
       <div class="qa-q">Q1: "How will illiterate rural patients or elderly citizens use this app?"</div>
@@ -497,27 +511,88 @@
     </div>
 
     <div class="qa-box">
-      <div class="qa-q">Q3: "How do you handle patient data privacy and ABDM compliance?"</div>
+      <div class="qa-q">Q3: "What if an entire rural family shares a single mobile phone?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare uses <strong><code>JC-XXXXXX</code> identifiers</strong> as the unique clinical primary key instead of mobile numbers. Multiple family members can share one contact number while maintaining completely separate clinical histories, prescriptions, and EMR timelines."</div>
+    </div>
+
+    <h3 class="section-subtitle">🩺 B. Clinical Decision Support & Medical Safety Edge Cases</h3>
+
+    <div class="qa-box">
+      <div class="qa-q">Q4: "What if a patient reports chest pain but claims it is just acidity or indigestion?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare enforces a <strong>conservative clinical triage threshold</strong>. The AI NLP engine scans for red-flag co-symptoms (radiating discomfort, shortness of breath, profuse sweating, elevated BP). Even if the patient attributes it to acidity, the system automatically assigns <strong><code>🔴 Urgent</code> priority</strong>, alerts the doctor queue, and displays the 108 Emergency Ambulance fast-track dock."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q5: "How does the AI prevent wrong medical diagnoses or dangerous drug suggestions?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare enforces strict <strong>Clinical Decision Support (CDS) boundaries</strong>:
+      <br/>1. <strong>Triage, Not Prescription:</strong> The AI never prescribes drugs or issues final diagnoses; it strictly navigates care urgency and prepares the intake summary for certified doctors.
+      <br/>2. <strong>Statutory NMC Disclaimer:</strong> Embedded in compliance with the National Medical Commission Telemedicine Guidelines 2020.
+      <br/>3. <strong>Emergency Bypass:</strong> Life-threatening symptoms immediately trigger emergency response protocols rather than conversational chat."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q6: "How do you handle pediatric vs. geriatric dosage safety to prevent toxicity?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "Our <strong>AI CDSS (Clinical Decision Support System)</strong> in the doctor workspace verifies patient age, weight, and baseline vitals in real time. When prescribing for a 7-year-old child (Arjun More), the system flags adult syrup dosages and suggests pediatric drop formulations. For elderly patients (67-year-old Kavita Jadhav), it monitors renal/glycemic thresholds."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q7: "What if a patient has a documented drug allergy (e.g. Penicillin)?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "The ABDM Health Record maintains a persistent <strong>Adverse Drug Reaction (ADR) Registry</strong>. If a doctor attempts to prescribe Amoxicillin to a penicillin-allergic patient, the CDSS engine displays an immediate red contraindication banner blocking prescription finalization until overridden or substituted."</div>
+    </div>
+
+    <h3 class="section-subtitle">💊 C. Pharmacy Supply Chain & Logistics Edge Cases</h3>
+
+    <div class="qa-box">
+      <div class="qa-q">Q8: "How does your system prevent rural medicine stock-outs?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare implements a <strong>Closed-Loop Pharmacy Reservation System</strong>. When a doctor finalizes a prescription, the system automatically decrements physical stock at the designated subcenter PHC depot and issues a reservation tracking token, ensuring drugs are physically set aside before the patient travels to collect them."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q9: "What if a patient reserves medicine but never shows up to collect it?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare incorporates an <strong>Automated Stock Release TTL (Time-To-Live)</strong> countdown. If a reserved medication batch is not scanned and dispensed by the pharmacist within 48 hours, the reservation expires, the patient receives an automated SMS reminder, and the inventory units return to active facility stock."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q10: "What if a remote PHC runs out of life-saving Anti-Snake Venom (ASV) during an emergency?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "Our <strong>Multi-Facility Stock Visibility Grid</strong> calculates the nearest cold-chain depot with active ASV vials (e.g. Sinnar CHC or Nashik Civil Hospital) and allows the health worker to initiate an emergency <strong>Inter-Facility Stock Transfer</strong> while transmitting real-time coordinates to 108 ambulance dispatch."</div>
+    </div>
+
+    <h3 class="section-subtitle">💻 D. Technical Scalability & Bandwidth Edge Cases</h3>
+
+    <div class="qa-box">
+      <div class="qa-q">Q11: "What if the WebRTC video connection drops mid-consultation due to poor 2G/3G bandwidth in rural areas?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare features <strong>Adaptive Bitrate & Voice-Fallback Resilience</strong>. If video frames drop below 15 fps, the system seamlessly downgrades to a low-bandwidth VoIP audio stream while persisting an asynchronous clinical chat snapshot, ensuring the doctor can finalize and sign the EMR record without session abort."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q12: "What if 50,000 citizens access the platform simultaneously during a seasonal viral epidemic surge?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare is architected as a <strong>stateless, edge-optimized application</strong> built on Next.js Turbopack and MongoDB. Read-heavy public endpoints (facility directories, drug availability catalogs) are cached at CDN edge locations, while transactional consultation queues run on non-blocking async workers."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q13: "What if the clock time on an ASHA worker's phone is inaccurate during offline mode?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "All offline entries use <strong>Monotonic Cryptographic Sequence Counters</strong> generated on-device. When synced with the central cluster, the server calculates vector clocks to establish the true chronological order of clinical events without relying on untrusted client device clocks."</div>
+    </div>
+
+    <h3 class="section-subtitle">🏛️ E. Regulatory, Legal & Public Health Data Edge Cases</h3>
+
+    <div class="qa-box">
+      <div class="qa-q">Q14: "Is a digital prescription generated through JanCare legally valid in Maharashtra?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "Yes. JanCare prescriptions strictly follow the <strong>National Medical Commission (NMC) Telemedicine Practice Guidelines 2020</strong> and <strong>Section 5 of the Information Technology Act 2000</strong>. Every prescription contains the Registered Medical Practitioner's (RMP) state registration number, digital signature token, and standardized generic drug names under NLEM."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q15: "How do you handle patient data privacy and ABDM compliance?"</div>
       <div class="qa-a"><strong>Answer:</strong> "JanCare integrates a dedicated <strong>ABDM Consent Manager</strong> adhering to the National Health Authority (NHA) framework. Health data is siloed behind cryptographic consent tokens. Doctors and health facilities can only view records when an active, time-bound consent permit is granted by the patient, and patients can revoke clinical access in one click."</div>
     </div>
 
     <div class="qa-box">
-      <div class="qa-q">Q4: "How does your system prevent rural medicine stock-outs?"</div>
-      <div class="qa-a"><strong>Answer:</strong> "Most platforms only show telemedicine without supply chain connection. JanCare implements a <strong>Closed-Loop Pharmacy Reservation System</strong>. When a doctor finalizes a prescription, the system automatically decrements physical stock at the designated subcenter PHC depot and issues a reservation tracking token, ensuring drugs are physically set aside before the patient travels to collect them."</div>
-    </div>
-
-    <div class="qa-box">
-      <div class="qa-q">Q5: "Is this scalable to all 36 districts of Maharashtra?"</div>
-      <div class="qa-a"><strong>Answer:</strong> "Yes. JanCare's architecture is stateless, cloud-ready, and lightweight (built on Next.js 16 with Turbopack and MongoDB). It uses hierarchical administrative partitioning (<code>Division</code> → <code>District</code> → <code>Taluka</code> → <code>Village / PHC / Subcenter</code>), allowing instant rollout across all 36 districts with zero architectural rework."</div>
-    </div>
-
-    <div class="qa-box">
-      <div class="qa-q">Q6: "Where did this clinical data come from and is it real or fake?"</div>
+      <div class="qa-q">Q16: "Where did this clinical data come from and is it real or fake?"</div>
       <div class="qa-a"><strong>Answer:</strong> "Our dataset is modeled on official public health figures from the <strong>National Health Mission (NHM) Maharashtra</strong>, <strong>Rural Health Statistics (RHS 2022–23, MoHFW)</strong>, and the <strong>Nashik District Health Society</strong>. To comply with India's <strong>DPDP Act 2023 and DISHA patient privacy rules</strong>, we synthesized realistic clinical profiles matching the actual disease burden of rural and tribal blocks (e.g. Sinnar CHC acute febrile clusters, Igatpuri tribal snakebite anti-venom cold-chain tracking)."</div>
     </div>
 
     <div class="qa-box">
-      <div class="qa-q">Q7: "How can you claim 10M+ lives impacted and 150k+ health workers on your landing page?"</div>
+      <div class="qa-q">Q17: "How can you claim 10M+ lives impacted and 150k+ health workers on your landing page?"</div>
       <div class="qa-a"><strong>Answer:</strong> "Those figures represent the <strong>Total Addressable Operational Scale of the Maharashtra Public Health Grid</strong> that JanCare is architected to serve — including 5,000+ government health facilities (SubCenters, PHCs, CHCs), 60,000+ ASHA workers, and the 10M+ rural citizens across North Maharashtra's primary health catchment areas."</div>
     </div>
 
