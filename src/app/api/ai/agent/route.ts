@@ -299,6 +299,7 @@ function extractSymptomsAndTriage(fullConversationText: string) {
   const isAbdominalPain = /stomach|abdominal|pet\s*dard|पोटदुखी|पेट\s*दर्द/.test(text);
   const isSevereCough = /cough|khasi|khokla|खोकला|खांसी|phlegm/.test(text);
   const isDizzinessBP = /bp|dizziness|chakkar|चक्कर|blood\s*pressure/.test(text);
+  const isHeadacheOrPain = /headache|sar\s*dard|sir\s*dard|sir\s*mein|sar\s*mein|सिरदर्द|डोकेदुखी|डोके|pain|dard|वेदना|migraine|तेज\s*दर्द|bahut\s*tej|dukh/.test(text);
 
   if (isChestPain) {
     symptoms.push({ name: "Chest Pain / Discomfort", durationDays: 1, severity: "Severe" });
@@ -320,6 +321,9 @@ function extractSymptomsAndTriage(fullConversationText: string) {
     explanation = `AI Clinical Triage: Emergency red-flag symptoms detected (${symptomNames}). Flagged as Urgent for immediate physician teleconsultation.`;
   } else {
     // Check Priority
+    if (isHeadacheOrPain) {
+      symptoms.push({ name: "Cephalea / Acute Severe Headache", durationDays: 3, severity: "Moderate" });
+    }
     if (isFever) {
       symptoms.push({ name: "Acute Febrile Illness / Fever", durationDays: 2, severity: "Moderate" });
     }
@@ -460,8 +464,16 @@ function extractSymptomsAndTriage(fullConversationText: string) {
                 appointmentTime: "02:00 PM",
               });
 
-              const isTomorrow = msgLower.includes("kal") || msgLower.includes("tomorrow") || msgLower.includes("udya") || msgLower.includes("उद्या") || msgLower.includes("कल");
-              const targetDate = isTomorrow ? new Date(Date.now() + 86400000) : new Date();
+              let targetDate = new Date();
+              const dateMatch = msgLower.match(/(\d{1,2})\s*(?:th|st|nd|rd)?\s*(?:september|sept|sep|सितंबर|सप्टेंबर|october|august|\/|-)/i) || msgLower.match(/(\d{1,2})\s*(?:तारीख|तारखेला|दिनांक|tarikh)/i);
+              if (dateMatch) {
+                const day = parseInt(dateMatch[1]);
+                if (day >= 1 && day <= 31) {
+                  targetDate = new Date(2026, 8, day); // September 2026
+                }
+              } else if (msgLower.includes("kal") || msgLower.includes("tomorrow") || msgLower.includes("udya") || msgLower.includes("उद्या") || msgLower.includes("कल")) {
+                targetDate = new Date(Date.now() + 86400000);
+              }
 
               // Detect explicit slot selection
               let slotTime = "";
