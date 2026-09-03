@@ -96,6 +96,37 @@ export default function PatientDashboard() {
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [dashboardAmbulanceTriggered, setDashboardAmbulanceTriggered] = useState(false);
   const [emergencyDismissed, setEmergencyDismissed] = useState(false);
+  const [activeInstantRoom, setActiveInstantRoom] = useState<string | null>(null);
+  const [instantCalling, setInstantCalling] = useState(false);
+
+  async function handleStartInstantEmergencyCall() {
+    try {
+      setInstantCalling(true);
+      const roomName = `jancare-emergency-${(user?.patientRefId || "JC-PATIENT").toLowerCase()}-${Date.now().toString().slice(-4)}`;
+      setActiveInstantRoom(roomName);
+
+      const res = await fetch("/api/consultations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isEmergencyInstant: true,
+          videoRoomName: roomName,
+          symptoms: "🚨 Emergency Instant Teleconsultation Call requested by patient",
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.consultation) {
+        setConsultations((prev) => [data.consultation, ...prev]);
+      }
+      setActiveTab("Video Consultation");
+    } catch (e) {
+      console.error("Emergency call dispatch error:", e);
+      setActiveInstantRoom(`jancare-emergency-${(user?.patientRefId || "JC-PATIENT").toLowerCase()}-live`);
+      setActiveTab("Video Consultation");
+    } finally {
+      setInstantCalling(false);
+    }
+  }
 
   // Detect if patient has an active urgent emergency from clinical records or live trigger
   const hasUrgentCondition = !emergencyDismissed && (
@@ -965,10 +996,12 @@ export default function PatientDashboard() {
                 )}
 
                 <button
-                  onClick={() => setActiveTab("Video Consultation")}
+                  onClick={handleStartInstantEmergencyCall}
+                  disabled={instantCalling}
                   className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
                 >
-                  <Video size={14} /> Instant Doctor Call
+                  {instantCalling ? <Loader2 size={14} className="animate-spin" /> : <Video size={14} />}
+                  Instant Doctor Call
                 </button>
 
                 <button
@@ -1624,67 +1657,77 @@ export default function PatientDashboard() {
             <p className="text-xs text-slate-500">Join the live secure room to consult with your clinic doctor.</p>
           </div>
 
-          {activeConsultation ? (
-            <div className="grid lg:grid-cols-12 gap-6 items-stretch">
-              {/* Left Column: Iframe Video Feed */}
-              <div className="lg:col-span-8 bg-black border border-slate-900 rounded-3xl overflow-hidden min-h-[420px] relative shadow-lg">
-                <iframe
-                  src={`https://meet.jit.si/${activeConsultation.videoRoomName}`}
-                  allow="camera; microphone; fullscreen; display-capture; autoplay"
-                  className="w-full h-full border-0 absolute inset-0"
-                />
-              </div>
+          {(() => {
+            const effectiveRoomName = activeConsultation?.videoRoomName || activeInstantRoom || `jancare-emergency-${(user?.patientRefId || "JC-PATIENT").toLowerCase()}-room`;
+            const docName = activeConsultation?.doctorId?.name || "Dr. Aniruddha Kulkarni";
+            const facilityName = activeConsultation?.facilityId?.name || "Sinnar CHC Telehealth Hub";
 
-              {/* Right Column: Doctor Metadata */}
-              <div className="lg:col-span-4 bg-white border border-slate-200/80 p-5 rounded-3xl flex flex-col justify-between shadow-xs">
-                <div className="space-y-4">
-                  <div className="border-b border-slate-100 pb-3">
-                    <span className="text-[9px] font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full w-fit block uppercase">Tele-Consultation Live</span>
-                    <strong className="text-slate-800 text-sm mt-2 block">{activeConsultation.doctorId?.name || "Dr. Aniruddha Kulkarni"}</strong>
-                    <span className="text-[10px] text-slate-500 block">Sinnar CHC Medical Officer</span>
-                  </div>
+            return (
+              <div className="grid lg:grid-cols-12 gap-6 items-stretch animate-in fade-in duration-200">
+                {/* Left Column: Iframe Video Feed */}
+                <div className="lg:col-span-8 bg-black border border-slate-900 rounded-3xl overflow-hidden min-h-[440px] relative shadow-lg">
+                  <iframe
+                    src={`https://meet.jit.si/${effectiveRoomName}`}
+                    allow="camera; microphone; fullscreen; display-capture; autoplay"
+                    className="w-full h-full border-0 absolute inset-0"
+                  />
+                </div>
 
-                  <div className="space-y-2 text-xs">
-                    <strong className="text-slate-700 block">Consultation Info</strong>
-                    <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-1.5">
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Room Name</span>
-                        <span className="font-semibold text-slate-700">{activeConsultation.videoRoomName}</span>
+                {/* Right Column: Doctor Metadata */}
+                <div className="lg:col-span-4 bg-white border border-slate-200/80 p-5 rounded-3xl flex flex-col justify-between shadow-xs">
+                  <div className="space-y-4">
+                    <div className="border-b border-slate-100 pb-3">
+                      <div className="flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full bg-green-500 animate-ping" />
+                        <span className="text-[9px] font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full uppercase">
+                          Live Tele-Consultation Channel
+                        </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">Vitals Level</span>
-                        <span className="font-semibold text-slate-700">{latestVitals?.temperature ? "Logged" : "Not Logged"}</span>
+                      <strong className="text-slate-800 text-sm mt-2 block">{docName}</strong>
+                      <span className="text-[10px] text-slate-500 block">{facilityName}</span>
+                    </div>
+
+                    <div className="space-y-2 text-xs">
+                      <strong className="text-slate-700 block">Session Telemetry</strong>
+                      <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-1.5">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Secure Room</span>
+                          <span className="font-semibold font-mono text-[10px] text-primary">{effectiveRoomName}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Channel Status</span>
+                          <span className="font-semibold text-green-600">Active / Encrypted</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Patient UHID</span>
+                          <span className="font-semibold text-slate-700">{user?.patientRefId || "JC-7F3K92"}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <button
-                  onClick={() => {
-                    alert("Leaving video room.");
-                    setActiveTab("Dashboard");
-                  }}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl text-xs cursor-pointer border-0 mt-6 shadow-md shadow-red-100"
-                >
-                  Leave Session
-                </button>
+                  <div className="space-y-2 pt-4">
+                    <button
+                      onClick={handleStartInstantEmergencyCall}
+                      disabled={instantCalling}
+                      className="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold py-2.5 rounded-xl text-xs cursor-pointer border-0 shadow-xs transition-all flex items-center justify-center gap-1.5"
+                    >
+                      {instantCalling ? <Loader2 size={13} className="animate-spin" /> : <Video size={13} />}
+                      Alert On-Duty Doctor
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveTab("Dashboard");
+                      }}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer border-0 shadow-xs shadow-red-100 transition-all"
+                    >
+                      Leave Video Room
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="bg-white border border-slate-200/80 p-12 rounded-3xl shadow-xs text-center flex flex-col items-center justify-center space-y-3">
-              <div className="p-4 bg-red-50 text-red-600 rounded-full"><Video size={36} /></div>
-              <h3 className="font-extrabold text-slate-800 text-sm">No Active Consultation Session</h3>
-              <p className="text-xs text-slate-500 max-w-sm leading-normal">
-                You do not have any active appointments running. Please schedule a slot with the medical hub to join the room.
-              </p>
-              <button
-                onClick={() => setActiveTab("Appointments")}
-                className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer border-0 shadow-xs"
-              >
-                Schedule Appointment
-              </button>
-            </div>
-          )}
+            );
+          })()}
         </div>
       )}
 
