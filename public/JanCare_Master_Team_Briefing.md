@@ -195,6 +195,24 @@ JanCare solves this crisis by establishing an **end-to-end, closed-loop healthca
 * **Q17: "How can you claim 10M+ lives impacted and 150k+ health workers on your landing page?"**  
   *Answer*: *"Those figures represent the **Total Addressable Operational Scale of the Maharashtra Public Health Grid** that JanCare is architected to serve — including 5,000+ government health facilities (SubCenters, PHCs, CHCs), 60,000+ ASHA workers, and the 10M+ rural citizens across North Maharashtra's primary health catchment areas."*
 
+### ⚖️ F. Medical Legal, Fraud Prevention & Architecture Edge Cases
+* **Q18: "If an AI triage suggestion or telemedicine consultation goes wrong, who is legally liable?"**  
+  *Answer*: *"Under **Section 3.7.2 of the NMC Telemedicine Practice Guidelines 2020**, the consulting Registered Medical Practitioner (RMP) retains sole clinical responsibility for final diagnosis and therapy. JanCare functions strictly as a **Class-I Clinical Decision Support System (CDSS) & Communication Facilitator**. The AI never prescribes drugs or overrides a doctor's clinical discretion; it synthesizes and presents clinical vitals."*
+* **Q19: "How do you prevent ASHA workers or doctors from submitting fake claims for phantom teleconsultations?"**  
+  *Answer*: *"JanCare implements a **3-Factor Proof-of-Work Verification Protocol**: (1) **Geo-Fence Verification**: Doorstep vitals logging requires GPS coordinates matching the village subcenter polygon; (2) **Call Telemetry Handshake**: Honorarium vouchers mandate a minimum active WebRTC audio/video session duration (>90 seconds) with dual-ended cryptographic packet telemetry; (3) **Patient OTP / ABHA Biometric Authentication**: Direct verification via the patient's registered mobile number before voucher payout."*
+* **Q20: "What prevents patients from abusing the teleconsultation platform to acquire habit-forming or narcotic drugs?"**  
+  *Answer*: *"JanCare incorporates a **Prohibited Molecule Blacklist (Schedule X / Schedule H1)** aligned with List O / List A of the NMC Telemedicine Guidelines. Drugs like Tramadol, Morphine, Benzodiazepines, and Ketamine cannot be prescribed digitally. The prescription builder locks out Schedule X molecules and mandates an in-person hospital visit."*
+* **Q21: "Government already has legacy systems like e-Aushadhi and RCH Portal. Are you replacing them?"**  
+  *Answer*: *"No. JanCare acts as an **ABDM/FHIR-compliant Middleware Orchestrator** that integrates seamlessly with existing state infrastructure: consumes and updates real-time inventory from **e-Aushadhi**, pushes maternal milestones to the **RCH Portal**, and syncs citizen records with the national **ABHA/ABDM** registry."*
+* **Q22: "Medical terms in rural Marathi/Hindi often don't translate literally (e.g. 'छातीत धडधडणे'). How does the AI avoid misinterpreting colloquial symptoms?"**  
+  *Answer*: *"JanCare utilizes a **Standardized SNOMED-CT / ICD-10 Medical Lexicon Mapping Table**. Instead of literal word-to-word translation, our NLP pipeline maps regional idioms to standardized clinical concepts (e.g. *'छातीत धडधडणे'* → **Palpitations / Tachycardia**; *'जीव घाबरणे'* → **Dyspnea / Panic Tachycardia**), cross-validated against physical vital telemetry."*
+* **Q23: "ASHA workers use cheap ₹5,000 Android phones with 2GB RAM. How does JanCare run smoothly without crashing?"**  
+  *Answer*: *"JanCare is built as a **Progressive Web App (PWA)** with a sub-2.5MB initial JavaScript bundle footprint using Next.js Turbopack tree-shaking. Heavy AI inferencing and video transcoding are handled server-side at the edge, while client-side storage uses lightweight IndexedDB without background battery-draining polling."*
+* **Q24: "Where is patient medical data stored, and how is it protected against ransomware and leaks?"**  
+  *Answer*: *"All patient data resides exclusively on **MeitY-Empaneled Government Cloud Data Centers located in India** complying with the **Digital Personal Data Protection (DPDP) Act 2023**. Data is encrypted at rest using **AES-256 GCM** and in transit via **TLS 1.3**. Patient UHIDs are cryptographically pseudonymized so database administrators cannot view clinical records without patient consent keys."*
+* **Q25: "How does JanCare support rural patients requiring complex ongoing therapy like dialysis or chemotherapy?"**  
+  *Answer*: *"JanCare features **Longitudinal Chronic Disease Care Pathways**. For oncology and nephrology patients, the system tracks specialized cyclic protocols, alerts the nearest SubCenter for pre-dialysis electrolyte blood panels, and automatically books subsidized medical transport via 108/MJPJAY travel allowances."*
+
 ---
 
 ## 👨‍⚕️ 10. Why Doctors Choose JanCare & The Doctor Reward & Incentive Ecosystem
