@@ -773,6 +773,38 @@
       <br/>2. <strong>Mandatory In-Person Conversion Rule:</strong> If video clarity is inadequate to evaluate physical findings (e.g. suspicious skin lesion, abdominal rigidity), the platform forces a <strong>'Refer to Physical PHC / CHC'</strong> clinical flag, preventing doctors from prescribing blindly over ambiguous video streams."</div>
     </div>
 
+    <h3 class="section-subtitle">⚡ G. Extreme Failures, Disaster Resiliency & Clinical Polypharmacy Edge Cases</h3>
+
+    <div class="qa-box">
+      <div class="qa-q">Q30: "Rural PHCs often suffer from 8–10 hour power cuts and no generator fuel. What happens when the PHC computer or tablet dies mid-consultation?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare features <strong>Zero-Data-Loss Session Hydration</strong>. The application automatically snapshots active consultation forms, vitals, and draft prescription items into encrypted local <code>localStorage / IndexedDB</code> every 2 seconds. When power is restored or the clinician switches to a smartphone, the session hydrates instantaneously with zero lost clinical documentation."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q31: "What if an elderly rural patient with Diabetes, Hypertension, and CKD visits multiple doctors and is taking 6+ medications simultaneously?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare maintains a <strong>Unified Longitudinal ABHA Medication Ledger</strong>. When any doctor adds a new drug, the <strong>AI Polypharmacy Engine</strong> cross-checks the complete active drug matrix in real time (e.g., automatically flagging if an NSAID painkiller is added for a patient already taking ACE inhibitors and Metformin, preventing drug-induced Acute Kidney Injury)."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q32: "Rural citizens on tribal borders speak mixed colloquial dialects (Ahirani, Varhadi, Khandeshi, or Hinglish). How does your Speech AI avoid translation failure?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare utilizes <strong>Indic Semantic Entity Extraction</strong> powered by Gemini’s multilingual contextual understanding. Instead of rigid literal grammar parsing, the NLP engine extracts core anatomical tokens, duration markers, and pain descriptors regardless of dialect syntax (e.g. understanding <em>'डोस्कं लय बदाबदा दुखतंय'</em> or <em>'छाती में घबराहट व्हत आहे'</em> as Severe Cephalea / Acute Tachycardia)."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q33: "What if a remote subcenter refrigerator fails and vaccines or insulin vials exceed 8°C? How do you prevent dispensing spoiled drugs?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare integrates <strong>Cold-Chain Expiry Telemetry</strong>. If a facility reports a cold-chain excursion or power outage, the Medicine Manager module initiates a <strong>Dynamic Batch Quarantine</strong> (<code>JC-BATCH-XXXX</code>), locking those units across all patient reservation engines and redirecting prescriptions to the nearest operational PHC cold-chain hub."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q34: "What if a rogue hospital employee tries to modify past medical records to cover up negligence or forge insurance claims?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare enforces <strong>Append-Only Cryptographic Audit Logging (SHA-256 Hash Chaining)</strong>. Every vital update, prescription issuance, and referral note generates an immutable signed ledger entry capturing <code>userId</code>, <code>timestamp</code>, <code>IP address</code>, and the <code>previousState</code> hash. Clinical histories cannot be deleted, backdated, or overwritten from any administrative UI."</div>
+    </div>
+
+    <div class="qa-box">
+      <div class="qa-q">Q35: "What if a flash flood or bridge collapse cuts off 5 villages simultaneously with 50+ trauma casualties? How does JanCare coordinate mass casualty triage?"</div>
+      <div class="qa-a"><strong>Answer:</strong> "JanCare includes an emergency <strong>Disaster Mass Casualty Protocol (START Triage Mode)</strong>. Frontline ASHA workers can switch their offline register to rapid Color-Tagging (Red: Immediate, Yellow: Delayed, Green: Minor, Black: Deceased), while the District Health Officer dashboard aggregates casualty clusters to coordinate drone emergency medical drops and pre-reserve trauma surgery suites at the District Hospital."</div>
+    </div>
+
     <!-- 10. Why Doctors Choose JanCare & How They Are Rewarded -->
     <h2>👨‍⚕️ 10. Why Doctors Choose JanCare & The Doctor Reward & Incentive Ecosystem</h2>
     <div class="card card-accent">

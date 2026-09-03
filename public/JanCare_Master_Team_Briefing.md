@@ -221,6 +221,20 @@ JanCare solves this crisis by establishing an **end-to-end, closed-loop healthca
 * **Q29: "What if a doctor misdiagnoses due to poor video quality or low lighting in a dark rural hut?"**  
   *Answer*: *"JanCare enforces **NMC Telemedicine Guidelines Clause 3.3**: (1) **Objective Vital Telemetry First**: Clinical diagnosis is anchored to physical vitals (BP, SpO2, pulse, temp) recorded by ASHA's certified medical kit; (2) **Mandatory In-Person Conversion Rule**: If video clarity is inadequate to evaluate physical findings, the platform forces a 'Refer to Physical PHC / CHC' clinical flag, preventing blind prescriptions."*
 
+### ⚡ G. Extreme Failures, Disaster Resiliency & Clinical Polypharmacy Edge Cases
+* **Q30: "Rural PHCs often suffer from 8–10 hour power cuts and no generator fuel. What happens when the PHC computer or tablet dies mid-consultation?"**  
+  *Answer*: *"JanCare features **Zero-Data-Loss Session Hydration**. The application automatically snapshots active consultation forms, vitals, and draft prescription items into encrypted local `localStorage / IndexedDB` every 2 seconds. When power is restored or the clinician switches to a smartphone, the session hydrates instantaneously with zero lost clinical documentation."*
+* **Q31: "What if an elderly rural patient with Diabetes, Hypertension, and CKD visits multiple doctors and is taking 6+ medications simultaneously?"**  
+  *Answer*: *"JanCare maintains a **Unified Longitudinal ABHA Medication Ledger**. When any doctor adds a new drug, the **AI Polypharmacy Engine** cross-checks the complete active drug matrix in real time (e.g., automatically flagging if an NSAID painkiller is added for a patient already taking ACE inhibitors and Metformin, preventing drug-induced Acute Kidney Injury)."*
+* **Q32: "Rural citizens on tribal borders speak mixed colloquial dialects (Ahirani, Varhadi, Khandeshi, or Hinglish). How does your Speech AI avoid translation failure?"**  
+  *Answer*: *"JanCare utilizes **Indic Semantic Entity Extraction** powered by Gemini’s multilingual contextual understanding. Instead of rigid literal grammar parsing, the NLP engine extracts core anatomical tokens, duration markers, and pain descriptors regardless of dialect syntax (e.g. understanding *'डोस्कं लय बदाबदा दुखतंय'* or *'छाती में घबराहट व्हत आहे'* as Severe Cephalea / Acute Tachycardia)."*
+* **Q33: "What if a remote subcenter refrigerator fails and vaccines or insulin vials exceed 8°C? How do you prevent dispensing spoiled drugs?"**  
+  *Answer*: *"JanCare integrates **Cold-Chain Expiry Telemetry**. If a facility reports a cold-chain excursion or power outage, the Medicine Manager module initiates a **Dynamic Batch Quarantine** (`JC-BATCH-XXXX`), locking those units across all patient reservation engines and redirecting prescriptions to the nearest operational PHC cold-chain hub."*
+* **Q34: "What if a rogue hospital employee tries to modify past medical records to cover up negligence or forge insurance claims?"**  
+  *Answer*: *"JanCare enforces **Append-Only Cryptographic Audit Logging (SHA-256 Hash Chaining)**. Every vital update, prescription issuance, and referral note generates an immutable signed ledger entry capturing `userId`, `timestamp`, `IP address`, and the `previousState` hash. Clinical histories cannot be deleted, backdated, or overwritten from any administrative UI."*
+* **Q35: "What if a flash flood or bridge collapse cuts off 5 villages simultaneously with 50+ trauma casualties? How does JanCare coordinate mass casualty triage?"**  
+  *Answer*: *"JanCare includes an emergency **Disaster Mass Casualty Protocol (START Triage Mode)**. Frontline ASHA workers can switch their offline register to rapid Color-Tagging (Red: Immediate, Yellow: Delayed, Green: Minor, Black: Deceased), while the District Health Officer dashboard aggregates casualty clusters to coordinate drone emergency medical drops and pre-reserve trauma surgery suites at the District Hospital."*
+
 ---
 
 ## 👨‍⚕️ 10. Why Doctors Choose JanCare & The Doctor Reward & Incentive Ecosystem
