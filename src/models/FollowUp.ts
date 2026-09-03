@@ -6,7 +6,7 @@ export interface IFollowUp extends Document {
   type: "Medication" | "ChronicDisease" | "Maternal" | "Child" | "PostReferral";
   dueDate: Date;
   completedDate?: Date;
-  status: "Upcoming" | "Due" | "Completed" | "Missed" | "Escalated";
+  status: "Upcoming" | "Due" | "Pending" | "In Progress" | "Completed" | "Missed" | "Escalated";
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -26,7 +26,7 @@ const FollowUpSchema: Schema<IFollowUp> = new Schema(
     completedDate: { type: Date },
     status: {
       type: String,
-      enum: ["Upcoming", "Due", "Completed", "Missed", "Escalated"],
+      enum: ["Upcoming", "Due", "Pending", "In Progress", "Completed", "Missed", "Escalated"],
       default: "Upcoming",
       index: true,
     },

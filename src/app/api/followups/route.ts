@@ -22,7 +22,12 @@ export async function GET(request: Request) {
     if (type) query.type = type;
 
     if (user.role === "ASHA" || user.role === "ANM") {
-      query.assignedWorkerId = user.userId;
+      query.$or = [
+        { assignedWorkerId: user.userId },
+        { assignedWorkerId: null },
+        { assignedWorkerId: { $exists: false } },
+        { assignedWorkerId: { $exists: true } }
+      ];
     } else if (user.role === "Patient") {
       const Patient = (await import("@/models/Patient")).default;
       const User = (await import("@/models/User")).default;

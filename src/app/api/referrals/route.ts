@@ -41,7 +41,12 @@ export async function GET(request: Request) {
         { destinationFacilityId: facilityId },
       ];
     } else if (user.role === "ASHA" || user.role === "ANM") {
-      query.assignedAshaId = user.userId;
+      query.$or = [
+        { assignedAshaId: user.userId },
+        { assignedAshaId: null },
+        { assignedAshaId: { $exists: false } },
+        { status: { $ne: "Completed" } }
+      ];
     } else if (user.role === "Patient") {
       const PatientModel = (await import("@/models/Patient")).default;
       const dbUser = await User.findById(user.userId);

@@ -10,7 +10,7 @@ export interface IReferral extends Document {
   priority: "Routine" | "Urgent";
   instructions?: string;
   followUpDate?: Date;
-  status: "Created" | "AppointmentBooked" | "PatientArrived" | "Completed" | "Missed" | "Escalated";
+  status: "Created" | "Accepted" | "In Progress" | "AppointmentBooked" | "PatientArrived" | "Completed" | "Missed" | "Escalated";
   appointmentDate?: Date;
   notes?: string;
   createdAt: Date;
@@ -30,7 +30,7 @@ const ReferralSchema: Schema<IReferral> = new Schema(
     followUpDate: { type: Date },
     status: {
       type: String,
-      enum: ["Created", "AppointmentBooked", "PatientArrived", "Completed", "Missed", "Escalated"],
+      enum: ["Created", "Accepted", "In Progress", "AppointmentBooked", "PatientArrived", "Completed", "Missed", "Escalated"],
       default: "Created",
       index: true,
     },

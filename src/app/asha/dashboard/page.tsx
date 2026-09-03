@@ -148,17 +148,24 @@ export default function AshaDashboard() {
       setCurrentUser(userData.user);
 
       if (isOnline) {
-        const patRes = await fetch("/api/patients");
-        const patData = await patRes.json();
-        if (patData.success) {
-          setPatients(patData.patients);
-        }
+        const [patRes, refRes, folRes, appRes] = await Promise.all([
+          fetch("/api/patients"),
+          fetch("/api/referrals"),
+          fetch("/api/followups"),
+          fetch("/api/appointments")
+        ]);
 
-        const refRes = await fetch("/api/referrals");
-        const refData = await refRes.json();
-        if (refData.success) {
-          setReferrals(refData.referrals);
-        }
+        const [patData, refData, folData, appData] = await Promise.all([
+          patRes.json(),
+          refRes.json(),
+          folRes.json(),
+          appRes.json()
+        ]);
+
+        if (patData.success) setPatients(patData.patients || []);
+        if (refData.success) setReferrals(refData.referrals || []);
+        if (folData.success) setFollowups(folData.followups || []);
+        if (appData.success) setAppointments(appData.appointments || []);
       }
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
@@ -527,8 +534,7 @@ export default function AshaDashboard() {
   // Process patients with their source mapping
   const patientsWithSource = patients.map((pat) => {
     const referral = referrals.find((r: any) => 
-      (r.patientId?._id === pat._id || r.patientId === pat._id) && 
-      (r.assignedAshaId === currentUser?.id || r.assignedAshaId?._id === currentUser?.id)
+      (r.patientId?._id === pat._id || r.patientId === pat._id)
     );
     
     let source = "ASHA_REGISTERED";
@@ -616,22 +622,22 @@ export default function AshaDashboard() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
             <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Sync Queue Count</span>
-              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">{offlineCount} Pending</span>
-            </div>
-            <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
               <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Patients Registered</span>
-              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">{patients.length} Registered</span>
+              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">{patients.length} Enrolled</span>
             </div>
             <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Outreach Region</span>
-              <span className="text-xs font-bold text-slate-700 mt-1 truncate">Nashik / Sinnar</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Pending Follow-ups</span>
+              <span className="text-base sm:text-lg font-extrabold text-amber-600 mt-1">{followups.filter(f => f.status !== "Completed").length} Visits</span>
             </div>
             <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Connection Status</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Doctor Referrals</span>
+              <span className="text-base sm:text-lg font-extrabold text-primary mt-1">{referrals.filter(r => r.status !== "Completed").length} Active</span>
+            </div>
+            <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">IndexedDB Sync Queue</span>
               <span className="text-xs font-bold text-slate-850 mt-1 flex items-center gap-1">
                 <span className={`h-2 w-2 rounded-full ${isOnline ? "bg-green-500" : "bg-amber-500"}`} />
-                {syncStatus}
+                {offlineCount > 0 ? `${offlineCount} Offline` : "Synced"}
               </span>
             </div>
           </div>
