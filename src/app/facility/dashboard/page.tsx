@@ -49,6 +49,8 @@ export default function FacilityDashboard() {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [medicines, setMedicines] = useState<any[]>([]);
+  const [reservations, setReservations] = useState<any[]>([]);
+  const [dispensingId, setDispensingId] = useState<string | null>(null);
   const [referrals, setReferrals] = useState<any[]>([]);
   const [followups, setFollowups] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,20 +81,22 @@ export default function FacilityDashboard() {
       }
 
       // Fetch parallel dataset for all facility tabs
-      const [pRes, aRes, cRes, mRes, rRes, fRes] = await Promise.all([
+      const [pRes, aRes, cRes, mRes, resRes, rRes, fRes] = await Promise.all([
         fetch("/api/patients"),
         fetch("/api/appointments"),
         fetch("/api/consultations"),
         fetch(activeFac ? `/api/medicines?facilityId=${activeFac._id}` : "/api/medicines?facilityId=default"),
+        fetch(activeFac ? `/api/medicines/reserve?facilityId=${activeFac._id}` : "/api/medicines/reserve"),
         fetch("/api/referrals"),
         fetch("/api/followups")
       ]);
 
-      const [pData, aData, cData, mData, rData, fData] = await Promise.all([
+      const [pData, aData, cData, mData, resData, rData, fData] = await Promise.all([
         pRes.json(),
         aRes.json(),
         cRes.json(),
         mRes.json(),
+        resRes.json(),
         rRes.json(),
         fRes.json()
       ]);
@@ -101,6 +105,7 @@ export default function FacilityDashboard() {
       if (aData.success) setAppointments(aData.appointments || []);
       if (cData.success) setConsultations(cData.consultations || []);
       if (mData.success) setMedicines(mData.medicines || []);
+      if (resData.success) setReservations(resData.reservations || []);
       if (rData.success) setReferrals(rData.referrals || []);
       if (fData.success) setFollowups(fData.followups || []);
 
@@ -108,6 +113,25 @@ export default function FacilityDashboard() {
       console.error("Failed to load facility data:", e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDispense(movementId: string) {
+    try {
+      setDispensingId(movementId);
+      const res = await fetch("/api/medicines/reserve", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ movementId, action: "DISPENSE" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchFacilityAndUserData();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDispensingId(null);
     }
   }
 
@@ -590,25 +614,94 @@ export default function FacilityDashboard() {
       {/* 7. MEDICINE RESERVATIONS PANEL */}
       {activeTab === "Medicine Reservations" && (
         <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
-          <div className="border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Emergency Drug Reservations</h2>
-            <p className="text-[10px] text-slate-400">Stock blocked for urgent patient prescriptions and high-risk casualty cases</p>
+          <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+            <div>
+              <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
+                Active Drug Reservations & Pickups ({reservations.length})
+              </h2>
+              <p className="text-[10px] text-slate-400">
+                Stock blocked for patient online reservations and emergency doctor prescriptions
+              </p>
+            </div>
+            <button
+              onClick={() => fetchFacilityAndUserData()}
+              className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl border-0 cursor-pointer transition-all flex items-center gap-1.5"
+            >
+              <RotateCcw size={12} className="text-primary" /> Refresh
+            </button>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="p-4 border border-amber-200 bg-amber-50/60 rounded-2xl space-y-1">
-              <span className="text-[10px] font-bold text-amber-800 uppercase block">Active Reservation #RES-8821</span>
-              <strong className="text-sm text-slate-800 block">Anti-Snake Venom (ASV) - 4 Vials</strong>
-              <p className="text-xs text-slate-600">Reserved for incoming trauma patient via Igatpuri PHC transfer.</p>
-              <span className="text-[10px] text-amber-700 font-bold block pt-1">Auto-release in: 2h 45m</span>
+          {reservations.length === 0 ? (
+            <div className="py-12 text-center text-slate-400 text-xs italic space-y-1">
+              <Package size={28} className="mx-auto text-slate-300" />
+              <p>No active reservations at this facility depot.</p>
             </div>
-            <div className="p-4 border border-blue-200 bg-blue-50/60 rounded-2xl space-y-1">
-              <span className="text-[10px] font-bold text-primary uppercase block">Active Reservation #RES-8822</span>
-              <strong className="text-sm text-slate-800 block">ORS Rehydration Salts - 20 Packets</strong>
-              <p className="text-xs text-slate-600">Reserved for pediatric emergency dehydration protocol.</p>
-              <span className="text-[10px] text-primary font-bold block pt-1">Auto-release in: 5h 10m</span>
+          ) : (
+            <div className="overflow-x-auto text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 text-slate-400 font-bold bg-slate-50/50">
+                    <th className="py-2.5 px-4">Tracking Token</th>
+                    <th className="py-2.5 px-4">Patient / UHID</th>
+                    <th className="py-2.5 px-4">Medicine Item</th>
+                    <th className="py-2.5 px-4">Qty</th>
+                    <th className="py-2.5 px-4">Depot</th>
+                    <th className="py-2.5 px-4">Status</th>
+                    <th className="py-2.5 px-4 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-medium">
+                  {reservations.map((res: any) => (
+                    <tr key={res.id} className="hover:bg-slate-50/50">
+                      <td className="py-3 px-4 font-mono font-bold text-primary">
+                        {res.trackingId}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-bold text-slate-800 block">Patient</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{res.patientRef || "JC-7F3K92"}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <strong className="text-slate-800 block">{res.medicineName}</strong>
+                        <span className="text-[10px] text-slate-500">{res.genericName} • {res.strength} ({res.form})</span>
+                      </td>
+                      <td className="py-3 px-4 font-bold text-slate-700">
+                        {res.quantity} unit(s)
+                      </td>
+                      <td className="py-3 px-4 text-slate-600">
+                        {res.facilityName}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                          res.status === "Dispensed"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-amber-100 text-amber-700 animate-pulse"
+                        }`}>
+                          {res.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {res.status !== "Dispensed" ? (
+                          <button
+                            onClick={() => handleDispense(res.id)}
+                            disabled={dispensingId === res.id}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] border-0 cursor-pointer shadow-xs shadow-emerald-200 transition-all flex items-center gap-1 mx-auto"
+                          >
+                            {dispensingId === res.id ? (
+                              <Loader2 size={12} className="animate-spin" />
+                            ) : (
+                              "Dispense Drug"
+                            )}
+                          </button>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-semibold">Dispensed</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
+          )}
         </div>
       )}
 

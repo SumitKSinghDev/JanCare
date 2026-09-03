@@ -38,6 +38,8 @@ export default function MedicineManagerDashboard() {
   const [selectedFacility, setSelectedFacility] = useState<any>(null);
   const [medicines, setMedicines] = useState<any[]>([]);
   const [movements, setMovements] = useState<any[]>([]);
+  const [reservations, setReservations] = useState<any[]>([]);
+  const [dispensingId, setDispensingId] = useState<string | null>(null);
   
   // Modal State
   const [showMovementModal, setShowMovementModal] = useState(false);
@@ -64,6 +66,7 @@ export default function MedicineManagerDashboard() {
   // Load Initial Session & Network Data
   useEffect(() => {
     fetchProfileAndData();
+    fetchReservationsForFacility();
   }, []);
 
   useEffect(() => {
@@ -76,6 +79,7 @@ export default function MedicineManagerDashboard() {
     if (selectedFacility) {
       fetchMedicinesForFacility(selectedFacility._id);
       fetchMovementsForFacility(selectedFacility._id);
+      fetchReservationsForFacility(selectedFacility._id);
     }
   }, [selectedFacility]);
 
@@ -137,6 +141,43 @@ export default function MedicineManagerDashboard() {
       }
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  async function fetchReservationsForFacility(facilityId?: string) {
+    try {
+      const res = await fetch(`/api/medicines/reserve?facilityId=${facilityId || ""}`);
+      const data = await res.json();
+      if (data.success) {
+        setReservations(data.reservations || []);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function handleDispenseReservation(movementId: string) {
+    try {
+      setDispensingId(movementId);
+      const res = await fetch("/api/medicines/reserve", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ movementId, action: "DISPENSE" }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (selectedFacility) {
+          fetchReservationsForFacility(selectedFacility._id);
+          fetchMedicinesForFacility(selectedFacility._id);
+          fetchMovementsForFacility(selectedFacility._id);
+        } else {
+          fetchReservationsForFacility();
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDispensingId(null);
     }
   }
 
@@ -448,6 +489,98 @@ export default function MedicineManagerDashboard() {
         </table>
       </div>
     </div>
+  );  const renderReservationsPanel = () => (
+    <div className="bg-white border border-slate-200/80 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xs space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-3">
+        <div>
+          <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-slate-800">
+            Digital Medicine Reservations & Pickups ({reservations.length})
+          </h2>
+          <p className="text-[11px] text-slate-500">
+            Real-time stock units locked for patient online reservations and emergency doctor prescriptions.
+          </p>
+        </div>
+        <button
+          onClick={() => fetchReservationsForFacility(selectedFacility?._id)}
+          className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-xl border-0 cursor-pointer transition-all flex items-center gap-1.5"
+        >
+          <Activity size={13} className="text-primary" /> Refresh Queue
+        </button>
+      </div>
+
+      {reservations.length === 0 ? (
+        <div className="py-12 text-center text-slate-400 text-xs italic space-y-2">
+          <Package size={32} className="mx-auto text-slate-300" />
+          <p>No active medicine reservations at this facility.</p>
+          <span className="text-[10px] text-slate-400">Reservations created via Patient Portal will appear here instantly.</span>
+        </div>
+      ) : (
+        <div className="overflow-x-auto text-xs">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 text-slate-400 font-bold bg-[#F8FAFC]/50">
+                <th className="py-2.5 px-4">Tracking ID</th>
+                <th className="py-2.5 px-4">Patient / UHID</th>
+                <th className="py-2.5 px-4">Medicine Reserved</th>
+                <th className="py-2.5 px-4">Qty</th>
+                <th className="py-2.5 px-4">Facility Depot</th>
+                <th className="py-2.5 px-4">Status</th>
+                <th className="py-2.5 px-4 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium">
+              {reservations.map((res: any) => (
+                <tr key={res.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="py-3 px-4 font-mono font-bold text-primary">
+                    {res.trackingId}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className="font-bold text-slate-800 block">Patient</span>
+                    <span className="text-[10px] text-slate-400 font-mono">{res.patientRef || "JC-7F3K92"}</span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <strong className="text-slate-800 block">{res.medicineName}</strong>
+                    <span className="text-[10px] text-slate-500">{res.genericName} • {res.strength} ({res.form})</span>
+                  </td>
+                  <td className="py-3 px-4 font-bold text-slate-700">
+                    {res.quantity} unit(s)
+                  </td>
+                  <td className="py-3 px-4 text-slate-600">
+                    {res.facilityName}
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                      res.status === "Dispensed"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-amber-100 text-amber-700 animate-pulse"
+                    }`}>
+                      {res.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    {res.status !== "Dispensed" ? (
+                      <button
+                        onClick={() => handleDispenseReservation(res.id)}
+                        disabled={dispensingId === res.id}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] border-0 cursor-pointer shadow-xs shadow-emerald-200 transition-all flex items-center gap-1 mx-auto"
+                      >
+                        {dispensingId === res.id ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          "Dispense / Collect"
+                        )}
+                      </button>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 font-semibold">Collected</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 
   if (loading) {
@@ -516,17 +649,18 @@ export default function MedicineManagerDashboard() {
                 </div>
                 <div>
                   <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Reservations</span>
-                  <span className="text-base sm:text-lg font-extrabold text-green-600">{pendingReservations} Logged</span>
+                  <span className="text-base sm:text-lg font-extrabold text-green-600">{reservations.length || pendingReservations} Logged</span>
                 </div>
               </div>
             </div>
 
-            {/* Dual Column Layout */}
-            <div className="grid lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-4 space-y-4">
+            {/* Main Operational Split */}
+            <div className="grid lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-4 space-y-6">
                 {renderNetworkSelector()}
               </div>
               <div className="lg:col-span-8 space-y-6">
+                {renderReservationsPanel()}
                 {renderStockCatalog()}
                 {renderMovementsLog()}
               </div>
@@ -548,15 +682,22 @@ export default function MedicineManagerDashboard() {
           </div>
         )}
 
-        {/* 4. MAHARASHTRA NETWORK VIEW */}
+        {/* 4. MEDICINE RESERVATIONS VIEW */}
+        {activeTab === "Medicine Reservations" && (
+          <div className="space-y-6 animate-in fade-in duration-250">
+            {renderReservationsPanel()}
+          </div>
+        )}
+
+        {/* 5. MAHARASHTRA NETWORK VIEW */}
         {activeTab === "Maharashtra Network" && (
           <div className="space-y-6 animate-in fade-in duration-250">
             {renderNetworkSelector()}
           </div>
         )}
 
-        {/* 5. STUB WORKSPACES FOR OTHERS */}
-        {activeTab !== "Dashboard" && activeTab !== "Medicine Inventory" && activeTab !== "Stock Movements" && activeTab !== "Maharashtra Network" && (
+        {/* 6. OTHER WORKSPACES */}
+        {activeTab !== "Dashboard" && activeTab !== "Medicine Inventory" && activeTab !== "Stock Movements" && activeTab !== "Medicine Reservations" && activeTab !== "Maharashtra Network" && (
           <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 min-h-[400px]">
             <h2 className="text-lg font-extrabold text-slate-800">{activeTab} Workspace</h2>
             <p className="text-xs text-slate-500">Workspace panel for {activeTab} information logs.</p>

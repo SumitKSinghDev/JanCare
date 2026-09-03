@@ -1500,57 +1500,116 @@ export default function PatientDashboard() {
           )}
 
           <div className="border border-slate-200/80 bg-white rounded-3xl p-6 shadow-xs space-y-4">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Your Booked Appointments</h3>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">Your Booked Appointments ({appointments.length || consultations.length})</h3>
+              <span className="text-[10px] text-slate-400 font-medium">Real-time sync with Clinic Queue</span>
+            </div>
             
-            {consultations.length > 0 ? (
-              <div className="space-y-4">
-                {consultations.map((cons, idx) => {
-                  const matchedAppt = appointments.find(
-                    (a) => a.doctorId?._id === cons.doctorId?._id
+            {(appointments.length > 0 || consultations.length > 0) ? (
+              <div className="space-y-3.5">
+                {/* 1. Show all appointments */}
+                {appointments.map((appt, idx) => {
+                  const matchedCons = consultations.find(
+                    (c) => (c.doctorId?._id === appt.doctorId?._id) || (c.patientId?._id === appt.patientId?._id)
                   );
-                  const apptTime = matchedAppt?.appointmentTime || "11:30 AM";
-                  const apptDate = matchedAppt?.appointmentDate
-                    ? new Date(matchedAppt.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
-                    : new Date(cons.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+                  const apptDate = appt.appointmentDate
+                    ? new Date(appt.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                    : "Today";
+                  const apptTime = appt.appointmentTime || "11:30 AM";
+                  const docName = appt.doctorId?.name || "Dr. Aniruddha Kulkarni";
+                  const facilityName = appt.facilityId?.name || "Sinnar Rural CHC";
+                  const priority = appt.triagePriority || "Routine";
 
                   return (
-                    <div key={idx} className="border border-slate-200/60 p-4.5 rounded-2xl bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-in fade-in duration-150">
-                      <div className="flex gap-3 items-start">
-                        <div className="p-3 bg-blue-50 text-primary rounded-xl shrink-0"><Calendar size={20} /></div>
+                    <div key={`appt-${appt._id || idx}`} className="border border-slate-200/70 p-4.5 rounded-2xl bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-in fade-in duration-150 hover:border-primary/40 transition-all">
+                      <div className="flex gap-3.5 items-start">
+                        <div className="p-3 bg-blue-50 text-primary rounded-2xl shrink-0">
+                          <Calendar size={22} />
+                        </div>
                         <div>
-                          <strong className="text-slate-800 text-sm block">Tele-Consultation (Online)</strong>
-                          <span className="text-xs text-slate-500 block mt-0.5">Doctor: {cons.doctorId?.name || "Dr. Aniruddha Kulkarni"}</span>
-                          <span className="text-[10px] text-slate-400 block mt-0.5">Slot: {apptDate} • {apptTime} | Room: {cons.videoRoomName}</span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <strong className="text-slate-800 text-sm">{facilityName}</strong>
+                            <span className="bg-primary/10 text-primary text-[9px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                              {appt.bookingSource === "AI_ASSISTANT" ? "🤖 AI Booked" : "Portal"}
+                            </span>
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                              priority === "Urgent" ? "bg-red-100 text-red-700" : priority === "Priority" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
+                            }`}>
+                              {priority} Priority
+                            </span>
+                          </div>
+                          <span className="text-xs text-slate-600 block mt-1">Doctor: <strong>{docName}</strong></span>
+                          <span className="text-[11px] text-slate-500 block mt-0.5">
+                            📅 {apptDate} • ⏰ {apptTime} | Token: <strong className="text-slate-700">#{appt.queueNumber || 1}</strong> (Est. wait: {appt.estimatedWaitMinutes || 15} mins)
+                          </span>
                         </div>
                       </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${
-                        cons.status === "Completed" 
-                          ? "bg-green-50 text-green-700" 
-                          : "bg-blue-50 text-primary animate-pulse"
-                      }`}>
-                        {cons.status === "Completed" ? "Completed" : "Active / Scheduled"}
-                      </span>
-                      
-                      {cons.status === "Scheduled" && (
-                        <button
-                          onClick={() => setActiveTab("Video Consultation")}
-                          className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer"
-                        >
-                          Join Call
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
+                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl ${
+                          appt.status === "Completed" 
+                            ? "bg-green-100 text-green-700" 
+                            : "bg-blue-100 text-primary"
+                        }`}>
+                          {appt.status === "Completed" ? "Completed" : "Scheduled"}
+                        </span>
+                        
+                        {matchedCons?.videoRoomName && (
+                          <button
+                            onClick={() => {
+                              setActiveTab("Video Consultation");
+                            }}
+                            className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer shadow-xs shadow-primary/20 transition-all flex items-center gap-1.5"
+                          >
+                            <Activity size={13} /> Join Call
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+
+                {/* 2. Show scheduled consultations not already in appointments */}
+                {consultations.filter(c => !appointments.some(a => a.doctorId?._id === c.doctorId?._id)).map((cons, idx) => {
+                  const apptDate = new Date(cons.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+                  return (
+                    <div key={`cons-${cons._id || idx}`} className="border border-slate-200/70 p-4.5 rounded-2xl bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-in fade-in duration-150">
+                      <div className="flex gap-3.5 items-start">
+                        <div className="p-3 bg-teal-50 text-teal-600 rounded-2xl shrink-0"><Calendar size={22} /></div>
+                        <div>
+                          <strong className="text-slate-800 text-sm block">Tele-Consultation ({cons.facilityId?.name || "Rural Clinic"})</strong>
+                          <span className="text-xs text-slate-600 block mt-1">Doctor: <strong>{cons.doctorId?.name || "Dr. Aniruddha Kulkarni"}</strong></span>
+                          <span className="text-[11px] text-slate-500 block mt-0.5">📅 {apptDate} • Room: {cons.videoRoomName}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2.5">
+                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl ${
+                          cons.status === "Completed" ? "bg-green-100 text-green-700" : "bg-blue-100 text-primary"
+                        }`}>
+                          {cons.status === "Completed" ? "Completed" : "Scheduled"}
+                        </span>
+                        
+                        {cons.status === "Scheduled" && (
+                          <button
+                            onClick={() => {
+                              setActiveTab("Video Consultation");
+                            }}
+                            className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer shadow-xs shadow-primary/20 transition-all flex items-center gap-1.5"
+                          >
+                            <Activity size={13} /> Join Call
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-center space-y-1">
                 <Calendar size={32} className="text-slate-300" />
                 <span className="text-[11px] font-bold">No appointments scheduled</span>
-                <span className="text-[9px] text-slate-400">Your scheduled consultation slots will appear here.</span>
+                <span className="text-[9px] text-slate-400">Your scheduled consultation slots will appear here automatically.</span>
               </div>
             )}
           </div>

@@ -6,6 +6,7 @@ export interface IAppointment extends Document {
   facilityId: mongoose.Types.ObjectId;
   appointmentDate: Date;
   appointmentTime?: string;
+  triagePriority?: "Urgent" | "Priority" | "Routine";
   status: "Scheduled" | "Completed" | "Cancelled" | "NoShow" | "BOOKED";
   queueNumber?: number;
   estimatedWaitMinutes?: number;
@@ -21,6 +22,11 @@ const AppointmentSchema: Schema<IAppointment> = new Schema(
     facilityId: { type: Schema.Types.ObjectId, ref: "Facility", required: true },
     appointmentDate: { type: Date, required: true, index: true },
     appointmentTime: { type: String, required: false },
+    triagePriority: {
+      type: String,
+      enum: ["Urgent", "Priority", "Routine"],
+      default: "Routine",
+    },
     status: {
       type: String,
       enum: ["Scheduled", "Completed", "Cancelled", "NoShow", "BOOKED"],
