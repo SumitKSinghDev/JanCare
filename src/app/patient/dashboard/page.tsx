@@ -2546,7 +2546,7 @@ export default function PatientDashboard() {
           </div>
 
           <div className="flex-1 overflow-hidden relative">
-            <AIAgentChatbot inline />
+            <AIAgentChatbot inline userName={user?.name} />
           </div>
         </div>
       )}

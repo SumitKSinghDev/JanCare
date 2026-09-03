@@ -7,9 +7,10 @@ import { Sparkles, X, Send, Mic, MicOff, Volume2, VolumeX, Loader2, PhoneCall, A
 
 interface AIAgentChatbotProps {
   inline?: boolean;
+  userName?: string;
 }
 
-export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) {
+export default function AIAgentChatbot({ inline = false, userName }: AIAgentChatbotProps) {
   const { language, t } = useTranslation();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(inline);
@@ -21,6 +22,10 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
   const [ambulanceDispatched, setAmbulanceDispatched] = useState(false);
   const [bookingChips, setBookingChips] = useState<Array<{ label: string; text: string; category?: string }>>([]);
   const activeUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const placeholderText = userName
+    ? (language === "mr" ? `${userName} यांच्या आरोग्याविषयी किंवा स्लॉटविषयी विचारा...` : language === "hi" ? `${userName} के स्वास्थ्य या अपॉइंटमेंट के बारे में पूछें...` : `Ask about health, appointments, or medicines for ${userName}...`)
+    : (language === "mr" ? "लक्षणे सांगा, अपॉइंटमेंट बुक करा किंवा औषधांविषयी विचारा..." : language === "hi" ? "लक्षण बताएं, अपॉइंटमेंट बुक करें या दवाइयों के बारे में पूछें..." : "Describe symptoms, book appointments, or ask about medicines...");
 
   // Close chatbot when navigation route changes
   useEffect(() => {
@@ -393,7 +398,7 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={language === "mr" ? "आरोग्यविषयक प्रश्न विचारा..." : language === "hi" ? "स्वास्थ्य प्रश्न पूछें..." : "Ask about Ramesh or stock..."}
+            placeholder={placeholderText}
             className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-primary transition-all text-slate-700"
             disabled={loading}
           />
@@ -615,7 +620,7 @@ export default function AIAgentChatbot({ inline = false }: AIAgentChatbotProps) 
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={language === "mr" ? "आरोग्यविषयक प्रश्न विचारा..." : language === "hi" ? "स्वास्थ्य प्रश्न पूछें..." : "Ask about Ramesh or stock..."}
+              placeholder={placeholderText}
               className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:bg-white focus:outline-hidden focus:border-primary transition-all text-text-primary"
               disabled={loading}
             />
