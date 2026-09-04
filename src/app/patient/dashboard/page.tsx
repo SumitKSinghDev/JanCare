@@ -230,13 +230,13 @@ export default function PatientDashboard() {
       if (!meData || !meData.success) {
         if (typeof window !== "undefined" && !navigator.onLine) {
           setUser({
-            name: "Ramesh Patil",
+            name: "Ramesh Kumar",
             role: "Patient",
             patientRefId: "JC-7F3K92",
             village: "Sinnar",
             phone: "9822114400",
             bloodGroup: "O+",
-            age: 42,
+            age: 54,
             gender: "Male",
             isOfflineDemo: true
           });
@@ -325,13 +325,13 @@ export default function PatientDashboard() {
       console.warn("Network offline or fetch error in patient dashboard:", err);
       // If offline, populate default offline mock patient profile so dashboard stays 100% interactive
       setUser((prev: any) => prev || {
-        name: "Ramesh Patil",
+        name: "Ramesh Kumar",
         role: "Patient",
         patientRefId: "JC-7F3K92",
         village: "Sinnar",
         phone: "9822114400",
         bloodGroup: "O+",
-        age: 42,
+        age: 54,
         gender: "Male",
         isOfflineDemo: true
       });
