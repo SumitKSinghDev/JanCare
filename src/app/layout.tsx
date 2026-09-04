@@ -26,6 +26,7 @@ export const metadata: Metadata = {
 };
 
 import { LanguageProvider } from "@/lib/i18nContext";
+import OfflineSyncManager from "@/components/OfflineSyncManager";
 
 export default function RootLayout({
   children,
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-bg-brand text-text-primary">
         <LanguageProvider>
           {children}
+          <OfflineSyncManager />
           <AIAgentChatbot />
         </LanguageProvider>
       </body>
