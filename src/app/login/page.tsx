@@ -46,6 +46,15 @@ export default function LoginPage() {
     { label: "District Admin", username: "districtadmin", path: "/admin/dashboard" },
   ];
 
+  // Pre-load all dashboard bundles into memory while online
+  React.useEffect(() => {
+    demoAccounts.forEach((acc) => {
+      try {
+        router.prefetch(acc.path);
+      } catch (e) {}
+    });
+  }, [router]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!username || !password) {
@@ -126,22 +135,22 @@ export default function LoginPage() {
         const u = username.toLowerCase().trim();
         // Support offline direct access for testing
         if (u === "patient") {
-          router.push("/patient/dashboard");
+          window.location.href = "/patient/dashboard";
           return;
         } else if (u === "doctor") {
-          router.push("/doctor/dashboard");
+          window.location.href = "/doctor/dashboard";
           return;
         } else if (u === "asha" || u === "anm") {
-          router.push("/asha/dashboard");
+          window.location.href = "/asha/dashboard";
           return;
         } else if (u === "medmanager" || u === "pharmacy") {
-          router.push("/medicine-manager/dashboard");
+          window.location.href = "/medicine-manager/dashboard";
           return;
         } else if (u === "facilityadmin") {
-          router.push("/facility/dashboard");
+          window.location.href = "/facility/dashboard";
           return;
         } else if (u === "districtadmin" || u === "admin") {
-          router.push("/admin/dashboard");
+          window.location.href = "/admin/dashboard";
           return;
         }
 
@@ -314,7 +323,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // If offline, route directly to offline dashboard instantly
+    // If offline, route directly to offline dashboard instantly via Service Worker
     if (typeof window !== "undefined" && !navigator.onLine) {
       window.location.href = account.path;
       return;
@@ -323,42 +332,36 @@ export default function LoginPage() {
     setSeedingText(language === "mr" ? "डेटाबेस कनेक्ट करत आहे..." : "Connecting Database & Seeding Scenario...");
 
     try {
-      let loginRes = await fetch("/api/auth/login", {
+      const loginRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: account.username, password: "password123" }),
-      });
+      }).catch(() => null);
 
-      let loginData = await loginRes.json();
+      const loginData = loginRes ? await loginRes.json().catch(() => null) : null;
 
-      if (!loginData.success) {
-        // Run seed script if connection is fresh/empty
-        const seedRes = await fetch("/api/admin/seed", { method: "POST" });
-        const seedData = await seedRes.json();
-
-        if (!seedData.success) {
-          throw new Error("Atlas connection error: " + seedData.error);
+      if (!loginData || !loginData.success) {
+        // If fetch failed due to offline or connection drop
+        if (typeof window !== "undefined" && !navigator.onLine) {
+          window.location.href = account.path;
+          return;
         }
 
-        loginRes = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: account.username, password: "password123" }),
-        });
-        loginData = await loginRes.json();
-        if (!loginData.success) {
-          throw new Error("Demo login verification failed.");
+        // Try seeding database if empty
+        const seedRes = await fetch("/api/admin/seed", { method: "POST" }).catch(() => null);
+        if (seedRes) {
+          await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: account.username, password: "password123" }),
+          }).catch(() => null);
         }
       }
 
       window.location.href = account.path;
     } catch (err: any) {
       // If network dropped mid-action or offline, route directly to offline dashboard
-      if (!navigator.onLine || err.message?.includes("Failed to fetch") || err.name === "TypeError") {
-        window.location.href = account.path;
-        return;
-      }
-      setError(err.message || "Failed to log in as demo account");
+      window.location.href = account.path;
     } finally {
       setLoading(false);
       setSeedingText("");
@@ -550,10 +553,9 @@ export default function LoginPage() {
                 <button
                   key={acc.username}
                   type="button"
-                  disabled={loading}
                   onClick={() => handleDemoLogin(acc)}
-                  className="bg-[#F8FAFC] hover:bg-blue-55 border border-slate-200 text-slate-700 hover:text-[#1464D2] text-[10px] font-bold py-2 px-3 rounded-xl transition-all cursor-pointer shadow-xs hover:border-[#1464D2]"
-                  title={`Login as ${acc.label}`}
+                  className="bg-[#F8FAFC] hover:bg-blue-55 border border-slate-200 text-slate-700 hover:text-[#1464D2] text-[10px] font-bold py-2 px-3 rounded-xl transition-all cursor-pointer shadow-xs hover:border-[#1464D2] inline-block"
+                  title={`Open ${acc.label} Dashboard`}
                 >
                   {acc.label}
                 </button>

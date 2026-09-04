@@ -280,8 +280,10 @@ export default function AdminDashboard() {
   }
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {}
+    window.location.href = "/login";
   }
 
   function handleDownloadDistrictReport() {

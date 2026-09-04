@@ -221,12 +221,32 @@ export default function PatientDashboard() {
   async function fetchPatientData() {
     try {
       setLoading(true);
-      const meRes = await fetch("/api/auth/me");
-      const meData = await meRes.json();
+      let meData: any = null;
+      try {
+        const meRes = await fetch("/api/auth/me");
+        if (meRes.ok) meData = await meRes.json();
+      } catch (e) {}
 
-      if (!meData.success) {
-        router.push("/login");
-        return;
+      if (!meData || !meData.success) {
+        if (typeof window !== "undefined" && !navigator.onLine) {
+          setUser({
+            name: "Ramesh Patil",
+            role: "Patient",
+            patientRefId: "JC-7F3K92",
+            village: "Sinnar",
+            phone: "9822114400",
+            bloodGroup: "O+",
+            age: 42,
+            gender: "Male",
+            isOfflineDemo: true
+          });
+          setAbhaLinked(true);
+          setAbhaNumber("91-4820-5839-2943");
+          return;
+        } else {
+          router.push("/login");
+          return;
+        }
       }
       setUser(meData.user);
 
@@ -323,8 +343,10 @@ export default function PatientDashboard() {
   }
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {}
+    window.location.href = "/login";
   }
 
   async function handleLinkAbha(e: React.FormEvent) {

@@ -140,13 +140,28 @@ export default function AshaDashboard() {
   async function fetchProfileAndPatients() {
     try {
       setLoading(true);
-      const userRes = await fetch("/api/auth/me");
-      const userData = await userRes.json();
-      if (!userData.success) {
-        router.push("/login");
-        return;
+      let userData: any = null;
+      try {
+        const userRes = await fetch("/api/auth/me");
+        if (userRes.ok) userData = await userRes.json();
+      } catch (e) {}
+
+      if (!userData || !userData.success) {
+        if (typeof window !== "undefined" && !navigator.onLine) {
+          setCurrentUser({
+            name: "Sunita Deshmukh",
+            role: "ASHA",
+            village: "Sinnar",
+            facilityName: "Sinnar Rural CHC",
+            isOfflineDemo: true
+          });
+        } else {
+          router.push("/login");
+          return;
+        }
+      } else {
+        setCurrentUser(userData.user);
       }
-      setCurrentUser(userData.user);
 
       if (isOnline) {
         const [patRes, refRes, folRes, appRes] = await Promise.all([
@@ -290,8 +305,10 @@ export default function AshaDashboard() {
   }
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {}
+    window.location.href = "/login";
   }
 
   // Toggle online / offline manually for SIH demonstration

@@ -265,8 +265,10 @@ export default function AppShell({
   const navGroups = getNavItemsByRole();
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {}
+    window.location.href = "/login";
   }
 
   const notifications = [

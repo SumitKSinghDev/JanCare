@@ -1,8 +1,8 @@
-// JanCare Complete Offline-First Service Worker (v4)
-const CACHE_NAME = "jancare-pwa-v4";
+// JanCare Complete Offline-First Service Worker (v5)
+const CACHE_NAME = "jancare-pwa-v5";
 const OFFLINE_URL = "/offline.html";
 
-// Pre-cache all core user dashboards and assets
+// Pre-cache all core user dashboards and static assets
 const PRECACHE_ASSETS = [
   "/",
   "/login",
@@ -15,7 +15,8 @@ const PRECACHE_ASSETS = [
   "/offline.html",
   "/manifest.json",
   "/favicon.ico",
-  "/logo.png"
+  "/logo.png",
+  "/background_maharashtra.jpg"
 ];
 
 // Install: Cache all core dashboards and assets immediately
@@ -52,14 +53,16 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch: Complete offline interception
+// Fetch: Complete offline interception & resilient fallback
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
   // Only intercept HTTP GET requests
   if (request.method !== "GET" || !request.url.startsWith("http")) return;
 
-  // 1. Navigation Requests (Page Loads / Tab switches / Dashboard routing)
+  const urlObj = new URL(request.url);
+
+  // 1. Navigation Requests (Page Loads / Tab switches / Hard navigations)
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -72,22 +75,39 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(async () => {
           const cache = await caches.open(CACHE_NAME);
+          
           // 1. Try exact requested URL in cache
           const exactMatch = await cache.match(request, { ignoreSearch: true });
           if (exactMatch) return exactMatch;
 
           // 2. Try URL pathname
-          const urlObj = new URL(request.url);
           const pathMatch = await cache.match(urlObj.pathname, { ignoreSearch: true });
           if (pathMatch) return pathMatch;
 
-          // 3. Try Root
-          const rootMatch = await cache.match("/", { ignoreSearch: true });
-          if (rootMatch) return rootMatch;
+          // 3. Match role routes specifically
+          const knownRoutes = [
+            "/patient/dashboard",
+            "/doctor/dashboard",
+            "/asha/dashboard",
+            "/medicine-manager/dashboard",
+            "/facility/dashboard",
+            "/admin/dashboard",
+            "/login",
+            "/"
+          ];
+          for (const route of knownRoutes) {
+            if (urlObj.pathname.startsWith(route)) {
+              const routeMatch = await cache.match(route, { ignoreSearch: true });
+              if (routeMatch) return routeMatch;
+            }
+          }
 
-          // 4. Fallback to offline page
+          // 4. Fallback to offline page or root
           const offlineFallback = await cache.match(OFFLINE_URL);
           if (offlineFallback) return offlineFallback;
+
+          const rootMatch = await cache.match("/", { ignoreSearch: true });
+          if (rootMatch) return rootMatch;
 
           return new Response(
             `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:30px;text-align:center;"><h2>📡 JanCare Offline Active</h2><p>Working in local offline mode.</p><button onclick="window.history.back()">Go Back</button></body></html>`,
@@ -98,7 +118,21 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2. Static Assets (JS Chunks, CSS, Images, Next.js static files)
+  // 2. API Requests (/api/...)
+  if (urlObj.pathname.startsWith("/api/")) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        // Return 200 with offline status so client-side fetch/JSON does not throw unhandled exception
+        return new Response(
+          JSON.stringify({ success: false, offline: true, error: "Network offline. Working from local cache." }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      })
+    );
+    return;
+  }
+
+  // 3. Static Assets & Next.js RSC Chunks (JS, CSS, Images, Next.js static files)
   event.respondWith(
     caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) {
@@ -122,11 +156,20 @@ self.addEventListener("fetch", (event) => {
           }
           return networkResponse;
         })
-        .catch(() => {
+        .catch(async () => {
+          // If this is an RSC or page request, try serving cached base page
+          if (urlObj.searchParams.has("_rsc") || request.headers.get("RSC")) {
+            const cache = await caches.open(CACHE_NAME);
+            const baseMatch = await cache.match(urlObj.pathname, { ignoreSearch: true });
+            if (baseMatch) return baseMatch;
+          }
+
           if (request.destination === "image") {
             return new Response("", { status: 200, headers: { "Content-Type": "image/svg+xml" } });
           }
-          return new Response("", { status: 503, statusText: "Offline" });
+
+          // Return benign 200 empty response so Next.js router does not crash to black screen
+          return new Response("", { status: 200, headers: { "Content-Type": "text/plain" } });
         });
     })
   );

@@ -86,13 +86,27 @@ export default function MedicineManagerDashboard() {
   async function fetchProfileAndData() {
     try {
       setLoading(true);
-      const userRes = await fetch("/api/auth/me");
-      const userData = await userRes.json();
-      if (!userData.success) {
-        router.push("/login");
-        return;
+      let userData: any = null;
+      try {
+        const userRes = await fetch("/api/auth/me");
+        if (userRes.ok) userData = await userRes.json();
+      } catch (e) {}
+
+      if (!userData || !userData.success) {
+        if (typeof window !== "undefined" && !navigator.onLine) {
+          setCurrentUser({
+            name: "Prakash Jadhav",
+            role: "MedicineManager",
+            facilityName: "Nashik Central Medical Depot",
+            isOfflineDemo: true
+          });
+        } else {
+          router.push("/login");
+          return;
+        }
+      } else {
+        setCurrentUser(userData.user);
       }
-      setCurrentUser(userData.user);
     } catch (e: any) {
       console.warn("Medicine manager offline session fallback:", e);
       setCurrentUser((prev: any) => prev || {
