@@ -1083,7 +1083,7 @@ export default function PatientDashboard() {
             <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between h-36 animate-in fade-in duration-150">
               <div>
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-primary bg-blue-50 px-2.5 py-0.5 rounded-full w-fit">
-                  <Calendar size={10} /> Next Appointment
+                  <Calendar size={10} /> {language === "mr" ? "पुढील अपॉइंटमेंट" : language === "hi" ? "अगली अपॉइंटमेंट" : "Next Appointment"}
                 </span>
                 {activeAppointment ? (
                   <>
@@ -1098,14 +1098,18 @@ export default function PatientDashboard() {
                 ) : activeConsultation ? (
                   <>
                     <h3 className="text-xs font-extrabold text-slate-800 mt-2">
-                      Today • {activeConsultation.videoRoomName ? "Online Call" : "11:30 AM"}
+                      {language === "mr" ? "आज" : language === "hi" ? "आज" : "Today"} • {activeConsultation.videoRoomName ? (language === "mr" ? "ऑनलाइन कॉल" : language === "hi" ? "ऑनलाइन कॉल" : "Online Call") : "11:30 AM"}
                     </h3>
                     <span className="text-[10px] text-slate-500 block mt-0.5">{activeConsultation.doctorId?.name || "Dr. Kulkarni"}</span>
                   </>
                 ) : (
                   <>
-                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">No Appointment</h3>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Book a slot below</span>
+                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">
+                      {language === "mr" ? "कोणतीही अपॉइंटमेंट नाही" : language === "hi" ? "कोई अपॉइंटमेंट नहीं" : "No Appointment"}
+                    </h3>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      {language === "mr" ? "खाली स्लॉट बुक करा" : language === "hi" ? "नीचे स्लॉट बुक करें" : "Book a slot below"}
+                    </span>
                   </>
                 )}
               </div>
@@ -1113,7 +1117,11 @@ export default function PatientDashboard() {
                 onClick={() => (activeConsultation || activeAppointment) ? setActiveTab("Video Consultation") : setActiveTab("Appointments")}
                 className="w-full bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded-xl border-0 cursor-pointer text-center"
               >
-                {activeConsultation ? "Join Consult" : activeAppointment ? "Join Call" : "Book Slot"}
+                {activeConsultation 
+                  ? (language === "mr" ? "सल्लामसलत कॉल" : language === "hi" ? "परामर्श में शामिल हों" : "Join Consult") 
+                  : activeAppointment 
+                  ? (language === "mr" ? "कॉलमध्ये सामील व्हा" : language === "hi" ? "कॉल में शामिल हों" : "Join Call") 
+                  : (language === "mr" ? "स्लॉट बुक करा" : language === "hi" ? "स्लॉट बुक करें" : "Book Slot")}
               </button>
             </div>
 
@@ -1121,17 +1129,25 @@ export default function PatientDashboard() {
             <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between h-36">
               <div>
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full w-fit">
-                  <Briefcase size={10} /> Active Prescription
+                  <Briefcase size={10} /> {language === "mr" ? "सक्रिय औषधोपचार पत्रक" : language === "hi" ? "सक्रिय प्रिस्क्रिप्शन" : "Active Prescription"}
                 </span>
                 {prescriptions.length > 0 ? (
                   <>
-                    <h3 className="text-xs font-extrabold text-slate-800 mt-2">{prescriptions[0].medicines.length} Prescribed</h3>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Ready for pharmacy dispatch</span>
+                    <h3 className="text-xs font-extrabold text-slate-800 mt-2">
+                      {prescriptions[0].medicines.length} {language === "mr" ? "औषधे दिली" : language === "hi" ? "दवाएं दी गईं" : "Prescribed"}
+                    </h3>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      {language === "mr" ? "फार्मसी वितरणासाठी तयार" : language === "hi" ? "फार्मेसी वितरण के लिए तैयार" : "Ready for pharmacy dispatch"}
+                    </span>
                   </>
                 ) : (
                   <>
-                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">0 Prescribed</h3>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">No prescription issued</span>
+                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">
+                      0 {language === "mr" ? "औषधे" : language === "hi" ? "दवाएं" : "Prescribed"}
+                    </h3>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      {language === "mr" ? "कोणतेही पत्रक दिलेले नाही" : language === "hi" ? "कोई प्रिस्क्रिप्शन नहीं" : "No prescription issued"}
+                    </span>
                   </>
                 )}
               </div>
@@ -1139,7 +1155,7 @@ export default function PatientDashboard() {
                 onClick={() => setActiveTab("Prescriptions")}
                 className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold py-2 rounded-xl border border-slate-200 cursor-pointer text-center"
               >
-                View Prescriptions
+                {language === "mr" ? "औषध पत्रके पहा" : language === "hi" ? "प्रिस्क्रिप्शन देखें" : "View Prescriptions"}
               </button>
             </div>
 
@@ -1147,17 +1163,23 @@ export default function PatientDashboard() {
             <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between h-36">
               <div>
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full w-fit">
-                  <Package size={10} /> Medicine Order
+                  <Package size={10} /> {language === "mr" ? "औषध आरक्षण" : language === "hi" ? "दवा ऑर्डर / आरक्षण" : "Medicine Order"}
                 </span>
                 {orderTrackingId ? (
                   <>
                     <h3 className="text-xs font-extrabold text-slate-800 mt-2">{orderTrackingId}</h3>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Status: <strong className="text-purple-700">{orderStatus}</strong></span>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      {language === "mr" ? "स्थिती:" : language === "hi" ? "स्थिति:" : "Status:"} <strong className="text-purple-700">{orderStatus}</strong>
+                    </span>
                   </>
                 ) : (
                   <>
-                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">No Active Order</h3>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Check inventory</span>
+                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">
+                      {language === "mr" ? "कोणतीही सक्रिय ऑर्डर नाही" : language === "hi" ? "कोई सक्रिय ऑर्डर नहीं" : "No Active Order"}
+                    </h3>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      {language === "mr" ? "साठा तपासा" : language === "hi" ? "स्टॉक जांचें" : "Check inventory"}
+                    </span>
                   </>
                 )}
               </div>
@@ -1165,7 +1187,7 @@ export default function PatientDashboard() {
                 onClick={() => setActiveTab("Medicine Orders")}
                 className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold py-2 rounded-xl border border-slate-200 cursor-pointer text-center"
               >
-                Track Order
+                {language === "mr" ? "ऑर्डर ट्रॅक करा" : language === "hi" ? "ऑर्डर ट्रैक करें" : "Track Order"}
               </button>
             </div>
 
@@ -1173,17 +1195,25 @@ export default function PatientDashboard() {
             <div className="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col justify-between h-36">
               <div>
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full w-fit">
-                  <RotateCcw size={10} /> Follow-up Due
+                  <RotateCcw size={10} /> {language === "mr" ? "फॉलो-अप देय" : language === "hi" ? "फॉलो-अप देय" : "Follow-up Due"}
                 </span>
                 {latestConsult ? (
                   <>
-                    <h3 className="text-xs font-extrabold text-slate-800 mt-2">Home Vitals</h3>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">ASHA Visit Scheduled</span>
+                    <h3 className="text-xs font-extrabold text-slate-800 mt-2">
+                      {language === "mr" ? "गृह तपासणी" : language === "hi" ? "घर पर जांच" : "Home Vitals"}
+                    </h3>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      {language === "mr" ? "आशा भेट नियोजित" : language === "hi" ? "आशा दौरा निर्धारित" : "ASHA Visit Scheduled"}
+                    </span>
                   </>
                 ) : (
                   <>
-                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">No Follow-up</h3>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">Awaiting first logs</span>
+                    <h3 className="text-xs font-extrabold text-slate-400 mt-2">
+                      {language === "mr" ? "फॉलो-अप नाही" : language === "hi" ? "कोई फॉलो-अप नहीं" : "No Follow-up"}
+                    </h3>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">
+                      {language === "mr" ? "नोंदीची प्रतीक्षा आहे" : language === "hi" ? "रिकॉर्ड की प्रतीक्षा है" : "Awaiting first logs"}
+                    </span>
                   </>
                 )}
               </div>
@@ -1191,7 +1221,7 @@ export default function PatientDashboard() {
                 onClick={() => setActiveTab("Follow-ups")}
                 className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-bold py-2 rounded-xl border border-slate-200 cursor-pointer text-center"
               >
-                View Details
+                {language === "mr" ? "तपशील पहा" : language === "hi" ? "विवरण देखें" : "View Details"}
               </button>
             </div>
           </div>
@@ -1200,54 +1230,84 @@ export default function PatientDashboard() {
             {/* Left section inside dashboard: Recent Vitals */}
             <div className="lg:col-span-8 bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
               <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3 flex items-center justify-between">
-                <span>Recent Health Vitals Logs</span>
-                <span className="text-[9px] text-slate-400 lowercase font-medium">Synchronized from ABDM / ASHA</span>
+                <span>{language === "mr" ? "अलीकडील आरोग्य तपासणी नोंदी" : language === "hi" ? "हालिया स्वास्थ्य जांच रिकॉर्ड" : "Recent Health Vitals Logs"}</span>
+                <span className="text-[9px] text-slate-400 lowercase font-medium">
+                  {language === "mr" ? "ABDM / आशा कडून सिंक केले" : language === "hi" ? "ABDM / आशा से सिंक" : "Synchronized from ABDM / ASHA"}
+                </span>
               </h3>
               
               {latestVitals ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
-                    <span className="text-[9px] font-bold text-slate-400 block uppercase">Temperature</span>
+                    <span className="text-[9px] font-bold text-slate-400 block uppercase">
+                      {language === "mr" ? "तापमान" : language === "hi" ? "तापमान" : "Temperature"}
+                    </span>
                     <strong className="text-base text-slate-800 mt-1 block">{latestVitals.temperature}°F</strong>
-                    <span className="text-[8px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded-md mt-1.5 inline-block">Normal</span>
+                    <span className="text-[8px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded-md mt-1.5 inline-block">
+                      {language === "mr" ? "सामान्य" : language === "hi" ? "सामान्य" : "Normal"}
+                    </span>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
-                    <span className="text-[9px] font-bold text-slate-400 block uppercase">Blood Pressure</span>
+                    <span className="text-[9px] font-bold text-slate-400 block uppercase">
+                      {language === "mr" ? "रक्तदाब" : language === "hi" ? "रक्तचाप (BP)" : "Blood Pressure"}
+                    </span>
                     <strong className="text-base text-slate-800 mt-1 block">{latestVitals.bloodPressureSystolic}/{latestVitals.bloodPressureDiastolic}</strong>
-                    <span className="text-[8px] text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded-md mt-1.5 inline-block">Slightly High</span>
+                    <span className="text-[8px] text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded-md mt-1.5 inline-block">
+                      {language === "mr" ? "किंचित जास्त" : language === "hi" ? "हल्का उच्च" : "Slightly High"}
+                    </span>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
-                    <span className="text-[9px] font-bold text-slate-400 block uppercase">SpO2 (Oxygen)</span>
+                    <span className="text-[9px] font-bold text-slate-400 block uppercase">
+                      {language === "mr" ? "SpO2 (ऑक्सिजन)" : language === "hi" ? "SpO2 (ऑक्सीजन)" : "SpO2 (Oxygen)"}
+                    </span>
                     <strong className="text-base text-slate-800 mt-1 block">{latestVitals.spo2}%</strong>
-                    <span className="text-[8px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded-md mt-1.5 inline-block">Excellent</span>
+                    <span className="text-[8px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded-md mt-1.5 inline-block">
+                      {language === "mr" ? "उत्कृष्ट" : language === "hi" ? "उत्कृष्ट" : "Excellent"}
+                    </span>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
-                    <span className="text-[9px] font-bold text-slate-400 block uppercase">Heart Rate</span>
+                    <span className="text-[9px] font-bold text-slate-400 block uppercase">
+                      {language === "mr" ? "हृदयाचे ठोके" : language === "hi" ? "हृदय गति" : "Heart Rate"}
+                    </span>
                     <strong className="text-base text-slate-800 mt-1 block">{latestVitals.heartRate} bpm</strong>
-                    <span className="text-[8px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded-md mt-1.5 inline-block">Normal</span>
+                    <span className="text-[8px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded-md mt-1.5 inline-block">
+                      {language === "mr" ? "सामान्य" : language === "hi" ? "सामान्य" : "Normal"}
+                    </span>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
                   <Activity size={32} className="text-slate-300 animate-pulse" />
-                  <span className="text-[11px] font-bold">No vitals logs found</span>
-                  <span className="text-[9px] text-slate-400">Vitals logs will sync here once recorded by an ASHA worker.</span>
+                  <span className="text-[11px] font-bold">
+                    {language === "mr" ? "कोणत्याही तपासणी नोंदी आढळल्या नाहीत" : language === "hi" ? "कोई स्वास्थ्य जांच रिकॉर्ड नहीं मिला" : "No vitals logs found"}
+                  </span>
+                  <span className="text-[9px] text-slate-400">
+                    {language === "mr" ? "आशा कार्यकर्त्यांनी तपासणी केल्यावर नोंदी येथे दिसतील." : language === "hi" ? "आशा कार्यकर्ता द्वारा जांच दर्ज किए जाने पर रिकॉर्ड यहां दिखाई देंगे।" : "Vitals logs will sync here once recorded by an ASHA worker."}
+                  </span>
                 </div>
               )}
             </div>
 
             {/* Right section: Important Alerts */}
             <div className="lg:col-span-4 bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
-              <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Important Alerts</h3>
+              <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                {language === "mr" ? "महत्त्वाच्या सूचना" : language === "hi" ? "महत्वपूर्ण सूचनाएं" : "Important Alerts"}
+              </h3>
               
               <div className="space-y-3">
                 {!abhaLinked && (
                   <div className="bg-amber-50/50 border border-amber-200/80 p-3 rounded-2xl text-[10px] text-amber-800 leading-relaxed flex gap-2.5">
                     <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <strong>ABHA ID Not Linked!</strong><br />
-                      Link your ABDM card to authorize digital medical prescriptions retrieval.
-                      <button onClick={() => setShowAbhaModal(true)} className="text-primary font-bold block mt-1 hover:underline cursor-pointer border-0 bg-transparent text-[10px]">Link Now →</button>
+                      <strong>{language === "mr" ? "ABHA आयडी जोडलेला नाही!" : language === "hi" ? "ABHA आईडी लिंक नहीं है!" : "ABHA ID Not Linked!"}</strong><br />
+                      {language === "mr"
+                        ? "डिजिटल वैद्यकीय औषधोपचार पत्रक पुनर्प्राप्तीसाठी आपले ABDM कार्ड जोडा."
+                        : language === "hi"
+                        ? "डिजिटल मेडिकल प्रिस्क्रिप्शन प्राप्त करने के लिए अपना ABDM कार्ड लिंक करें।"
+                        : "Link your ABDM card to authorize digital medical prescriptions retrieval."}
+                      <button onClick={() => setShowAbhaModal(true)} className="text-primary font-bold block mt-1 hover:underline cursor-pointer border-0 bg-transparent text-[10px]">
+                        {language === "mr" ? "आता जोडा →" : language === "hi" ? "अभी लिंक करें →" : "Link Now →"}
+                      </button>
                     </div>
                   </div>
                 )}
@@ -1255,8 +1315,12 @@ export default function PatientDashboard() {
                 <div className="bg-blue-50/50 border border-blue-200/80 p-3 rounded-2xl text-[10px] text-blue-800 leading-relaxed flex gap-2.5">
                   <BadgeInfo size={16} className="text-blue-600 shrink-0 mt-0.5" />
                   <div>
-                    <strong>Sinnar Health Camp</strong><br />
-                    Community health camp for hypertension checkups this Friday at Sub-centre 02.
+                    <strong>{language === "mr" ? "सिन्नर मोफत आरोग्य शिबीर" : language === "hi" ? "सिन्नर स्वास्थ्य शिविर" : "Sinnar Health Camp"}</strong><br />
+                    {language === "mr"
+                      ? "रक्तदाब तपासणीसाठी या शुक्रवारी उपकेंद्र ०२ येथे सामुदायिक आरोग्य शिबीर."
+                      : language === "hi"
+                      ? "उच्च रक्तचाप जांच के लिए इस शुक्रवार उपकेंद्र 02 में सामुदायिक स्वास्थ्य शिविर।"
+                      : "Community health camp for hypertension checkups this Friday at Sub-centre 02."}
                   </div>
                 </div>
               </div>
@@ -1269,37 +1333,59 @@ export default function PatientDashboard() {
       {activeTab === "Profile" && (
         <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-6">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-800">ABHA National Health ID</h2>
-            <p className="text-xs text-slate-500">Manage and verify your identity credentials under ABDM.</p>
+            <h2 className="text-lg font-extrabold text-slate-800">
+              {language === "mr" ? "ABHA राष्ट्रीय आरोग्य ओळखपत्र" : language === "hi" ? "ABHA राष्ट्रीय स्वास्थ्य पहचान (ID)" : "ABHA National Health ID"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {language === "mr"
+                ? "ABDM अंतर्गत आपले ओळखपत्र तपशील व्यवस्थापित व प्रमाणित करा."
+                : language === "hi"
+                ? "ABDM के अंतर्गत अपने पहचान विवरण प्रबंधित और सत्यापित करें।"
+                : "Manage and verify your identity credentials under ABDM."}
+            </p>
           </div>
 
           <div className="grid md:grid-cols-12 gap-6 items-start">
             <div className="md:col-span-7 space-y-4">
               <div className="border border-slate-200 p-5 rounded-2xl bg-slate-50 space-y-3">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Identity Card Verification</span>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">
+                  {language === "mr" ? "ओळखपत्र पडताळणी" : language === "hi" ? "पहचान पत्र सत्यापन" : "IDENTITY CARD VERIFICATION"}
+                </span>
                 
                 {abhaLinked ? (
                   <div className="flex gap-4 items-start">
                     <div className="p-3 bg-green-50 text-green-700 rounded-xl"><Shield size={24} /></div>
                     <div>
-                      <strong className="text-xs text-slate-800 block">ABHA ID Linked Successfully</strong>
-                      <span className="text-[11px] text-slate-500 block mt-0.5">Card Number: {abhaNumber}</span>
-                      <span className="text-[9px] text-green-700 bg-green-50 font-bold px-2 py-0.5 rounded-md mt-1.5 inline-block">ABDM Verified</span>
+                      <strong className="text-xs text-slate-800 block">
+                        {language === "mr" ? "ABHA आयडी यशस्वीरित्या जोडला गेला" : language === "hi" ? "ABHA आईडी सफलतापूर्वक लिंक हुआ" : "ABHA ID Linked Successfully"}
+                      </strong>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        {language === "mr" ? "कार्ड क्रमांक" : language === "hi" ? "कार्ड नंबर" : "Card Number"}: {abhaNumber}
+                      </span>
+                      <span className="text-[9px] text-green-700 bg-green-50 font-bold px-2 py-0.5 rounded-md mt-1.5 inline-block">
+                        {language === "mr" ? "✓ ABDM प्रमाणित" : language === "hi" ? "✓ ABDM सत्यापित" : "ABDM Verified"}
+                      </span>
                     </div>
                   </div>
                 ) : (
                   <div className="flex gap-4 items-start">
                     <div className="p-3 bg-amber-50 text-amber-700 rounded-xl"><AlertTriangle size={24} /></div>
                     <div>
-                      <strong className="text-xs text-slate-800 block">No National Health ID Associated</strong>
+                      <strong className="text-xs text-slate-800 block">
+                        {language === "mr" ? "कोणतेही राष्ट्रीय आरोग्य ओळखपत्र जोडलेले नाही" : language === "hi" ? "कोई राष्ट्रीय स्वास्थ्य आईडी संबद्ध नहीं है" : "No National Health ID Associated"}
+                      </strong>
                       <p className="text-[10px] text-slate-500 leading-normal mt-1">
-                        Link your card to enable automatic medical history collection across primary health clinics.
+                        {language === "mr"
+                          ? "प्राथमिक आरोग्य केंद्रांमध्ये स्वयंचलित वैद्यकीय इतिहास संकलनासाठी आपले कार्ड जोडा."
+                          : language === "hi"
+                          ? "प्राथमिक स्वास्थ्य क्लीनिकों में स्वचालित चिकित्सा इतिहास के लिए अपना कार्ड लिंक करें।"
+                          : "Link your card to enable automatic medical history collection across primary health clinics."}
                       </p>
                       <button
                         onClick={() => setShowAbhaModal(true)}
                         className="bg-primary hover:bg-blue-600 text-white font-bold text-[10px] px-4 py-2 rounded-xl mt-3 cursor-pointer border-0"
                       >
-                        Link ABHA Card
+                        {language === "mr" ? "ABHA कार्ड जोडा" : language === "hi" ? "ABHA कार्ड लिंक करें" : "Link ABHA Card"}
                       </button>
                     </div>
                   </div>
@@ -1307,22 +1393,32 @@ export default function PatientDashboard() {
               </div>
 
               <div className="border border-slate-200 p-5 rounded-2xl bg-white space-y-3 text-xs">
-                <strong className="text-slate-800 block">Demographics Record</strong>
+                <strong className="text-slate-800 block">
+                  {language === "mr" ? "लोकसंख्याशास्त्रीय नोंद (तपशील)" : language === "hi" ? "व्यक्तिगत जनसांख्यिकी रिकॉर्ड" : "Demographics Record"}
+                </strong>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Name</span>
-                    <span className="font-bold text-slate-700">{user?.name || "Patient"}</span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {language === "mr" ? "नाव" : language === "hi" ? "नाम" : "Name"}
+                    </span>
+                    <span className="font-bold text-slate-700">{user?.name || (language === "mr" ? "रुग्ण" : language === "hi" ? "मरीज" : "Patient")}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Mobile Registered</span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {language === "mr" ? "नोंदणीकृत मोबाईल" : language === "hi" ? "पंजीकृत मोबाइल" : "Mobile Registered"}
+                    </span>
                     <span className="font-bold text-slate-700">{user?.mobile || user?.username || "—"}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Age / Gender</span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {language === "mr" ? "वय / लिंग" : language === "hi" ? "उम्र / लिंग" : "Age / Gender"}
+                    </span>
                     <span className="font-bold text-slate-700">{user?.age || "—"}y / {user?.gender || "—"}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Unique Patient Ref</span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {language === "mr" ? "रुग्ण संदर्भ आयडी" : language === "hi" ? "मरीज संदर्भ आईडी" : "Unique Patient Ref"}
+                    </span>
                     <span className="font-bold text-slate-700">{user?.patientRefId || "JC-98D2"}</span>
                   </div>
                 </div>
@@ -1333,24 +1429,38 @@ export default function PatientDashboard() {
               <div className="absolute -top-16 -right-16 h-36 w-36 bg-blue-500/10 rounded-full blur-2xl" />
               <div className="flex justify-between items-start pb-4 border-b border-white/10">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">NATIONAL HEALTH CARD</span>
-                  <h3 className="text-sm font-extrabold mt-1">ABDM Health Locker</h3>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    {language === "mr" ? "राष्ट्रीय आरोग्य कार्ड" : language === "hi" ? "राष्ट्रीय स्वास्थ्य कार्ड" : "NATIONAL HEALTH CARD"}
+                  </span>
+                  <h3 className="text-sm font-extrabold mt-1">
+                    {language === "mr" ? "ABDM आरोग्य लॉकर" : language === "hi" ? "ABDM स्वास्थ्य लॉकर" : "ABDM Health Locker"}
+                  </h3>
                 </div>
-                <span className="text-[8px] bg-green-500 text-white font-bold px-2 py-0.5 rounded-full">ACTIVE</span>
+                <span className="text-[8px] bg-green-500 text-white font-bold px-2 py-0.5 rounded-full">
+                  {language === "mr" ? "सक्रिय" : language === "hi" ? "सक्रिय" : "ACTIVE"}
+                </span>
               </div>
 
               <div className="py-8 space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase block font-semibold">ABHA ID Address</span>
+                <span className="text-[10px] text-slate-400 uppercase block font-semibold">
+                  {language === "mr" ? "ABHA आयडी पत्ता" : language === "hi" ? "ABHA आईडी पता" : "ABHA ID ADDRESS"}
+                </span>
                 <span className="text-base font-extrabold tracking-widest">{user?.name?.toLowerCase().replace(/\s/g, "") || "ramesh"}@ndhm</span>
               </div>
 
               <div className="flex justify-between items-end text-xs text-slate-400">
                 <div>
-                  <span className="text-[9px] block">ISSUED BY</span>
-                  <strong className="text-white">Govt. of India</strong>
+                  <span className="text-[9px] block">
+                    {language === "mr" ? "जारीकर्ता" : language === "hi" ? "जारीकर्ता" : "ISSUED BY"}
+                  </span>
+                  <strong className="text-white">
+                    {language === "mr" ? "भारत सरकार" : language === "hi" ? "भारत सरकार" : "Govt. of India"}
+                  </strong>
                 </div>
                 <div className="text-right">
-                  <span className="text-[9px] block">REF ID</span>
+                  <span className="text-[9px] block">
+                    {language === "mr" ? "संदर्भ आयडी" : language === "hi" ? "रेफरेंस आईडी" : "REF ID"}
+                  </span>
                   <strong className="text-white">{user?.patientRefId || "JC-9118"}</strong>
                 </div>
               </div>
@@ -1364,15 +1474,23 @@ export default function PatientDashboard() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-extrabold text-slate-800">Appointments Hub</h2>
-              <p className="text-xs text-slate-500">Review your schedule or book new slots at nearest health clinics.</p>
+              <h2 className="text-lg font-extrabold text-slate-800">
+                {language === "mr" ? "अपॉइंटमेंट्स हब" : language === "hi" ? "अपॉइंटमेंट्स हब" : "Appointments Hub"}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {language === "mr"
+                  ? "आपले वेळापत्रक तपासा किंवा जवळच्या आरोग्य केंद्रांमध्ये नवीन स्लॉट बुक करा."
+                  : language === "hi"
+                  ? "अपना शेड्यूल देखें या नजदीकी स्वास्थ्य क्लीनिक में नया स्लॉट बुक करें।"
+                  : "Review your schedule or book new slots at nearest health clinics."}
+              </p>
             </div>
             
             <button
               onClick={() => setActiveAction("Book Doctor")}
               className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer border-0"
             >
-              <PlusCircle size={14} /> Book Consultation Slot
+              <PlusCircle size={14} /> {language === "mr" ? "सल्लामसलत स्लॉट बुक करा" : language === "hi" ? "परामर्श स्लॉट बुक करें" : "Book Consultation Slot"}
             </button>
           </div>
 
@@ -1380,10 +1498,16 @@ export default function PatientDashboard() {
             <div className="bg-slate-50 border border-slate-200 p-5 sm:p-6 rounded-3xl animate-in fade-in duration-200 space-y-4">
               <div className="flex justify-between items-center border-b border-slate-200 pb-3">
                 <div>
-                  <strong className="text-xs sm:text-sm text-slate-800 uppercase tracking-wider block">Book Doctor Tele-Consultation Slot</strong>
-                  <span className="text-[10px] text-slate-500">Provide your symptoms to enable automatic clinical triage priority assignment.</span>
+                  <strong className="text-xs sm:text-sm text-slate-800 uppercase tracking-wider block">
+                    {language === "mr" ? "डॉक्टर टेलि-कन्सल्टेशन स्लॉट बुक करा" : language === "hi" ? "डॉक्टर टेली-परामर्श स्लॉट बुक करें" : "Book Doctor Tele-Consultation Slot"}
+                  </strong>
+                  <span className="text-[10px] text-slate-500">
+                    {language === "mr" ? "स्वयंचलित प्राधान्य तपासणीसाठी तुमची लक्षणे नोंदवा." : language === "hi" ? "स्वचालित प्राथमिकता ट्राइएज के लिए अपने लक्षण प्रदान करें।" : "Provide your symptoms to enable automatic clinical triage priority assignment."}
+                  </span>
                 </div>
-                <button onClick={() => setActiveAction(null)} className="text-slate-400 hover:text-slate-600 text-xs font-bold bg-transparent border-0 cursor-pointer">Cancel</button>
+                <button onClick={() => setActiveAction(null)} className="text-slate-400 hover:text-slate-600 text-xs font-bold bg-transparent border-0 cursor-pointer">
+                  {language === "mr" ? "रद्द करा" : language === "hi" ? "रद्द करें" : "Cancel"}
+                </button>
               </div>
 
               <form 
@@ -1401,27 +1525,29 @@ export default function PatientDashboard() {
                 {/* 1. Symptoms Input */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-slate-700">
-                    Your Symptoms / Health Concern <span className="text-red-500">*</span>
+                    {language === "mr" ? "आपली लक्षणे / आरोग्य तक्रार" : language === "hi" ? "आपके लक्षण / स्वास्थ्य समस्या" : "Your Symptoms / Health Concern"} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     required
                     rows={2}
                     value={bookingSymptoms}
                     onChange={(e) => setBookingSymptoms(e.target.value)}
-                    placeholder="e.g., High fever (102°F) with shivering, severe cough, and chest discomfort since yesterday..."
+                    placeholder={language === "mr" ? "उदा. तीव्र ताप, थंडी, खोकला आणि अशक्तपणा..." : language === "hi" ? "उदा. तेज बुखार, ठंड लगना, खांसी और कमजोरी..." : "e.g., High fever (102°F) with shivering, severe cough, and chest discomfort since yesterday..."}
                     className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:outline-hidden focus:border-primary transition-all text-slate-800"
                   />
                   
                   {/* Quick Symptom Chips */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
-                    <span className="text-[10px] text-slate-400 font-semibold self-center mr-1">Quick Select:</span>
+                    <span className="text-[10px] text-slate-400 font-semibold self-center mr-1">
+                      {language === "mr" ? "लक्षण निवडा:" : language === "hi" ? "जल्दी चुनें:" : "Quick Select:"}
+                    </span>
                     {[
-                      { label: "High Fever (ताप)", val: "Acute High Fever (>101°F) with body chills" },
-                      { label: "Chest Discomfort", val: "Chest pain and breathing discomfort" },
-                      { label: "Severe Cough (खोकला)", val: "Productive chest cough and sore throat" },
-                      { label: "Stomach Pain (पोटदुखी)", val: "Severe abdominal cramps and vomiting" },
-                      { label: "Dizziness / BP", val: "Dizziness, low blood pressure, and weakness" },
-                      { label: "Routine Checkup", val: "Routine preventive health consultation" },
+                      { label: language === "mr" ? "तीव्र ताप (High Fever)" : language === "hi" ? "तेज बुखार" : "High Fever", val: "Acute High Fever (>101°F) with body chills" },
+                      { label: language === "mr" ? "छातीत दुखणे (Chest Pain)" : language === "hi" ? "सीने में दर्द" : "Chest Discomfort", val: "Chest pain and breathing discomfort" },
+                      { label: language === "mr" ? "तीव्र खोकला (Severe Cough)" : language === "hi" ? "गंभीर खांसी" : "Severe Cough", val: "Productive chest cough and sore throat" },
+                      { label: language === "mr" ? "पोटदुखी (Stomach Pain)" : language === "hi" ? "पेट दर्द" : "Stomach Pain", val: "Severe abdominal cramps and vomiting" },
+                      { label: language === "mr" ? "चक्कर / अशक्तपणा (BP)" : language === "hi" ? "चक्कर / कमजोरी" : "Dizziness / BP", val: "Dizziness, low blood pressure, and weakness" },
+                      { label: language === "mr" ? "नियमित तपासणी (Checkup)" : language === "hi" ? "नियमित जांच" : "Routine Checkup", val: "Routine preventive health consultation" },
                     ].map((chip) => (
                       <button
                         key={chip.label}
@@ -1438,12 +1564,14 @@ export default function PatientDashboard() {
                 {/* 2. Severity & Duration */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Symptom Severity Level</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {language === "mr" ? "लक्षणांची तीव्रता" : language === "hi" ? "लक्षणों की गंभीरता" : "Symptom Severity Level"}
+                    </label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { label: "Mild 🟢", val: "Mild" as const, color: "hover:border-green-400" },
-                        { label: "Moderate 🟠", val: "Moderate" as const, color: "hover:border-amber-400" },
-                        { label: "Severe 🔴", val: "Severe" as const, color: "hover:border-red-400" },
+                        { label: language === "mr" ? "सौम्य 🟢" : language === "hi" ? "हल्का 🟢" : "Mild 🟢", val: "Mild" as const, color: "hover:border-green-400" },
+                        { label: language === "mr" ? "मध्यम 🟠" : language === "hi" ? "मध्यम 🟠" : "Moderate 🟠", val: "Moderate" as const, color: "hover:border-amber-400" },
+                        { label: language === "mr" ? "गंभीर 🔴" : language === "hi" ? "गंभीर 🔴" : "Severe 🔴", val: "Severe" as const, color: "hover:border-red-400" },
                       ].map((sev) => (
                         <button
                           key={sev.val}
@@ -1462,7 +1590,9 @@ export default function PatientDashboard() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Duration of Illness (Days)</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {language === "mr" ? "कालावधी (दिवस)" : language === "hi" ? "अवधि (दिन)" : "Duration of Illness (Days)"}
+                    </label>
                     <div className="grid grid-cols-4 gap-2">
                       {[1, 2, 3, 5].map((d) => (
                         <button
@@ -1475,7 +1605,7 @@ export default function PatientDashboard() {
                               : "bg-white text-slate-700 border-slate-200 hover:border-primary/50"
                           }`}
                         >
-                          {d} {d === 1 ? "Day" : "Days"}
+                          {d} {language === "mr" ? "दिवस" : language === "hi" ? "दिन" : (d === 1 ? "Day" : "Days")}
                         </button>
                       ))}
                     </div>
@@ -1485,7 +1615,9 @@ export default function PatientDashboard() {
                 {/* 3. Facility & Doctor Selection */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Select Primary Health Center</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {language === "mr" ? "आरोग्य केंद्र निवडा" : language === "hi" ? "स्वास्थ्य केंद्र चुनें" : "Select Primary Health Center"}
+                    </label>
                     <select
                       value={bookingFacility}
                       onChange={(e) => setBookingFacility(e.target.value)}
@@ -1498,7 +1630,9 @@ export default function PatientDashboard() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Consulting Physician</label>
+                    <label className="block text-xs font-bold text-slate-700">
+                      {language === "mr" ? "सल्लागार डॉक्टर" : language === "hi" ? "सलाहकार डॉक्टर" : "Consulting Physician"}
+                    </label>
                     <select
                       value={bookingDoctor}
                       onChange={(e) => setBookingDoctor(e.target.value)}
@@ -1513,7 +1647,9 @@ export default function PatientDashboard() {
                 {/* 4. Preferred Time Slot & Submit */}
                 <div className="bg-white border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="space-y-1">
-                    <strong className="text-xs text-slate-800 block">Select Consultation Time Slot (Today)</strong>
+                    <strong className="text-xs text-slate-800 block">
+                      {language === "mr" ? "वेळ स्लॉट निवडा (आज)" : language === "hi" ? "समय स्लॉट चुनें (आज)" : "Select Consultation Time Slot (Today)"}
+                    </strong>
                     <div className="flex gap-2">
                       {["11:30 AM", "02:00 PM", "04:30 PM"].map((slot) => (
                         <button
@@ -1539,11 +1675,11 @@ export default function PatientDashboard() {
                   >
                     {bookingSubmitting ? (
                       <>
-                        <Loader2 className="animate-spin" size={14} /> Scheduling...
+                        <Loader2 className="animate-spin" size={14} /> {language === "mr" ? "नियोजन होत आहे..." : language === "hi" ? "शेड्यूल हो रहा है..." : "Scheduling..."}
                       </>
                     ) : (
                       <>
-                        <CheckCircle size={14} /> Confirm & Book Consultation
+                        <CheckCircle size={14} /> {language === "mr" ? "पुष्टी करा आणि स्लॉट बुक करा" : language === "hi" ? "पुष्टि करें और स्लॉट बुक करें" : "Confirm & Book Consultation"}
                       </>
                     )}
                   </button>
@@ -1554,8 +1690,12 @@ export default function PatientDashboard() {
 
           <div className="border border-slate-200/80 bg-white rounded-3xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">Your Booked Appointments ({appointments.length || consultations.length})</h3>
-              <span className="text-[10px] text-slate-400 font-medium">Real-time sync with Clinic Queue</span>
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                {language === "mr" ? "आपल्या नियोजित अपॉइंटमेंट्स" : language === "hi" ? "आपकी निर्धारित अपॉइंटमेंट्स" : "Your Booked Appointments"} ({appointments.length || consultations.length})
+              </h3>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {language === "mr" ? "थेट क्लिनिक रांगेसह सिंक" : language === "hi" ? "लाइव क्लिनिक कतार से सिंक" : "Real-time sync with Clinic Queue"}
+              </span>
             </div>
             
             {(appointments.length > 0 || consultations.length > 0) ? (
@@ -1567,7 +1707,7 @@ export default function PatientDashboard() {
                   );
                   const apptDate = appt.appointmentDate
                     ? new Date(appt.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
-                    : "Today";
+                    : (language === "mr" ? "आज" : language === "hi" ? "आज" : "Today");
                   const apptTime = appt.appointmentTime || "11:30 AM";
                   const docName = appt.doctorId?.name || "Dr. Aniruddha Kulkarni";
                   const facilityName = appt.facilityId?.name || "Sinnar Rural CHC";
@@ -1588,12 +1728,14 @@ export default function PatientDashboard() {
                             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
                               priority === "Urgent" ? "bg-red-100 text-red-700" : priority === "Priority" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
                             }`}>
-                              {priority} Priority
+                              {priority === "Urgent" ? (language === "mr" ? "🔴 तातडीचे" : language === "hi" ? "🔴 आपातकालीन" : "Urgent") : priority === "Priority" ? (language === "mr" ? "🟠 प्राधान्य" : language === "hi" ? "🟠 प्राथमिकता" : "Priority") : (language === "mr" ? "🟢 नियमित" : language === "hi" ? "🟢 सामान्य" : "Routine")}
                             </span>
                           </div>
-                          <span className="text-xs text-slate-600 block mt-1">Doctor: <strong>{docName}</strong></span>
+                          <span className="text-xs text-slate-600 block mt-1">
+                            {language === "mr" ? "डॉक्टर:" : language === "hi" ? "डॉक्टर:" : "Doctor:"} <strong>{docName}</strong>
+                          </span>
                           <span className="text-[11px] text-slate-500 block mt-0.5">
-                            📅 {apptDate} • ⏰ {apptTime} | Token: <strong className="text-slate-700">#{appt.queueNumber || 1}</strong> (Est. wait: {appt.estimatedWaitMinutes || 15} mins)
+                            📅 {apptDate} • ⏰ {apptTime} | Token: <strong className="text-slate-700">#{appt.queueNumber || 1}</strong> ({language === "mr" ? "प्रतीक्षा" : language === "hi" ? "प्रतीक्षा" : "Est. wait"}: {appt.estimatedWaitMinutes || 15} mins)
                           </span>
                         </div>
                       </div>
@@ -1604,7 +1746,7 @@ export default function PatientDashboard() {
                             ? "bg-green-100 text-green-700" 
                             : "bg-blue-100 text-primary"
                         }`}>
-                          {appt.status === "Completed" ? "Completed" : "Scheduled"}
+                          {appt.status === "Completed" ? (language === "mr" ? "पूर्ण झाले" : language === "hi" ? "पूर्ण हुआ" : "Completed") : (language === "mr" ? "नियोजित" : language === "hi" ? "शेड्यूल" : "Scheduled")}
                         </span>
                         
                         {matchedCons?.videoRoomName && (
@@ -1614,7 +1756,7 @@ export default function PatientDashboard() {
                             }}
                             className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer shadow-xs shadow-primary/20 transition-all flex items-center gap-1.5"
                           >
-                            <Activity size={13} /> Join Call
+                            <Activity size={13} /> {language === "mr" ? "कॉलमध्ये सामील व्हा" : language === "hi" ? "कॉल में शामिल हों" : "Join Call"}
                           </button>
                         )}
                       </div>
@@ -1630,8 +1772,12 @@ export default function PatientDashboard() {
                       <div className="flex gap-3.5 items-start">
                         <div className="p-3 bg-teal-50 text-teal-600 rounded-2xl shrink-0"><Calendar size={22} /></div>
                         <div>
-                          <strong className="text-slate-800 text-sm block">Tele-Consultation ({cons.facilityId?.name || "Rural Clinic"})</strong>
-                          <span className="text-xs text-slate-600 block mt-1">Doctor: <strong>{cons.doctorId?.name || "Dr. Aniruddha Kulkarni"}</strong></span>
+                          <strong className="text-slate-800 text-sm block">
+                            {language === "mr" ? "टेलि-सल्लामसलत" : language === "hi" ? "टेली-परामर्श" : "Tele-Consultation"} ({cons.facilityId?.name || "Rural Clinic"})
+                          </strong>
+                          <span className="text-xs text-slate-600 block mt-1">
+                            {language === "mr" ? "डॉक्टर:" : language === "hi" ? "डॉक्टर:" : "Doctor:"} <strong>{cons.doctorId?.name || "Dr. Aniruddha Kulkarni"}</strong>
+                          </span>
                           <span className="text-[11px] text-slate-500 block mt-0.5">📅 {apptDate} • Room: {cons.videoRoomName}</span>
                         </div>
                       </div>
@@ -1640,7 +1786,7 @@ export default function PatientDashboard() {
                         <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl ${
                           cons.status === "Completed" ? "bg-green-100 text-green-700" : "bg-blue-100 text-primary"
                         }`}>
-                          {cons.status === "Completed" ? "Completed" : "Scheduled"}
+                          {cons.status === "Completed" ? (language === "mr" ? "पूर्ण झाले" : language === "hi" ? "पूर्ण हुआ" : "Completed") : (language === "mr" ? "नियोजित" : language === "hi" ? "शेड्यूल" : "Scheduled")}
                         </span>
                         
                         {cons.status === "Scheduled" && (
@@ -1650,7 +1796,7 @@ export default function PatientDashboard() {
                             }}
                             className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl border-0 cursor-pointer shadow-xs shadow-primary/20 transition-all flex items-center gap-1.5"
                           >
-                            <Activity size={13} /> Join Call
+                            <Activity size={13} /> {language === "mr" ? "कॉलमध्ये सामील व्हा" : language === "hi" ? "कॉल में शामिल हों" : "Join Call"}
                           </button>
                         )}
                       </div>
@@ -1661,8 +1807,12 @@ export default function PatientDashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-center space-y-1">
                 <Calendar size={32} className="text-slate-300" />
-                <span className="text-[11px] font-bold">No appointments scheduled</span>
-                <span className="text-[9px] text-slate-400">Your scheduled consultation slots will appear here automatically.</span>
+                <span className="text-[11px] font-bold">
+                  {language === "mr" ? "कोणतीही अपॉइंटमेंट नियोजित नाही" : language === "hi" ? "कोई अपॉइंटमेंट निर्धारित नहीं है" : "No appointments scheduled"}
+                </span>
+                <span className="text-[9px] text-slate-400">
+                  {language === "mr" ? "आपले नियोजित सल्लामसलत स्लॉट येथे दिसतील." : language === "hi" ? "आपके निर्धारित परामर्श स्लॉट यहां दिखाई देंगे।" : "Your scheduled consultation slots will appear here automatically."}
+                </span>
               </div>
             )}
           </div>
@@ -1673,8 +1823,16 @@ export default function PatientDashboard() {
       {activeTab === "Video Consultation" && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-800">Tele-Consultation Video Room</h2>
-            <p className="text-xs text-slate-500">Join the live secure room to consult with your clinic doctor.</p>
+            <h2 className="text-lg font-extrabold text-slate-800">
+              {language === "mr" ? "टेलि-कन्सल्टेशन व्हिडिओ कक्ष" : language === "hi" ? "टेली-परामर्श वीडियो रूम" : "Tele-Consultation Video Room"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {language === "mr"
+                ? "क्लिनिक डॉक्टरांशी थेट सल्लामसलत करण्यासाठी सुरक्षित व्हिडिओ रूममध्ये सामील व्हा."
+                : language === "hi"
+                ? "क्लीनिक डॉक्टर से परामर्श के लिए लाइव सुरक्षित रूम में शामिल हों।"
+                : "Join the live secure room to consult with your clinic doctor."}
+            </p>
           </div>
 
           {(() => {
@@ -1700,7 +1858,7 @@ export default function PatientDashboard() {
                       <div className="flex items-center gap-1.5">
                         <span className="h-2 w-2 rounded-full bg-green-500 animate-ping" />
                         <span className="text-[9px] font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full uppercase">
-                          Live Tele-Consultation Channel
+                          {language === "mr" ? "थेट व्हिडिओ चॅनेल" : language === "hi" ? "लाइव वीडियो चैनल" : "Live Tele-Consultation Channel"}
                         </span>
                       </div>
                       <strong className="text-slate-800 text-sm mt-2 block">{docName}</strong>
@@ -1708,18 +1866,22 @@ export default function PatientDashboard() {
                     </div>
 
                     <div className="space-y-2 text-xs">
-                      <strong className="text-slate-700 block">Session Telemetry</strong>
+                      <strong className="text-slate-700 block">
+                        {language === "mr" ? "सत्र माहिती" : language === "hi" ? "सत्र विवरण" : "Session Telemetry"}
+                      </strong>
                       <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-1.5">
                         <div className="flex justify-between">
-                          <span className="text-slate-500">Secure Room</span>
+                          <span className="text-slate-500">{language === "mr" ? "सुरक्षित रूम" : language === "hi" ? "सुरक्षित रूम" : "Secure Room"}</span>
                           <span className="font-semibold font-mono text-[10px] text-primary">{effectiveRoomName}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-500">Channel Status</span>
-                          <span className="font-semibold text-green-600">Active / Encrypted</span>
+                          <span className="text-slate-500">{language === "mr" ? "चॅनेल स्थिती" : language === "hi" ? "चैनल स्थिति" : "Channel Status"}</span>
+                          <span className="font-semibold text-green-600">
+                            {language === "mr" ? "सक्रिय / सुरक्षित" : language === "hi" ? "सक्रिय / सुरक्षित" : "Active / Encrypted"}
+                          </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-500">Patient UHID</span>
+                          <span className="text-slate-500">{language === "mr" ? "रुग्ण UHID" : language === "hi" ? "मरीज UHID" : "Patient UHID"}</span>
                           <span className="font-semibold text-slate-700">{user?.patientRefId || "JC-7F3K92"}</span>
                         </div>
                       </div>
@@ -1733,7 +1895,7 @@ export default function PatientDashboard() {
                       className="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold py-2.5 rounded-xl text-xs cursor-pointer border-0 shadow-xs transition-all flex items-center justify-center gap-1.5"
                     >
                       {instantCalling ? <Loader2 size={13} className="animate-spin" /> : <Video size={13} />}
-                      Alert On-Duty Doctor
+                      {language === "mr" ? "तातडीच्या डॉक्टरांना सूचना द्या" : language === "hi" ? "ड्यूटी पर डॉक्टर को अलर्ट करें" : "Alert On-Duty Doctor"}
                     </button>
                     <button
                       onClick={() => {
@@ -1741,7 +1903,7 @@ export default function PatientDashboard() {
                       }}
                       className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer border-0 shadow-xs shadow-red-100 transition-all"
                     >
-                      Leave Video Room
+                      {language === "mr" ? "व्हिडिओ रूममधून बाहेर पडा" : language === "hi" ? "वीडियो रूम से बाहर निकलें" : "Leave Video Room"}
                     </button>
                   </div>
                 </div>
@@ -1756,8 +1918,16 @@ export default function PatientDashboard() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-extrabold text-slate-800">Your Prescriptions</h2>
-              <p className="text-xs text-slate-500">View and download your digital generic prescriptions.</p>
+              <h2 className="text-lg font-extrabold text-slate-800">
+                {language === "mr" ? "आपली औषधोपचार पत्रके" : language === "hi" ? "आपके प्रिस्क्रिप्शन" : "Your Prescriptions"}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {language === "mr"
+                  ? "आपली डिजिटल जेनेरिक औषधोपचार पत्रके पहा आणि डाउनलोड करा."
+                  : language === "hi"
+                  ? "अपने डिजिटल जेनेरिक प्रिस्क्रिप्शन देखें और डाउनलोड करें।"
+                  : "View and download your digital generic prescriptions."}
+              </p>
             </div>
           </div>
 
@@ -1767,19 +1937,19 @@ export default function PatientDashboard() {
               onClick={() => setPrescriptionFilter("All")}
               className={`px-4 py-2 border-0 bg-transparent cursor-pointer ${prescriptionFilter === "All" ? "text-primary border-b-2 border-primary font-extrabold" : ""}`}
             >
-              All Prescriptions ({displayPrescriptions.length})
+              {language === "mr" ? "सर्व पत्रके" : language === "hi" ? "सभी प्रिस्क्रिप्शन" : "All Prescriptions"} ({displayPrescriptions.length})
             </button>
             <button
               onClick={() => setPrescriptionFilter("Active")}
               className={`px-4 py-2 border-0 bg-transparent cursor-pointer ${prescriptionFilter === "Active" ? "text-primary border-b-2 border-primary font-extrabold" : ""}`}
             >
-              Active
+              {language === "mr" ? "सक्रिय" : language === "hi" ? "सक्रिय" : "Active"}
             </button>
             <button
               onClick={() => setPrescriptionFilter("Completed")}
               className={`px-4 py-2 border-0 bg-transparent cursor-pointer ${prescriptionFilter === "Completed" ? "text-primary border-b-2 border-primary font-extrabold" : ""}`}
             >
-              Completed
+              {language === "mr" ? "पूर्ण झाले" : language === "hi" ? "पूर्ण" : "Completed"}
             </button>
           </div>
 
@@ -1791,9 +1961,13 @@ export default function PatientDashboard() {
                     <div className="flex justify-between items-start pb-2.5 border-b border-slate-100">
                       <div>
                         <strong className="text-slate-800 text-sm block">{pres.doctorId?.name || "Dr. Aniruddha Kulkarni"}</strong>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">Date: {new Date(pres.createdAt).toLocaleDateString()}</span>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">
+                          {language === "mr" ? "तारीख:" : language === "hi" ? "दिनांक:" : "Date:"} {new Date(pres.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
-                      <span className="text-[9px] bg-green-50 text-green-700 font-bold px-2 py-0.5 rounded-md">Verified Rx</span>
+                      <span className="text-[9px] bg-green-50 text-green-700 font-bold px-2 py-0.5 rounded-md">
+                        {language === "mr" ? "✓ प्रमाणित Rx" : language === "hi" ? "✓ सत्यापित Rx" : "Verified Rx"}
+                      </span>
                     </div>
 
                     <div className="space-y-2">
@@ -1801,9 +1975,13 @@ export default function PatientDashboard() {
                         <div key={idx} className="flex justify-between text-xs text-slate-700 bg-slate-50 border border-slate-100 p-2.5 rounded-xl">
                           <div>
                             <strong className="block text-slate-800">{med.name} ({med.strength})</strong>
-                            <span className="text-[10px] text-slate-500 block mt-0.5">{med.dosage} — {med.durationDays} Days</span>
+                            <span className="text-[10px] text-slate-500 block mt-0.5">
+                              {med.dosage} — {med.durationDays} {language === "mr" ? "दिवस" : language === "hi" ? "दिन" : "Days"}
+                            </span>
                           </div>
-                          <span className="text-[10px] text-slate-400 italic">{med.instructions || "After Food"}</span>
+                          <span className="text-[10px] text-slate-400 italic">
+                            {med.instructions || (language === "mr" ? "जेवणानंतर" : language === "hi" ? "भोजन के बाद" : "After Food")}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -1814,7 +1992,7 @@ export default function PatientDashboard() {
                       onClick={() => handleDownloadPrescription(pres)}
                       className="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-bold py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      <Download size={12} /> Print PDF
+                      <Download size={12} /> {language === "mr" ? "PDF प्रिंट करा" : language === "hi" ? "प्रिंट PDF" : "Print PDF"}
                     </button>
                     <button
                       onClick={() => {
@@ -1824,7 +2002,7 @@ export default function PatientDashboard() {
                       }}
                       className="bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded-xl cursor-pointer border-0"
                     >
-                      Check Pharmacy Stock
+                      {language === "mr" ? "औषध साठा तपासा" : language === "hi" ? "दवा स्टॉक जांचें" : "Check Pharmacy Stock"}
                     </button>
                   </div>
                 </div>
@@ -1833,9 +2011,15 @@ export default function PatientDashboard() {
           ) : (
             <div className="bg-white border border-slate-200/80 p-12 rounded-3xl text-center flex flex-col items-center justify-center space-y-3 shadow-xs">
               <div className="p-3.5 bg-slate-50 text-slate-400 rounded-full"><FileText size={32} /></div>
-              <h3 className="font-extrabold text-slate-800 text-sm">No Prescriptions Found</h3>
+              <h3 className="font-extrabold text-slate-800 text-sm">
+                {language === "mr" ? "कोणतेही औषधोपचार पत्रक आढळले नाही" : language === "hi" ? "कोई प्रिस्क्रिप्शन नहीं मिला" : "No Prescriptions Found"}
+              </h3>
               <p className="text-xs text-slate-500 max-w-xs leading-normal">
-                There are no digital prescriptions assigned to this ABHA ID record. They will appear here once issued by a practitioner.
+                {language === "mr"
+                  ? "या ABHA रेकॉर्डशी जोडलेले कोणतेही पत्रक नाही. डॉक्टरांनी दिल्यानंतर ते येथे दिसेल."
+                  : language === "hi"
+                  ? "इस ABHA रिकॉर्ड से कोई प्रिस्क्रिप्शन नहीं जुड़ा है। जारी होने पर यहां दिखाई देगा।"
+                  : "There are no digital prescriptions assigned to this ABHA ID record. They will appear here once issued by a practitioner."}
               </p>
             </div>
           )}
@@ -1846,41 +2030,59 @@ export default function PatientDashboard() {
       {activeTab === "Medicine Orders" && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-800">Pharmacy Medicine Orders</h2>
-            <p className="text-xs text-slate-500">Track and manage your reserved generic medicines package.</p>
+            <h2 className="text-lg font-extrabold text-slate-800">
+              {language === "mr" ? "फार्मसी औषध आरक्षण व ऑर्डर्स" : language === "hi" ? "फार्मेसी दवा ऑर्डर / आरक्षण" : "Pharmacy Medicine Orders"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {language === "mr"
+                ? "आपल्या आरक्षित जेनेरिक औषधांचा मागोवा घ्या आणि व्यवस्थापित करा."
+                : language === "hi"
+                ? "अपने आरक्षित जेनेरिक दवाओं के पैकेज को ट्रैक और प्रबंधित करें।"
+                : "Track and manage your reserved generic medicines package."}
+            </p>
           </div>
 
           <div className="grid lg:grid-cols-12 gap-6 items-start">
             {/* Left Col: list of orders */}
             <div className="lg:col-span-6 space-y-4">
               <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Medicine Reserves List</h3>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                  {language === "mr" ? "औषध आरक्षण यादी" : language === "hi" ? "दवा आरक्षण सूची" : "Medicine Reserves List"}
+                </h3>
                 
                 {orderTrackingId ? (
                   <div className="border border-slate-200 p-4.5 rounded-2xl bg-slate-50 space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
                         <strong className="text-sm text-slate-800 block">{orderTrackingId}</strong>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">Facility: {selectedFacility || "Sinnar CHC"}</span>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">
+                          {language === "mr" ? "आरोग्य केंद्र:" : language === "hi" ? "स्वास्थ्य केंद्र:" : "Facility:"} {selectedFacility || "Sinnar CHC"}
+                        </span>
                       </div>
                       <span className="text-[10px] font-bold text-orange-700 bg-orange-50 px-2.5 py-0.5 rounded-md uppercase tracking-wider">{orderStatus}</span>
                     </div>
 
                     <div className="flex justify-between items-center pt-2 border-t border-slate-200/60 text-xs">
-                      <span className="text-slate-500">Total Medicines: <strong>2 Codes</strong></span>
+                      <span className="text-slate-500">
+                        {language === "mr" ? "एकूण औषधे:" : language === "hi" ? "कुल दवाएं:" : "Total Medicines:"} <strong>2 Codes</strong>
+                      </span>
                       <button
                         onClick={advanceOrderStatus}
                         className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
                       >
-                        Advance Simulation Status
+                        {language === "mr" ? "स्थिती पुढे ढकला (सिम्युलेशन)" : language === "hi" ? "स्थिति आगे बढ़ाएं (सिम्युलेशन)" : "Advance Simulation Status"}
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
                     <Package size={28} className="text-slate-300" />
-                    <span className="text-[11px] font-bold">No active orders</span>
-                    <span className="text-[9px] text-slate-400">Order details will appear once you check availability and reserve stock.</span>
+                    <span className="text-[11px] font-bold">
+                      {language === "mr" ? "कोणतीही सक्रिय ऑर्डर नाही" : language === "hi" ? "कोई सक्रिय ऑर्डर नहीं" : "No active orders"}
+                    </span>
+                    <span className="text-[9px] text-slate-400">
+                      {language === "mr" ? "साठा तपासून आरक्षित केल्यावर तपशील येथे दिसतील." : language === "hi" ? "स्टॉक आरक्षित करने पर ऑर्डर विवरण यहां दिखाई देंगे।" : "Order details will appear once you check availability and reserve stock."}
+                    </span>
                   </div>
                 )}
               </div>
@@ -1888,16 +2090,38 @@ export default function PatientDashboard() {
 
             {/* Right Col: order tracking timeline */}
             <div className="lg:col-span-6 border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Reserves Tracking Timeline</h3>
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                {language === "mr" ? "आरक्षण ट्रॅकिंग टाइमलाइन" : language === "hi" ? "आरक्षण ट्रैकिंग टाइमलाइन" : "Reserves Tracking Timeline"}
+              </h3>
 
               {orderTrackingId ? (
                 <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 mt-4">
                   {[
-                    { label: "Request Submitted", desc: "Digital pharmacy reserve request received.", done: true },
-                    { label: "Facility Confirmed", desc: `Stock verified at ${selectedFacility || "PHC-01"}.`, done: true },
-                    { label: "Preparing Medicine", desc: "Generic packages sorted and bagged.", done: orderStatus !== "Requested" },
-                    { label: "Ready for Collection", desc: "Awaiting patient pickup at counter.", done: orderStatus === "Ready" || orderStatus === "Collected" },
-                    { label: "Collected", desc: "Handed over. Transaction synchronized.", done: orderStatus === "Collected" }
+                    { 
+                      label: language === "mr" ? "विनंती सबमिट केली" : language === "hi" ? "अनुरोध सबमिट किया" : "Request Submitted", 
+                      desc: language === "mr" ? "डिजिटल फार्मसी आरक्षण विनंती प्राप्त झाली." : language === "hi" ? "डिजिटल फार्मेसी आरक्षण अनुरोध प्राप्त हुआ।" : "Digital pharmacy reserve request received.", 
+                      done: true 
+                    },
+                    { 
+                      label: language === "mr" ? "केंद्राने पुष्टी केली" : language === "hi" ? "केंद्र द्वारा पुष्टि" : "Facility Confirmed", 
+                      desc: language === "mr" ? `${selectedFacility || "PHC-01"} येथे साठा पडताळला.` : language === "hi" ? `${selectedFacility || "PHC-01"} पर स्टॉक सत्यापित हुआ।` : `Stock verified at ${selectedFacility || "PHC-01"}.`, 
+                      done: true 
+                    },
+                    { 
+                      label: language === "mr" ? "औषध तयार होत आहे" : language === "hi" ? "दवा तैयार की जा रही है" : "Preparing Medicine", 
+                      desc: language === "mr" ? "जेनेरिक पॅकेज सॉर्ट करून बॅग केले." : language === "hi" ? "जेनेरिक पैकेज पैक किए गए।" : "Generic packages sorted and bagged.", 
+                      done: orderStatus !== "Requested" 
+                    },
+                    { 
+                      label: language === "mr" ? "काउंटरवर संकलनासाठी तयार" : language === "hi" ? "लेने के लिए तैयार" : "Ready for Collection", 
+                      desc: language === "mr" ? "फार्मसी काउंटरवर रुग्णाची प्रतीक्षा." : language === "hi" ? "काउंटर पर मरीज के लेने की प्रतीक्षा।" : "Awaiting patient pickup at counter.", 
+                      done: orderStatus === "Ready" || orderStatus === "Collected" 
+                    },
+                    { 
+                      label: language === "mr" ? "औषध वितरित केले" : language === "hi" ? "दवा प्राप्त हुई" : "Collected", 
+                      desc: language === "mr" ? "हस्तांतरित केले. व्यवहार सिंक झाला." : language === "hi" ? "दवा सौंप दी गई। सिंक पूर्ण।" : "Handed over. Transaction synchronized.", 
+                      done: orderStatus === "Collected" 
+                    }
                   ].map((step, idx) => (
                     <div key={idx} className="relative flex gap-3 items-start text-xs">
                       <span className={`absolute -left-[22px] top-0.5 h-3.5 w-3.5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
@@ -1917,8 +2141,12 @@ export default function PatientDashboard() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
                   <Clock size={28} className="text-slate-300" />
-                  <span className="text-[11px] font-bold">No active timeline</span>
-                  <span className="text-[9px] text-slate-400">Order tracking timeline will activate after medicine dispatch.</span>
+                  <span className="text-[11px] font-bold">
+                    {language === "mr" ? "कोणतीही सक्रिय टाइमलाइन नाही" : language === "hi" ? "कोई सक्रिय टाइमलाइन नहीं" : "No active timeline"}
+                  </span>
+                  <span className="text-[9px] text-slate-400">
+                    {language === "mr" ? "औषध आरक्षणानंतर ट्रॅकिंग सुरू होईल." : language === "hi" ? "दवा आरक्षण के बाद ट्रैकिंग शुरू होगी।" : "Order tracking timeline will activate after medicine dispatch."}
+                  </span>
                 </div>
               )}
             </div>
@@ -1931,8 +2159,16 @@ export default function PatientDashboard() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-extrabold text-slate-800">Pharmacy Availability Checker</h2>
-              <p className="text-xs text-slate-500">Locate stock levels and reserve generic medicine packages.</p>
+              <h2 className="text-lg font-extrabold text-slate-800">
+                {language === "mr" ? "फार्मसी औषध साठा उपलब्धता तपासणी" : language === "hi" ? "फार्मेसी दवा उपलब्धता चेकर" : "Pharmacy Availability Checker"}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {language === "mr"
+                  ? "औषध साठा पातळी शोधा आणि जेनेरिक औषध पॅकेज आरक्षित करा."
+                  : language === "hi"
+                  ? "दवा स्टॉक स्तर खोजें और जेनेरिक दवा पैकेज आरक्षित करें।"
+                  : "Locate stock levels and reserve generic medicine packages."}
+              </p>
             </div>
             
             <div className="flex border border-slate-200 rounded-xl overflow-hidden text-xs font-bold bg-slate-50">
@@ -1940,13 +2176,13 @@ export default function PatientDashboard() {
                 onClick={() => setMapMode("Map")}
                 className={`px-3 py-1.5 cursor-pointer transition-all border-0 ${mapMode === "Map" ? "bg-white text-primary shadow-xs" : "bg-transparent text-slate-500"}`}
               >
-                Map View
+                {language === "mr" ? "नकाशा दृश्य" : language === "hi" ? "नक्शा दृश्य" : "Map View"}
               </button>
               <button
                 onClick={() => setMapMode("List")}
                 className={`px-3 py-1.5 cursor-pointer transition-all border-0 ${mapMode === "List" ? "bg-white text-primary shadow-xs" : "bg-transparent text-slate-500"}`}
               >
-                List View
+                {language === "mr" ? "यादी दृश्य" : language === "hi" ? "सूची दृश्य" : "List View"}
               </button>
             </div>
           </div>
@@ -1954,7 +2190,9 @@ export default function PatientDashboard() {
           {selectedMedicineCheck && (
             <div className="bg-blue-50 border border-blue-150 p-4 rounded-2xl flex justify-between items-center text-xs">
               <div>
-                <span className="font-bold text-slate-700">Checking Live Availability for: </span>
+                <span className="font-bold text-slate-700">
+                  {language === "mr" ? "या औषधासाठी थेट साठा तपासत आहे: " : language === "hi" ? "इस दवा के लिए लाइव स्टॉक जांच: " : "Checking Live Availability for: "}
+                </span>
                 <strong className="text-primary font-extrabold">{selectedMedicineCheck}</strong>
               </div>
               <button
@@ -1964,7 +2202,7 @@ export default function PatientDashboard() {
                 }}
                 className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg font-bold border-0 cursor-pointer text-[10px]"
               >
-                Reset / Show All
+                {language === "mr" ? "रीसेट / सर्व दाखवा" : language === "hi" ? "रीसेट / सभी दिखाएं" : "Reset / Show All"}
               </button>
             </div>
           )}
@@ -1987,19 +2225,25 @@ export default function PatientDashboard() {
                   {stockLoading ? (
                     <div className="col-span-full py-8 text-center text-slate-450 font-bold flex flex-col items-center gap-2">
                       <Loader2 className="animate-spin text-primary" size={24} />
-                      Querying district pharmacy networks...
+                      {language === "mr" ? "जिल्हा औषधालय नेटवर्क तपासत आहे..." : language === "hi" ? "जिला फ़ार्मेसी नेटवर्क से संपर्क किया जा रहा है..." : "Querying district pharmacy networks..."}
                     </div>
                   ) : (realStockAvailability.length > 0 ? realStockAvailability : nearbyFacilities).map((fac, idx) => (
                     <div key={idx} className="border border-slate-200 p-4 rounded-xl bg-slate-50 flex flex-col justify-between gap-3">
                       <div>
                         <strong className="text-slate-800 text-[11px] block">{fac.name}</strong>
-                        <span className="text-[10px] text-slate-500 block mt-0.5">Distance: {fac.distance}</span>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">
+                          {language === "mr" ? "अंतर: " : language === "hi" ? "दूरी: " : "Distance: "}{fac.distance}
+                        </span>
                         {selectedMedicineCheck && (
                           <div className="mt-2 space-y-0.5 font-bold">
-                            <span className="text-[9px] text-slate-550 block">Available: {fac.qty} units</span>
+                            <span className="text-[9px] text-slate-550 block">
+                              {language === "mr" ? `उपलब्ध: ${fac.qty} युनिट्स` : language === "hi" ? `उपलब्ध: ${fac.qty} यूनिट्स` : `Available: ${fac.qty} units`}
+                            </span>
                             <span className={`text-[9px] block ${
                               fac.MC2 === "Available" ? "text-green-700" : fac.MC2 === "Low" || fac.MC2 === "Low Stock" ? "text-amber-700" : "text-red-705"
-                            }`}>Status: {fac.MC2}</span>
+                            }`}>
+                              {language === "mr" ? "स्थिती: " : language === "hi" ? "स्थिति: " : "Status: "}{fac.MC2}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -2007,7 +2251,7 @@ export default function PatientDashboard() {
                         onClick={() => handleReserveMedicine(fac.name, fac.medicineId)}
                         className="bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded-lg cursor-pointer border-0"
                       >
-                        Reserve Package
+                        {language === "mr" ? "औषध पॅकेज आरक्षित करा" : language === "hi" ? "दवा पैकेज आरक्षित करें" : "Reserve Package"}
                       </button>
                     </div>
                   ))}
@@ -2018,25 +2262,27 @@ export default function PatientDashboard() {
                 {stockLoading ? (
                   <div className="py-8 text-center text-slate-450 font-bold flex flex-col items-center gap-2">
                     <Loader2 className="animate-spin text-primary" size={24} />
-                    Querying district pharmacy networks...
+                    {language === "mr" ? "जिल्हा औषधालय नेटवर्क तपासत आहे..." : language === "hi" ? "जिला फ़ार्मेसी नेटवर्क से संपर्क किया जा रहा है..." : "Querying district pharmacy networks..."}
                   </div>
                 ) : (realStockAvailability.length > 0 ? realStockAvailability : nearbyFacilities).map((fac, idx) => (
                   <div key={idx} className="flex justify-between items-center border border-slate-100 p-4 rounded-2xl hover:bg-slate-50 transition-colors text-xs">
                     <div>
                       <strong className="text-slate-800 text-sm block">{fac.name}</strong>
                       <span className="text-[10px] text-slate-500 mt-0.5 block">
-                        Distance: {fac.distance} | Stock Updated: {fac.updated}
+                        {language === "mr" ? "अंतर: " : language === "hi" ? "दूरी: " : "Distance: "}{fac.distance} | {language === "mr" ? "साठा अद्ययावत: " : language === "hi" ? "स्टॉक अपडेट: " : "Stock Updated: "}{fac.updated}
                       </span>
                       <div className="flex gap-2 mt-1.5">
                         {selectedMedicineCheck ? (
-                          <span className="text-[9px] bg-blue-50 text-primary px-2 py-0.5 rounded-md font-bold">Qty: {fac.qty} units</span>
+                          <span className="text-[9px] bg-blue-50 text-primary px-2 py-0.5 rounded-md font-bold">
+                            {language === "mr" ? `प्रमाण: ${fac.qty} युनिट्स` : language === "hi" ? `मात्रा: ${fac.qty} यूनिट्स` : `Qty: ${fac.qty} units`}
+                          </span>
                         ) : (
                           <span className="text-[9px] bg-green-50 text-green-700 px-2 py-0.5 rounded-md font-bold">MC1 Code: {fac.MC1}</span>
                         )}
                         <span className={`text-[9px] px-2 py-0.5 rounded-md font-bold ${
                           fac.MC2 === "Available" ? "bg-green-50 text-green-700" : fac.MC2 === "Low" || fac.MC2 === "Low Stock" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"
                         }`}>
-                          {selectedMedicineCheck ? "Status: " : "MC2 Code: "}{fac.MC2}
+                          {selectedMedicineCheck ? (language === "mr" ? "स्थिती: " : language === "hi" ? "स्थिति: " : "Status: ") : "MC2 Code: "}{fac.MC2}
                         </span>
                       </div>
                     </div>
@@ -2045,7 +2291,7 @@ export default function PatientDashboard() {
                       onClick={() => handleReserveMedicine(fac.name, fac.medicineId)}
                       className="bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl cursor-pointer border-0"
                     >
-                      Reserve at Pharmacy
+                      {language === "mr" ? "औषधालयात आरक्षित करा" : language === "hi" ? "फ़ार्मेसी में आरक्षित करें" : "Reserve at Pharmacy"}
                     </button>
                   </div>
                 ))}
@@ -2059,19 +2305,29 @@ export default function PatientDashboard() {
       {activeTab === "Health Records" && (
         <div className="space-y-6">
           <div className="text-left">
-            <h2 className="text-lg font-extrabold text-slate-800">Your ABDM Health Records</h2>
-            <p className="text-xs text-slate-500">Manage diagnostic report files, historical prescriptions, and upload custom lab reports.</p>
+            <h2 className="text-lg font-extrabold text-slate-800">
+              {language === "mr" ? "तुमच्या ABDM आरोग्य नोंदी" : language === "hi" ? "आपके ABDM स्वास्थ्य रिकॉर्ड" : "Your ABDM Health Records"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {language === "mr"
+                ? "निदान अहवाल फाइल्स, मागील प्रिस्क्रिप्शन व्यवस्थापित करा आणि लॅब अहवाल अपलोड करा."
+                : language === "hi"
+                ? "डायग्नोस्टिक रिपोर्ट फाइलें, पिछले नुस्खे प्रबंधित करें और कस्टम लैब रिपोर्ट अपलोड करें।"
+                : "Manage diagnostic report files, historical prescriptions, and upload custom lab reports."}
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 items-start">
             {/* Left Col: Upload Form */}
             <div className="bg-white border border-slate-200/80 p-5 rounded-3xl shadow-xs space-y-4 text-left">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Upload Lab Report</h3>
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                {language === "mr" ? "लॅब अहवाल अपलोड करा" : language === "hi" ? "लैब रिपोर्ट अपलोड करें" : "Upload Lab Report"}
+              </h3>
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
                   if (!uploadTitle || !uploadContent) {
-                    alert("Please fill in all fields.");
+                    alert(language === "mr" ? "कृपया सर्व माहिती भरा." : language === "hi" ? "कृपया सभी फ़ील्ड भरें।" : "Please fill in all fields.");
                     return;
                   }
                   setUploadLoading(true);
@@ -2088,7 +2344,7 @@ export default function PatientDashboard() {
                     });
                     const data = await res.json();
                     if (data.success) {
-                      alert("Document uploaded successfully!");
+                      alert(language === "mr" ? "दस्तऐवज यशस्वीरित्या अपलोड केला गेला!" : language === "hi" ? "दस्तावेज़ सफलतापूर्वक अपलोड हो गया!" : "Document uploaded successfully!");
                       setUploadTitle("");
                       setUploadContent("");
                       setUploadFile(null);
@@ -2111,41 +2367,55 @@ export default function PatientDashboard() {
                 className="space-y-3 text-xs"
               >
                 <div>
-                  <label className="block font-bold text-slate-600 mb-1">Document Title</label>
+                  <label className="block font-bold text-slate-600 mb-1">
+                    {language === "mr" ? "दस्तऐवज शीर्षक" : language === "hi" ? "दस्तावेज़ शीर्षक" : "Document Title"}
+                  </label>
                   <input
                     type="text"
                     required
                     value={uploadTitle}
                     onChange={(e) => setUploadTitle(e.target.value)}
-                    placeholder="e.g. Blood Sugar Report, Chest X-Ray Notes"
+                    placeholder={language === "mr" ? "उदा. रक्त शर्करा चाचणी, छातीचा एक्स-रे" : language === "hi" ? "उदा. ब्लड शुगर रिपोर्ट, चेस्ट एक्स-रे" : "e.g. Blood Sugar Report, Chest X-Ray Notes"}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-600 mb-1">Document Type</label>
+                  <label className="block font-bold text-slate-600 mb-1">
+                    {language === "mr" ? "दस्तऐवज प्रकार" : language === "hi" ? "दस्तावेज़ प्रकार" : "Document Type"}
+                  </label>
                   <select
                     value={uploadType}
                     onChange={(e) => setUploadType(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"
                   >
-                    <option value="LabReport">Laboratory Diagnostics (Lab Report)</option>
-                    <option value="DischargeSummary">Discharge Summary</option>
-                    <option value="Other">Other Clinical Document</option>
+                    <option value="LabReport">
+                      {language === "mr" ? "प्रयोगशाळा निदान (लॅब अहवाल)" : language === "hi" ? "प्रयोगशाला निदान (लैब रिपोर्ट)" : "Laboratory Diagnostics (Lab Report)"}
+                    </option>
+                    <option value="DischargeSummary">
+                      {language === "mr" ? "डिस्चार्ज सारांश" : language === "hi" ? "डिस्चार्ज सारांश" : "Discharge Summary"}
+                    </option>
+                    <option value="Other">
+                      {language === "mr" ? "इतर वैद्यकीय दस्तऐवज" : language === "hi" ? "अन्य नैदानिक दस्तावेज़" : "Other Clinical Document"}
+                    </option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-600 mb-1">Report Data / Clinical Notes</label>
+                  <label className="block font-bold text-slate-600 mb-1">
+                    {language === "mr" ? "अहवाल तपशील / वैद्यकीय नोंदी" : language === "hi" ? "रिपोर्ट डेटा / क्लिनिकल नोट्स" : "Report Data / Clinical Notes"}
+                  </label>
                   <textarea
                     required
                     rows={4}
                     value={uploadContent}
                     onChange={(e) => setUploadContent(e.target.value)}
-                    placeholder="Enter diagnostic values, sugar readings, or doctor's summary instructions here..."
+                    placeholder={language === "mr" ? "येथे चाचणी मूल्ये, साखर वाचन किंवा डॉक्टरांच्या सारांश सूचना प्रविष्ट करा..." : language === "hi" ? "यहाँ परीक्षण मान, शुगर रीडिंग या डॉक्टर के निर्देश दर्ज करें..." : "Enter diagnostic values, sugar readings, or doctor's summary instructions here..."}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-600 mb-1">Attach Scanned Document (Optional PDF/Image)</label>
+                  <label className="block font-bold text-slate-600 mb-1">
+                    {language === "mr" ? "स्कॅन केलेले दस्तऐवज जोडा (पर्यायी PDF/फोटो)" : language === "hi" ? "स्कैन किया गया दस्तावेज़ संलग्न करें (वैकल्पिक PDF/इमेज)" : "Attach Scanned Document (Optional PDF/Image)"}
+                  </label>
                   <input
                     type="file"
                     accept="image/*,.pdf"
@@ -2171,7 +2441,9 @@ export default function PatientDashboard() {
                   disabled={uploadLoading}
                   className="w-full bg-primary hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl cursor-pointer border-0 mt-2 flex items-center justify-center gap-1.5"
                 >
-                  {uploadLoading ? "Uploading..." : "Save to Health Locker"}
+                  {uploadLoading
+                    ? (language === "mr" ? "अपलोड करत आहे..." : language === "hi" ? "अपलोड हो रहा है..." : "Uploading...")
+                    : (language === "mr" ? "आरोग्य लॉकरमध्ये जतन करा" : language === "hi" ? "हेल्थ लॉकर में सुरक्षित करें" : "Save to Health Locker")}
                 </button>
               </form>
             </div>
@@ -2180,7 +2452,9 @@ export default function PatientDashboard() {
             <div className="md:col-span-2 space-y-6 text-left">
               {/* Document Locker */}
               <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Clinical Documents Locker</h3>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                  {language === "mr" ? "क्लिनिकल दस्तऐवज लॉकर" : language === "hi" ? "क्लिनिकल दस्तावेज़ लॉकर" : "Clinical Documents Locker"}
+                </h3>
                 
                 <div className="space-y-3 text-xs">
                   {/* Default Static Documents using our real print function */}
@@ -2188,8 +2462,12 @@ export default function PatientDashboard() {
                     <div className="flex gap-3 items-start">
                       <div className="p-2.5 bg-blue-50 text-primary rounded-xl shrink-0"><FileSpreadsheet size={16} /></div>
                       <div>
-                        <strong className="text-slate-800 block text-[13px]">ASHA Vitals Baseline Intake</strong>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">Source: Sharda Patil (ASHA) | Status: Verified</span>
+                        <strong className="text-slate-800 block text-[13px]">
+                          {language === "mr" ? "आशा सेविका प्राथमिक आरोग्य तपासणी" : language === "hi" ? "आशा कार्यकर्ता प्राथमिक स्वास्थ्य जांच" : "ASHA Vitals Baseline Intake"}
+                        </strong>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">
+                          {language === "mr" ? "स्रोत: शारदा पाटील (आशा) | स्थिती: सत्यापित" : language === "hi" ? "स्रोत: शारदा पाटिल (आशा) | स्थिति: सत्यापित" : "Source: Sharda Patil (ASHA) | Status: Verified"}
+                        </span>
                       </div>
                     </div>
                     <button
@@ -2200,7 +2478,7 @@ export default function PatientDashboard() {
                       })}
                       className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
                     >
-                      Download PDF
+                      {language === "mr" ? "PDF डाउनलोड करा" : language === "hi" ? "PDF डाउनलोड करें" : "Download PDF"}
                     </button>
                   </div>
 
@@ -2208,8 +2486,12 @@ export default function PatientDashboard() {
                     <div className="flex gap-3 items-start">
                       <div className="p-2.5 bg-blue-50 text-primary rounded-xl shrink-0"><FileSpreadsheet size={16} /></div>
                       <div>
-                        <strong className="text-slate-800 block text-[13px]">Community Lab Diagnostics (CBC)</strong>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">Source: Dr. Kulkarni | Status: Verified</span>
+                        <strong className="text-slate-800 block text-[13px]">
+                          {language === "mr" ? "समुदाय लॅब निदान (CBC रक्त तपासणी)" : language === "hi" ? "सामुदायिक लैब निदान (CBC रक्त परीक्षण)" : "Community Lab Diagnostics (CBC)"}
+                        </strong>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">
+                          {language === "mr" ? "स्रोत: डॉ. कुलकर्णी | स्थिती: सत्यापित" : language === "hi" ? "स्रोत: डॉ. कुलकर्णी | स्थिति: सत्यापित" : "Source: Dr. Kulkarni | Status: Verified"}
+                        </span>
                       </div>
                     </div>
                     <button
@@ -2220,7 +2502,7 @@ export default function PatientDashboard() {
                       })}
                       className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
                     >
-                      Download PDF
+                      {language === "mr" ? "PDF डाउनलोड करा" : language === "hi" ? "PDF डाउनलोड करें" : "Download PDF"}
                     </button>
                   </div>
 
@@ -2232,7 +2514,7 @@ export default function PatientDashboard() {
                         <div>
                           <strong className="text-slate-800 block text-[13px]">{doc.title}</strong>
                           <span className="text-[10px] text-slate-400 block mt-0.5">
-                            Date: {new Date(doc.createdAt).toLocaleDateString()} | Type: {doc.type}
+                            {language === "mr" ? "तारीख: " : language === "hi" ? "तारीख: " : "Date: "}{new Date(doc.createdAt).toLocaleDateString()} | {language === "mr" ? "प्रकार: " : language === "hi" ? "प्रकार: " : "Type: "}{doc.type}
                           </span>
                         </div>
                       </div>
@@ -2240,7 +2522,7 @@ export default function PatientDashboard() {
                         onClick={() => handleDownloadClinicalDocument(doc)}
                         className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
                       >
-                        Download PDF
+                        {language === "mr" ? "PDF डाउनलोड करा" : language === "hi" ? "PDF डाउनलोड करें" : "Download PDF"}
                       </button>
                     </div>
                   ))}
@@ -2249,7 +2531,9 @@ export default function PatientDashboard() {
 
               {/* Prescription Medicine History */}
               <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Prescription & Medication History</h3>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                  {language === "mr" ? "प्रिस्क्रिप्शन आणि औषधोपचार इतिहास" : language === "hi" ? "प्रिस्क्रिप्शन और दवा का इतिहास" : "Prescription & Medication History"}
+                </h3>
                 
                 {prescriptions.length > 0 ? (
                   <div className="space-y-3">
@@ -2257,22 +2541,30 @@ export default function PatientDashboard() {
                       <div key={pres._id} className="border border-slate-150 p-4 rounded-2xl bg-slate-50/50 flex flex-col justify-between gap-3 text-xs">
                         <div className="flex justify-between items-start">
                           <div>
-                            <strong className="text-slate-800 block">Prescribed by {pres.doctorId?.name || "Medical Officer"}</strong>
-                            <span className="text-[10px] text-slate-400 block mt-0.5">Date: {new Date(pres.createdAt).toLocaleDateString()}</span>
+                            <strong className="text-slate-800 block">
+                              {language === "mr" ? "डॉक्टरांचे प्रिस्क्रिप्शन: " : language === "hi" ? "द्वारा निर्धारित: " : "Prescribed by "}{pres.doctorId?.name || "Medical Officer"}
+                            </strong>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">
+                              {language === "mr" ? "तारीख: " : language === "hi" ? "तारीख: " : "Date: "}{new Date(pres.createdAt).toLocaleDateString()}
+                            </span>
                           </div>
                           <button
                             onClick={() => handleDownloadPrescription(pres)}
                             className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
                           >
-                            Print Rx PDF
+                            {language === "mr" ? "Rx PDF प्रिंट करा" : language === "hi" ? "Rx PDF प्रिंट करें" : "Print Rx PDF"}
                           </button>
                         </div>
                         <div className="space-y-1">
-                          <span className="text-[9px] text-slate-400 font-bold uppercase block tracking-wider">Medicines Taken:</span>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase block tracking-wider">
+                            {language === "mr" ? "दिलेली औषधे:" : language === "hi" ? "दी गई दवाएं:" : "Medicines Taken:"}
+                          </span>
                           {pres.medicines.map((med: any, idx: number) => (
                             <div key={idx} className="text-slate-700 bg-white border border-slate-100 px-3 py-1.5 rounded-lg flex justify-between items-center">
                               <strong>{med.name} ({med.strength})</strong>
-                              <span className="text-slate-500 font-semibold">{med.dosage} • {med.durationDays} Days</span>
+                              <span className="text-slate-500 font-semibold">
+                                {med.dosage} • {med.durationDays} {language === "mr" ? "दिवस" : language === "hi" ? "दिन" : "Days"}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -2281,14 +2573,16 @@ export default function PatientDashboard() {
                   </div>
                 ) : (
                   <div className="py-8 text-center text-slate-400 italic">
-                    No medication history recorded.
+                    {language === "mr" ? "कोणताही औषधोपचार इतिहास नोंदवलेला नाही." : language === "hi" ? "कोई दवा इतिहास दर्ज नहीं है।" : "No medication history recorded."}
                   </div>
                 )}
               </div>
 
               {/* Past Consultation Summary Reports */}
               <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Past Consultation Reports (Old PDFs)</h3>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                  {language === "mr" ? "मागील सल्लामसलत अहवाल (PDFs)" : language === "hi" ? "पिछली परामर्श रिपोर्ट (PDFs)" : "Past Consultation Reports (Old PDFs)"}
+                </h3>
                 
                 {consultations.length > 0 ? (
                   <div className="space-y-3">
@@ -2296,20 +2590,24 @@ export default function PatientDashboard() {
                       <div key={c._id} className="border border-slate-150 p-4 rounded-2xl bg-slate-50/50 flex flex-col justify-between gap-2.5 text-xs">
                         <div className="flex justify-between items-center">
                           <div>
-                            <strong className="text-slate-800 block">Outpatient Case Sheet (OPD)</strong>
+                            <strong className="text-slate-800 block">
+                              {language === "mr" ? "बाह्यरुग्ण केस शीट (OPD)" : language === "hi" ? "ओपीडी केस शीट (OPD)" : "Outpatient Case Sheet (OPD)"}
+                            </strong>
                             <span className="text-[10px] text-slate-450 block mt-0.5">
-                              Consultant: {c.doctorId?.name || "Medical Specialist"} | Date: {new Date(c.createdAt || c.consultationDate).toLocaleDateString()}
+                              {language === "mr" ? "सल्लागार: " : language === "hi" ? "परामर्शदाता: " : "Consultant: "}{c.doctorId?.name || "Medical Specialist"} | {language === "mr" ? "तारीख: " : language === "hi" ? "तारीख: " : "Date: "}{new Date(c.createdAt || c.consultationDate).toLocaleDateString()}
                             </span>
                           </div>
                           <button
                             onClick={() => handleDownloadConsultationReport(c)}
                             className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
                           >
-                            Download Summary PDF
+                            {language === "mr" ? "सारांश PDF डाउनलोड करा" : language === "hi" ? "सारांश PDF डाउनलोड करें" : "Download Summary PDF"}
                           </button>
                         </div>
                         <div className="bg-white border border-slate-100 p-2.5 rounded-xl">
-                          <span className="text-[9px] text-slate-400 font-bold uppercase block tracking-wider">Recorded Diagnosis:</span>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase block tracking-wider">
+                            {language === "mr" ? "नोंदवलेले निदान:" : language === "hi" ? "दर्ज किया गया निदान:" : "Recorded Diagnosis:"}
+                          </span>
                           <span className="text-slate-800 font-semibold text-[11px] block mt-0.5">{c.diagnosis || "General Health Review"}</span>
                         </div>
                       </div>
@@ -2317,7 +2615,7 @@ export default function PatientDashboard() {
                   </div>
                 ) : (
                   <div className="py-8 text-center text-slate-400 italic">
-                    No old consultation case files recorded.
+                    {language === "mr" ? "कोणतीही जुनी केस फाईल नोंदवलेली नाही." : language === "hi" ? "कोई पुराना केस रिकॉर्ड दर्ज नहीं है।" : "No old consultation case files recorded."}
                   </div>
                 )}
               </div>
@@ -2331,15 +2629,23 @@ export default function PatientDashboard() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-extrabold text-slate-800">Your Complete Care Timeline</h2>
-              <p className="text-xs text-slate-500">A visual step-by-step log of symptoms intake, triage routing, prescriptions, and followups.</p>
+              <h2 className="text-lg font-extrabold text-slate-800">
+                {language === "mr" ? "तुमची संपूर्ण आरोग्य सेवा टाइमलाइन" : language === "hi" ? "आपकी संपूर्ण स्वास्थ्य सेवा टाइमलाइन" : "Your Complete Care Timeline"}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {language === "mr"
+                  ? "लक्षण नोंदणी, ट्रायज वर्गीकरण, प्रिस्क्रिप्शन आणि फॉलो-अपची संपूर्ण नोंद."
+                  : language === "hi"
+                  ? "लक्षण पंजीकरण, ट्राइएज वर्गीकरण, नुस्खे और फॉलो-अप का पूरा विवरण।"
+                  : "A visual step-by-step log of symptoms intake, triage routing, prescriptions, and followups."}
+              </p>
             </div>
             
             <button
               onClick={handleDownloadTimelineReport}
               className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 cursor-pointer border-0"
             >
-              <Download size={14} /> Download Timeline PDF
+              <Download size={14} /> {language === "mr" ? "टाइमलाइन PDF डाउनलोड करा" : language === "hi" ? "टाइमलाइन PDF डाउनलोड करें" : "Download Timeline PDF"}
             </button>
           </div>
 
@@ -2370,11 +2676,21 @@ export default function PatientDashboard() {
       {activeTab === "Referrals" && (
         <div className="space-y-6">
           <div className="text-left">
-            <h2 className="text-lg font-extrabold text-slate-800">Doctor In-Person Visits (Offline Consultations)</h2>
-            <p className="text-xs text-slate-500">View details of scheduled offline consultations ordered by physicians after online triage.</p>
+            <h2 className="text-lg font-extrabold text-slate-800">
+              {language === "mr" ? "डॉक्टरांच्या प्रत्यक्ष भेटी (ऑफलाइन तपासणी)" : language === "hi" ? "डॉक्टर से व्यक्तिगत मुलाकात (ऑफलाइन परामर्श)" : "Doctor In-Person Visits (Offline Consultations)"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {language === "mr"
+                ? "ऑनलाइन ट्रायजनंतर डॉक्टरांनी दिलेल्या थेट हॉस्पिटल भेटींचे तपशील पहा."
+                : language === "hi"
+                ? "ऑनलाइन ट्राइएज के बाद डॉक्टरों द्वारा निर्धारित अस्पताल दौरों का विवरण देखें।"
+                : "View details of scheduled offline consultations ordered by physicians after online triage."}
+            </p>
           </div>
           <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4 text-left">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Scheduled Doctor Visit Orders</h3>
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+              {language === "mr" ? "नियोजित डॉक्टर भेटींचे आदेश" : language === "hi" ? "निर्धारित डॉक्टर विज़िट आदेश" : "Scheduled Doctor Visit Orders"}
+            </h3>
 
             {referrals.length > 0 ? (
               <div className="space-y-4">
@@ -2384,38 +2700,64 @@ export default function PatientDashboard() {
                       <span className={`text-[10px] px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                         ref.status === "Completed" ? "bg-green-50 text-green-700 border border-green-150" : "bg-blue-50 text-primary border border-blue-150 animate-pulse"
                       }`}>
-                        {ref.status === "Created" ? "OPD Consultation Booked" : ref.status}
+                        {ref.status === "Created"
+                          ? (language === "mr" ? "OPD तपासणी नोंदवली" : language === "hi" ? "ओपीडी परामर्श बुक किया गया" : "OPD Consultation Booked")
+                          : ref.status}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-semibold">Logged: {new Date(ref.createdAt).toLocaleDateString()}</span>
+                      <span className="text-[10px] text-slate-400 font-semibold">
+                        {language === "mr" ? "नोंदणी तारीख: " : language === "hi" ? "दर्ज तिथि: " : "Logged: "}{new Date(ref.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
 
                     <div className="grid sm:grid-cols-2 gap-4 text-slate-700 bg-white p-4 rounded-xl border border-slate-100">
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Health Facility to Visit</span>
-                        <strong className="text-slate-800 text-sm">{ref.destinationFacilityId?.name || "Nashik District Civil Hospital"}</strong>
-                        <span className="text-[10px] text-slate-500 block mt-0.5">Type: {ref.destinationFacilityId?.type || "District Hospital"}</span>
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">
+                          {language === "mr" ? "भेट द्यायचे आरोग्य केंद्र" : language === "hi" ? "दौरे के लिए स्वास्थ्य केंद्र" : "Health Facility to Visit"}
+                        </span>
+                        <strong className="text-slate-800 text-sm">{ref.destinationFacilityId?.name || (language === "mr" ? "नाशिक जिल्हा सामान्य रुग्णालय" : language === "hi" ? "नासिक जिला नागरिक अस्पताल" : "Nashik District Civil Hospital")}</strong>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">
+                          {language === "mr" ? "प्रकार: " : language === "hi" ? "प्रकार: " : "Type: "}{ref.destinationFacilityId?.type || (language === "mr" ? "जिल्हा रुग्णालय" : language === "hi" ? "जिला अस्पताल" : "District Hospital")}
+                        </span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Referring Online Doctor</span>
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">
+                          {language === "mr" ? "सल्ला देणारे ऑनलाइन डॉक्टर" : language === "hi" ? "परामर्शदाता ऑनलाइन डॉक्टर" : "Referring Online Doctor"}
+                        </span>
                         <strong className="text-slate-800 text-sm">{ref.referringDoctorId?.name || "Dr. Aniruddha Kulkarni"}</strong>
-                        <span className="text-[10px] text-slate-500 block mt-0.5">Role: General Medical Officer</span>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">
+                          {language === "mr" ? "पद: वैद्यकीय अधिकारी" : language === "hi" ? "पद: चिकित्सा अधिकारी" : "Role: General Medical Officer"}
+                        </span>
                       </div>
                     </div>
 
                     <div className="space-y-2 bg-[#F8FAFC] p-4.5 rounded-xl border border-slate-200/60">
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">📅 Scheduled Appointment Date & Time</span>
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">
+                          {language === "mr" ? "📅 नियोजित भेटीची तारीख आणि वेळ" : language === "hi" ? "📅 निर्धारित मुलाकात की तारीख और समय" : "📅 Scheduled Appointment Date & Time"}
+                        </span>
                         <strong className="text-primary text-xs font-mono">
-                          {ref.appointmentDate ? new Date(ref.appointmentDate).toLocaleString() : ref.followUpDate ? new Date(ref.followUpDate).toLocaleString() : "Please visit OPD during consultation hours (9 AM - 2 PM)"}
+                          {ref.appointmentDate
+                            ? new Date(ref.appointmentDate).toLocaleString()
+                            : ref.followUpDate
+                            ? new Date(ref.followUpDate).toLocaleString()
+                            : (language === "mr"
+                              ? "कृपया OPD वेळेत भेट द्या (सकाळी ९ ते दुपारी २)"
+                              : language === "hi"
+                              ? "कृपया ओपीडी समय के दौरान पधारें (सुबह 9 से दोपहर 2 बजे)"
+                              : "Please visit OPD during consultation hours (9 AM - 2 PM)")}
                         </strong>
                       </div>
                       <div className="border-t border-slate-200/60 pt-2">
-                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Clinical Reason for In-Person Check</span>
+                        <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">
+                          {language === "mr" ? "प्रत्यक्ष तपासणीचे वैद्यकीय कारण" : language === "hi" ? "व्यक्तिगत जांच का नैदानिक कारण" : "Clinical Reason for In-Person Check"}
+                        </span>
                         <p className="text-slate-700 text-xs font-semibold mt-0.5">{ref.reason}</p>
                       </div>
                       {ref.instructions && (
                         <div className="border-t border-slate-200/60 pt-2">
-                          <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Patient Instructions</span>
+                          <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">
+                            {language === "mr" ? "रुग्णासाठी सूचना" : language === "hi" ? "मरीज के लिए निर्देश" : "Patient Instructions"}
+                          </span>
                           <p className="text-slate-550 italic text-[11px] mt-0.5">{ref.instructions}</p>
                         </div>
                       )}
@@ -2426,8 +2768,16 @@ export default function PatientDashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
                 <Share2 size={28} className="text-slate-350" />
-                <span className="text-[11px] font-bold">No referrals issued</span>
-                <span className="text-[9px] text-slate-400">Referrals issued during your doctor consult will appear here.</span>
+                <span className="text-[11px] font-bold">
+                  {language === "mr" ? "कोणतेही रेफरल जारी केलेले नाही" : language === "hi" ? "कोई रेफरल जारी नहीं किया गया" : "No referrals issued"}
+                </span>
+                <span className="text-[9px] text-slate-400">
+                  {language === "mr"
+                    ? "डॉक्टरांच्या सल्ल्यादरम्यान दिलेले रेफरल येथे दिसतील."
+                    : language === "hi"
+                    ? "डॉक्टर के परामर्श के दौरान जारी किए गए रेफरल यहाँ दिखाई देंगे।"
+                    : "Referrals issued during your doctor consult will appear here."}
+                </span>
               </div>
             )}
           </div>
@@ -2438,29 +2788,49 @@ export default function PatientDashboard() {
       {activeTab === "Follow-ups" && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-800">ASHA Home Visit Follow-ups</h2>
-            <p className="text-xs text-slate-500">Locate scheduled compliance checks and vitals monitoring details.</p>
+            <h2 className="text-lg font-extrabold text-slate-800">
+              {language === "mr" ? "आशा सेविका गृहभेट फॉलो-अप" : language === "hi" ? "आशा कार्यकर्ता गृह भेंट फॉलो-अप" : "ASHA Home Visit Follow-ups"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {language === "mr"
+                ? "नियोजित गृहभेटी आणि आरोग्य तपासणीचे तपशील पहा."
+                : language === "hi"
+                ? "निर्धारित गृह विज़िट और स्वास्थ्य निगरानी का विवरण देखें।"
+                : "Locate scheduled compliance checks and vitals monitoring details."}
+            </p>
           </div>
 
           <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Home Visit Checklist</h3>
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+              {language === "mr" ? "गृहभेट तपासणी यादी" : language === "hi" ? "गृह भेंट चेकलिस्ट" : "Home Visit Checklist"}
+            </h3>
             
             {followups.length > 0 ? (
               <div className="space-y-4">
                 {followups.map((follow) => (
                   <div key={follow._id} className="border border-slate-200 p-5 rounded-2xl bg-slate-50 space-y-3 text-xs max-w-md">
                     <div className="flex justify-between items-center text-slate-700">
-                      <span>Assigned Community Worker</span>
+                      <span>{language === "mr" ? "नियुक्त आरोग्य सेविका" : language === "hi" ? "नियुक्त स्वास्थ्य कार्यकर्ता" : "Assigned Community Worker"}</span>
                       <strong className="text-slate-800">{follow.assignedWorkerId?.name || "Sharda Patil"} ({follow.assignedWorkerId?.role || "ASHA"})</strong>
                     </div>
                     <div className="border-t border-slate-200/60 pt-3 space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="font-bold block text-[10px] text-slate-400 uppercase tracking-wider">Follow-up Task</span>
+                        <span className="font-bold block text-[10px] text-slate-400 uppercase tracking-wider">
+                          {language === "mr" ? "फॉलो-अप कार्य" : language === "hi" ? "फॉलो-अप कार्य" : "Follow-up Task"}
+                        </span>
                         <span className="bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded-md text-[9px] uppercase">{follow.status}</span>
                       </div>
-                      <p className="text-slate-600 mt-1 font-semibold">Reason: {follow.reason}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Due Date: {new Date(follow.dueDate).toLocaleDateString()}</p>
-                      {follow.notes && <p className="text-[10px] text-slate-500 italic mt-1 bg-white p-2 rounded-lg border border-slate-100">Notes: {follow.notes}</p>}
+                      <p className="text-slate-600 mt-1 font-semibold">
+                        {language === "mr" ? "कारण: " : language === "hi" ? "कारण: " : "Reason: "}{follow.reason}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        {language === "mr" ? "अंतिम तारीख: " : language === "hi" ? "नियत तारीख: " : "Due Date: "}{new Date(follow.dueDate).toLocaleDateString()}
+                      </p>
+                      {follow.notes && (
+                        <p className="text-[10px] text-slate-500 italic mt-1 bg-white p-2 rounded-lg border border-slate-100">
+                          {language === "mr" ? "नोंदी: " : language === "hi" ? "टिप्पणियां: " : "Notes: "}{follow.notes}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -2468,8 +2838,16 @@ export default function PatientDashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
                 <RotateCcw size={28} className="text-slate-350" />
-                <span className="text-[11px] font-bold">No follow-ups scheduled</span>
-                <span className="text-[9px] text-slate-400">ASHA checks will map dynamically after clinical consultation completes.</span>
+                <span className="text-[11px] font-bold">
+                  {language === "mr" ? "कोणतेही फॉलो-अप नियोजित नाही" : language === "hi" ? "कोई फॉलो-अप निर्धारित नहीं है" : "No follow-ups scheduled"}
+                </span>
+                <span className="text-[9px] text-slate-400">
+                  {language === "mr"
+                    ? "डॉक्टरांच्या तपासणीनंतर आशा सेविका गृहभेटी येथे दिसतील."
+                    : language === "hi"
+                    ? "डॉक्टर परामर्श के बाद आशा कार्यकर्ता गृह विज़िट यहाँ दिखाई देंगी।"
+                    : "ASHA checks will map dynamically after clinical consultation completes."}
+                </span>
               </div>
             )}
           </div>
@@ -2481,13 +2859,23 @@ export default function PatientDashboard() {
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="flex justify-between items-center text-left">
             <div>
-              <h2 className="text-lg font-extrabold text-slate-800">ABDM Digital Consent Manager</h2>
-              <p className="text-xs text-slate-500">Authorize or revoke access permission to your electronic health records.</p>
+              <h2 className="text-lg font-extrabold text-slate-800">
+                {language === "mr" ? "ABDM डिजिटल संमती व्यवस्थापक" : language === "hi" ? "ABDM डिजिटल सहमति प्रबंधक" : "ABDM Digital Consent Manager"}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {language === "mr"
+                  ? "तुमच्या इलेक्ट्रॉनिक आरोग्य नोंदींचा प्रवेश अधिकृत करा किंवा मागे घ्या."
+                  : language === "hi"
+                  ? "अपने इलेक्ट्रॉनिक स्वास्थ्य रिकॉर्ड तक पहुंच को अधिकृत या निरस्त करें।"
+                  : "Authorize or revoke access permission to your electronic health records."}
+              </p>
             </div>
             
             <button
               onClick={async () => {
-                const purpose = prompt("Enter purpose for data sharing:", "Routine clinical review");
+                const promptMsg = language === "mr" ? "डेटा शेअरिंगचा उद्देश प्रविष्ट करा:" : language === "hi" ? "डेटा शेयरिंग का उद्देश्य दर्ज करें:" : "Enter purpose for data sharing:";
+                const defaultMsg = language === "mr" ? "नियमित वैद्यकीय तपासणी" : language === "hi" ? "नियमित क्लिनिकल समीक्षा" : "Routine clinical review";
+                const purpose = prompt(promptMsg, defaultMsg);
                 if (!purpose) return;
                 try {
                   const res = await fetch("/api/consent", {
@@ -2500,7 +2888,7 @@ export default function PatientDashboard() {
                   });
                   const data = await res.json();
                   if (data.success) {
-                    alert("Consent successfully granted!");
+                    alert(language === "mr" ? "संमती यशस्वीरित्या मंजूर केली!" : language === "hi" ? "सहमति सफलतापूर्वक दी गई!" : "Consent successfully granted!");
                     // Re-fetch consents
                     const consentRes = await fetch("/api/consent");
                     const consentData = await consentRes.json();
@@ -2516,30 +2904,32 @@ export default function PatientDashboard() {
               }}
               className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer border-0 shadow-md shadow-primary/20 flex items-center gap-1.5"
             >
-              + Grant Access Consent
+              {language === "mr" ? "+ प्रवेश संमती द्या" : language === "hi" ? "+ डेटा एक्सेस सहमति दें" : "+ Grant Access Consent"}
             </button>
           </div>
 
           <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs text-left">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Active Data-Sharing Permits</h3>
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+              {language === "mr" ? "सक्रिय डेटा-सामायिकरण परवानग्या" : language === "hi" ? "सक्रिय डेटा-शेयरिंग अनुमतियाँ" : "Active Data-Sharing Permits"}
+            </h3>
             
             {consents.length > 0 ? (
               <div className="overflow-x-auto text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-slate-200 text-slate-400 font-bold bg-slate-50/50">
-                      <th className="py-2.5 px-4">Authorized Recipient</th>
-                      <th className="py-2.5 px-4">Purpose</th>
-                      <th className="py-2.5 px-4">Expiry Date</th>
-                      <th className="py-2.5 px-4 text-center">Status</th>
-                      <th className="py-2.5 px-4 text-center">Action</th>
+                      <th className="py-2.5 px-4">{language === "mr" ? "अधिकृत प्राप्तकर्ता" : language === "hi" ? "अधिकृत प्राप्तकर्ता" : "Authorized Recipient"}</th>
+                      <th className="py-2.5 px-4">{language === "mr" ? "उद्देश" : language === "hi" ? "उद्देश्य" : "Purpose"}</th>
+                      <th className="py-2.5 px-4">{language === "mr" ? "कालबाह्यता तारीख" : language === "hi" ? "समाप्ति तिथि" : "Expiry Date"}</th>
+                      <th className="py-2.5 px-4 text-center">{language === "mr" ? "स्थिती" : language === "hi" ? "स्थिति" : "Status"}</th>
+                      <th className="py-2.5 px-4 text-center">{language === "mr" ? "कृती" : language === "hi" ? "कार्रवाई" : "Action"}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {consents.map((consent) => (
                       <tr key={consent._id} className="hover:bg-slate-50/40">
                         <td className="py-3 px-4 font-bold text-slate-700">
-                          {consent.grantedToDoctorId?.name || consent.grantedToFacilityId?.name || "General Practitioner (Nashik Network)"}
+                          {consent.grantedToDoctorId?.name || consent.grantedToFacilityId?.name || (language === "mr" ? "सामान्य चिकित्सक (नाशिक नेटवर्क)" : language === "hi" ? "सामान्य चिकित्सक (नासिक नेटवर्क)" : "General Practitioner (Nashik Network)")}
                         </td>
                         <td className="py-3 px-4 text-slate-500">{consent.purpose}</td>
                         <td className="py-3 px-4 font-mono text-slate-400">{new Date(consent.expiryDate).toLocaleDateString()}</td>
@@ -2547,14 +2937,14 @@ export default function PatientDashboard() {
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                             consent.status === "Active" ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700"
                           }`}>
-                            {consent.status}
+                            {consent.status === "Active" ? (language === "mr" ? "सक्रिय" : language === "hi" ? "सक्रिय" : "Active") : consent.status}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-center">
                           {consent.status === "Active" && (
                             <button
                               onClick={async () => {
-                                if (!confirm("Are you sure you want to withdraw this access consent?")) return;
+                                if (!confirm(language === "mr" ? "तुम्हाला खात्री आहे की तुम्ही ही संमती मागे घेऊ इच्छिता?" : language === "hi" ? "क्या आप वाकई इस सहमति को वापस लेना चाहते हैं?" : "Are you sure you want to withdraw this access consent?")) return;
                                 try {
                                   const res = await fetch("/api/consent", {
                                     method: "PUT",
@@ -2563,7 +2953,7 @@ export default function PatientDashboard() {
                                   });
                                   const data = await res.json();
                                   if (data.success) {
-                                    alert("Consent successfully withdrawn.");
+                                    alert(language === "mr" ? "संमती यशस्वीरित्या मागे घेतली गेली." : language === "hi" ? "सहमति सफलतापूर्वक वापस ले ली गई।" : "Consent successfully withdrawn.");
                                     // Re-fetch consents
                                     const consentRes = await fetch("/api/consent");
                                     const consentData = await consentRes.json();
@@ -2577,7 +2967,7 @@ export default function PatientDashboard() {
                               }}
                               className="text-red-600 hover:text-red-700 font-bold border-0 bg-transparent cursor-pointer text-xs"
                             >
-                              Withdraw
+                              {language === "mr" ? "मागे घ्या" : language === "hi" ? "वापस लें" : "Withdraw"}
                             </button>
                           )}
                         </td>
@@ -2589,8 +2979,16 @@ export default function PatientDashboard() {
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
                 <Shield size={28} className="text-slate-350" />
-                <span className="text-[11px] font-bold">No data permits active</span>
-                <span className="text-[9px] text-slate-400">All data transfers are blocked. Grant consent to allow practitioners to access your clinical history.</span>
+                <span className="text-[11px] font-bold">
+                  {language === "mr" ? "कोणतीही डेटा परवानगी सक्रिय नाही" : language === "hi" ? "कोई डेटा अनुमति सक्रिय नहीं है" : "No data permits active"}
+                </span>
+                <span className="text-[9px] text-slate-400">
+                  {language === "mr"
+                    ? "सर्व डेटा देवाणघेवाण ब्लॉक आहे. डॉक्टरांना वैद्यकीय इतिहास पाहण्याची परवानगी देण्यासाठी संमती द्या."
+                    : language === "hi"
+                    ? "सभी डेटा स्थानांतरण अवरुद्ध हैं। चिकित्सकों को अपना क्लिनिकल इतिहास देखने की अनुमति देने के लिए सहमति दें।"
+                    : "All data transfers are blocked. Grant consent to allow practitioners to access your clinical history."}
+                </span>
               </div>
             )}
           </div>
@@ -2603,9 +3001,13 @@ export default function PatientDashboard() {
           <div className="bg-slate-900 text-white p-4.5 flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              <strong className="text-sm font-extrabold">Gemini Clinical Decision Support Agent</strong>
+              <strong className="text-sm font-extrabold">
+                {language === "mr" ? "जेमिनी क्लिनिकल निर्णय समर्थन सहाय्यक" : language === "hi" ? "जेमिनी क्लिनिकल निर्णय समर्थन सहायक" : "Gemini Clinical Decision Support Agent"}
+              </strong>
             </div>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">REAL-TIME CO-PILOT</span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+              {language === "mr" ? "थेट एआय सहाय्यक" : language === "hi" ? "लाइव एआई सहायक" : "REAL-TIME CO-PILOT"}
+            </span>
           </div>
 
           <div className="flex-1 overflow-hidden relative">
@@ -2618,13 +3020,23 @@ export default function PatientDashboard() {
       {activeTab === "Settings" && (
         <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-6">
           <div>
-            <h2 className="text-lg font-extrabold text-slate-800">Portal Settings</h2>
-            <p className="text-xs text-slate-500">Configure accessibility, notifications, and language defaults.</p>
+            <h2 className="text-lg font-extrabold text-slate-800">
+              {language === "mr" ? "पोर्टल सेटिंग्ज" : language === "hi" ? "पोर्टल सेटिंग्स" : "Portal Settings"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {language === "mr"
+                ? "भाषा आणि सूचना सेटिंग्ज कॉन्फिगर करा."
+                : language === "hi"
+                ? "भाषा और अधिसूचना सेटिंग्स कॉन्फ़िगर करें।"
+                : "Configure accessibility, notifications, and language defaults."}
+            </p>
           </div>
 
           <div className="max-w-md space-y-5 text-xs text-slate-700">
             <div className="space-y-2">
-              <strong className="block text-slate-800 text-[13px]">Preferred Application Language</strong>
+              <strong className="block text-slate-800 text-[13px]">
+                {language === "mr" ? "प्राधान्य दिलेली ॲप्लिकेशन भाषा" : language === "hi" ? "पसंदीदा एप्लिकेशन भाषा" : "Preferred Application Language"}
+              </strong>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => setLanguage("en")}
@@ -2648,15 +3060,29 @@ export default function PatientDashboard() {
             </div>
 
             <div className="border-t border-slate-100 pt-4 space-y-2">
-              <strong className="block text-slate-800 text-[13px]">Notifications Setup</strong>
+              <strong className="block text-slate-800 text-[13px]">
+                {language === "mr" ? "सूचना (Notifications) सेटअप" : language === "hi" ? "सूचनाएं (Notifications) सेटअप" : "Notifications Setup"}
+              </strong>
               <div className="space-y-2.5">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" defaultChecked className="rounded-sm border-slate-300 text-primary h-4 w-4" />
-                  <span>Receive SMS reminders for scheduled ASHA home visits</span>
+                  <span>
+                    {language === "mr"
+                      ? "आशा सेविकेच्या गृहभेटीसाठी SMS स्मरणपत्रे मिळवा"
+                      : language === "hi"
+                      ? "आशा कार्यकर्ता की गृह भेंट के लिए SMS रिमाइंडर प्राप्त करें"
+                      : "Receive SMS reminders for scheduled ASHA home visits"}
+                  </span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" defaultChecked className="rounded-sm border-slate-300 text-primary h-4 w-4" />
-                  <span>Alert me when generic pharmacy orders change status</span>
+                  <span>
+                    {language === "mr"
+                      ? "जेनेरिक औषध ऑर्डरची स्थिती बदलल्यावर सूचना द्या"
+                      : language === "hi"
+                      ? "जेनेरिक दवा ऑर्डर की स्थिति बदलने पर अलर्ट प्राप्त करें"
+                      : "Alert me when generic pharmacy orders change status"}
+                  </span>
                 </label>
               </div>
             </div>
@@ -2669,8 +3095,12 @@ export default function PatientDashboard() {
         <div className="fixed inset-0 bg-black/50 z-55 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 border border-slate-200/80 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
             <div>
-              <h3 className="font-extrabold text-sm text-slate-800">Link ABHA Account ID</h3>
-              <p className="text-xs text-slate-400 mt-1">Enter your 14-digit national health ID</p>
+              <h3 className="font-extrabold text-sm text-slate-800">
+                {language === "mr" ? "ABHA खाते आयडी जोडा" : language === "hi" ? "ABHA खाता आईडी लिंक करें" : "Link ABHA Account ID"}
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">
+                {language === "mr" ? "तुमचा 14 अंकी राष्ट्रीय आरोग्य आयडी प्रविष्ट करा" : language === "hi" ? "अपना 14 अंकों का राष्ट्रीय स्वास्थ्य आईडी दर्ज करें" : "Enter your 14-digit national health ID"}
+              </p>
             </div>
             <form onSubmit={handleLinkAbha} className="space-y-4">
               <input
@@ -2687,14 +3117,16 @@ export default function PatientDashboard() {
                   onClick={() => setShowAbhaModal(false)}
                   className="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer bg-white text-slate-700 font-bold"
                 >
-                  Cancel
+                  {language === "mr" ? "रद्द करा" : language === "hi" ? "रद्द करें" : "Cancel"}
                 </button>
                 <button
                   type="submit"
                   disabled={linkingLoading}
                   className="bg-primary hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-lg cursor-pointer border-0"
                 >
-                  Link ABHA
+                  {linkingLoading
+                    ? (language === "mr" ? "जोडत आहे..." : language === "hi" ? "लिंक हो रहा है..." : "Linking...")
+                    : (language === "mr" ? "ABHA जोडा" : language === "hi" ? "ABHA लिंक करें" : "Link ABHA")}
                 </button>
               </div>
             </form>
