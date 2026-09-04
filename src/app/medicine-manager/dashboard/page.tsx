@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { divisions } from "@/lib/maharashtra";
-import { DEMO_MEDICINES } from "@/lib/demoMedicines";
+import { DEMO_MEDICINES, DEMO_RESERVATIONS } from "@/lib/demoMedicines";
 
 export default function MedicineManagerDashboard() {
   const router = useRouter();
@@ -187,17 +187,23 @@ export default function MedicineManagerDashboard() {
     try {
       const res = await fetch(`/api/medicines/reserve?facilityId=${facilityId || ""}`);
       const data = await res.json();
-      if (data.success) {
-        setReservations(data.reservations || []);
+      if (data.success && Array.isArray(data.reservations) && data.reservations.length > 0) {
+        setReservations(data.reservations);
+      } else {
+        setReservations(DEMO_RESERVATIONS);
       }
     } catch (e) {
-      console.error(e);
+      console.warn("Reservations fallback:", e);
+      setReservations(DEMO_RESERVATIONS);
     }
   }
 
   async function handleDispenseReservation(movementId: string) {
     try {
       setDispensingId(movementId);
+      // Optimistic instant UI update
+      setReservations(prev => prev.map(r => (r.id === movementId || r._id === movementId) ? { ...r, status: "Dispensed", type: "DISPENSED" } : r));
+
       const res = await fetch("/api/medicines/reserve", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

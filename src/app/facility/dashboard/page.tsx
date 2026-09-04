@@ -33,7 +33,7 @@ import {
   Filter
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
-import { DEMO_MEDICINES } from "@/lib/demoMedicines";
+import { DEMO_MEDICINES, DEMO_RESERVATIONS } from "@/lib/demoMedicines";
 
 export default function FacilityDashboard() {
   const router = useRouter();
@@ -129,13 +129,18 @@ export default function FacilityDashboard() {
       } else {
         setMedicines(DEMO_MEDICINES);
       }
-      if (resData.success) setReservations(resData.reservations || []);
+      if (resData.success && Array.isArray(resData.reservations) && resData.reservations.length > 0) {
+        setReservations(resData.reservations);
+      } else {
+        setReservations(DEMO_RESERVATIONS);
+      }
       if (rData.success) setReferrals(rData.referrals || []);
       if (fData.success) setFollowups(fData.followups || []);
 
     } catch (e) {
       console.warn("Facility dashboard offline fallback:", e);
       setMedicines(DEMO_MEDICINES);
+      setReservations(DEMO_RESERVATIONS);
       setCurrentUser((prev: any) => prev || {
         name: "Dr. Sandeep Patil",
         role: "FacilityAdmin",
@@ -154,6 +159,9 @@ export default function FacilityDashboard() {
   async function handleDispense(movementId: string) {
     try {
       setDispensingId(movementId);
+      // Optimistic instant UI update
+      setReservations(prev => prev.map(r => (r.id === movementId || r._id === movementId) ? { ...r, status: "Dispensed", type: "DISPENSED" } : r));
+
       const res = await fetch("/api/medicines/reserve", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

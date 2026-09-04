@@ -223,3 +223,116 @@ export const DEMO_MEDICINES: DemoMedicine[] = [
     district: "Nashik"
   }
 ];
+
+export interface DemoReservation {
+  id: string;
+  _id?: string;
+  trackingId: string;
+  patientRef: string;
+  patientName?: string;
+  medicineName: string;
+  genericName: string;
+  strength: string;
+  form: string;
+  facilityName: string;
+  facilityId?: string;
+  quantity: number;
+  type: "RESERVED" | "DISPENSED";
+  status: "Active Reservation" | "Dispensed" | "Ready for Pickup";
+  notes: string;
+  createdAt: string;
+}
+
+export const DEMO_RESERVATIONS: DemoReservation[] = [
+  {
+    id: "res-demo-001",
+    _id: "res-demo-001",
+    trackingId: "JC-MED-7821",
+    patientRef: "JC-7F3K92",
+    patientName: "Ramesh Kumar",
+    medicineName: "Paracetamol 500mg (PMBJP Generic)",
+    genericName: "Paracetamol",
+    strength: "500mg",
+    form: "Tablet",
+    facilityName: "Nashik MED-01 (Jan Aushadhi Kendra)",
+    facilityId: "fac-nashik-med1",
+    quantity: 2,
+    type: "RESERVED",
+    status: "Active Reservation",
+    notes: "Reserved by patient Ramesh Kumar (Ref ID: JC-7F3K92) [Token: JC-MED-7821] via Patient Portal",
+    createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString()
+  },
+  {
+    id: "res-demo-002",
+    _id: "res-demo-002",
+    trackingId: "JC-MED-5514",
+    patientRef: "JC-9M2X41",
+    patientName: "Sunita Patil",
+    medicineName: "Amlodipine 5mg (PMBJP Generic)",
+    genericName: "Amlodipine Besylate",
+    strength: "5mg",
+    form: "Tablet",
+    facilityName: "Sinnar CHC-01",
+    facilityId: "fac-sinnar-chc",
+    quantity: 1,
+    type: "RESERVED",
+    status: "Active Reservation",
+    notes: "Reserved by patient Sunita Patil (Ref ID: JC-9M2X41) [Token: JC-MED-5514] via Patient Portal",
+    createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString()
+  },
+  {
+    id: "res-demo-003",
+    _id: "res-demo-003",
+    trackingId: "JC-MED-3209",
+    patientRef: "JC-4K8P19",
+    patientName: "Ganesh Shinde",
+    medicineName: "Azithromycin 500mg",
+    genericName: "Azithromycin Dihydrate",
+    strength: "500mg",
+    form: "Tablet",
+    facilityName: "Nashik PHC-01",
+    facilityId: "fac-nashik-phc1",
+    quantity: 1,
+    type: "RESERVED",
+    status: "Active Reservation",
+    notes: "Reserved by patient Ganesh Shinde (Ref ID: JC-4K8P19) [Token: JC-MED-3209] via Doctor Consultation Prescription",
+    createdAt: new Date(Date.now() - 90 * 60 * 1000).toISOString()
+  },
+  {
+    id: "res-demo-004",
+    _id: "res-demo-004",
+    trackingId: "JC-MED-9042",
+    patientRef: "JC-3B7L88",
+    patientName: "Kavita Jadhav",
+    medicineName: "Metformin 500mg (PMBJP Generic)",
+    genericName: "Metformin Hydrochloride",
+    strength: "500mg",
+    form: "Tablet",
+    facilityName: "Nashik MED-01 (Jan Aushadhi Kendra)",
+    facilityId: "fac-nashik-med1",
+    quantity: 2,
+    type: "DISPENSED",
+    status: "Dispensed",
+    notes: "Reserved by patient Kavita Jadhav (Ref ID: JC-3B7L88) [Token: JC-MED-9042] | Dispensed by Pharmacist Pradeep Joshi",
+    createdAt: new Date(Date.now() - 180 * 60 * 1000).toISOString()
+  },
+  {
+    id: "res-demo-005",
+    _id: "res-demo-005",
+    trackingId: "JC-MED-1183",
+    patientRef: "JC-6N1D52",
+    patientName: "Arjun More",
+    medicineName: "Oral Rehydration Salts (ORS)",
+    genericName: "WHO Formula ORS",
+    strength: "21.8g Sachet",
+    form: "Other",
+    facilityName: "Sinnar CHC-01",
+    facilityId: "fac-sinnar-chc",
+    quantity: 3,
+    type: "RESERVED",
+    status: "Active Reservation",
+    notes: "Emergency pediatric rehydration prescription reserved via ASHA worker Sharda Patil",
+    createdAt: new Date(Date.now() - 25 * 60 * 1000).toISOString()
+  }
+];
+

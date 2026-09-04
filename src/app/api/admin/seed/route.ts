@@ -490,6 +490,44 @@ export async function POST() {
       });
     }
 
+    // Seed Active & Dispensed Reservations
+    if (seededMedicines.length >= 4) {
+      await StockMovement.create([
+        {
+          facilityId: facilityNashikMED1._id,
+          medicineId: seededMedicines[6]._id, // Paracetamol PMBJP
+          type: "RESERVED",
+          quantity: -2,
+          performedBy: patientUser._id,
+          notes: `Reserved by patient Ramesh Kumar (Ref ID: JC-7F3K92) [Token: JC-MED-7821] via Patient Portal`,
+        },
+        {
+          facilityId: facilitySinnar._id,
+          medicineId: seededMedicines[2]._id, // Amlodipine
+          type: "RESERVED",
+          quantity: -1,
+          performedBy: ashaUser._id,
+          notes: `Reserved by patient Sunita Patil (Ref ID: JC-9M2X41) [Token: JC-MED-5514] via Patient Portal`,
+        },
+        {
+          facilityId: facilityNashikPHC1._id,
+          medicineId: seededMedicines[4]._id, // Paracetamol 500mg
+          type: "RESERVED",
+          quantity: -1,
+          performedBy: doctorUser._id,
+          notes: `Reserved by patient Ganesh Shinde (Ref ID: JC-4K8P19) [Token: JC-MED-3209] via Doctor Consultation Prescription`,
+        },
+        {
+          facilityId: facilityNashikMED1._id,
+          medicineId: seededMedicines[7]._id, // Metformin PMBJP
+          type: "DISPENSED",
+          quantity: -2,
+          performedBy: medManagerUser._id,
+          notes: `Reserved by patient Kavita Jadhav (Ref ID: JC-3B7L88) [Token: JC-MED-9042] | Dispensed by Pharmacist Pradeep Joshi`,
+        }
+      ]);
+    }
+
     // 8. Seed Consultations across Doctor Queue
     const consultationRamesh: any = await Consultation.create({
       patientId: patientRamesh._id,
