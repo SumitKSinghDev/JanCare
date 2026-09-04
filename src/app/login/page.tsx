@@ -60,22 +60,22 @@ export default function LoginPage() {
     if (typeof window !== "undefined" && !navigator.onLine) {
       const u = username.toLowerCase().trim();
       if (u === "patient") {
-        router.push("/patient/dashboard");
+        window.location.href = "/patient/dashboard";
         return;
       } else if (u === "doctor") {
-        router.push("/doctor/dashboard");
+        window.location.href = "/doctor/dashboard";
         return;
       } else if (u === "asha" || u === "anm") {
-        router.push("/asha/dashboard");
+        window.location.href = "/asha/dashboard";
         return;
       } else if (u === "medmanager" || u === "pharmacy") {
-        router.push("/medicine-manager/dashboard");
+        window.location.href = "/medicine-manager/dashboard";
         return;
       } else if (u === "facilityadmin") {
-        router.push("/facility/dashboard");
+        window.location.href = "/facility/dashboard";
         return;
       } else if (u === "districtadmin" || u === "admin") {
-        router.push("/admin/dashboard");
+        window.location.href = "/admin/dashboard";
         return;
       } else {
         setError(
@@ -316,7 +316,7 @@ export default function LoginPage() {
 
     // If offline, route directly to offline dashboard instantly
     if (typeof window !== "undefined" && !navigator.onLine) {
-      router.push(account.path);
+      window.location.href = account.path;
       return;
     }
 
@@ -351,11 +351,11 @@ export default function LoginPage() {
         }
       }
 
-      router.push(account.path);
+      window.location.href = account.path;
     } catch (err: any) {
       // If network dropped mid-action or offline, route directly to offline dashboard
       if (!navigator.onLine || err.message?.includes("Failed to fetch") || err.name === "TypeError") {
-        router.push(account.path);
+        window.location.href = account.path;
         return;
       }
       setError(err.message || "Failed to log in as demo account");

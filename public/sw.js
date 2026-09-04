@@ -1,16 +1,24 @@
-// JanCare Super-Resilient Offline Service Worker (v3)
-const CACHE_NAME = "jancare-pwa-v3";
+// JanCare Complete Offline-First Service Worker (v4)
+const CACHE_NAME = "jancare-pwa-v4";
 const OFFLINE_URL = "/offline.html";
 
+// Pre-cache all core user dashboards and assets
 const PRECACHE_ASSETS = [
   "/",
+  "/login",
+  "/patient/dashboard",
+  "/doctor/dashboard",
+  "/asha/dashboard",
+  "/medicine-manager/dashboard",
+  "/facility/dashboard",
+  "/admin/dashboard",
   "/offline.html",
   "/manifest.json",
   "/favicon.ico",
   "/logo.png"
 ];
 
-// Install: Cache critical assets individually with error tolerance
+// Install: Cache all core dashboards and assets immediately
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -18,18 +26,18 @@ self.addEventListener("install", (event) => {
       for (const url of PRECACHE_ASSETS) {
         try {
           const response = await fetch(url, { cache: "no-cache" });
-          if (response.ok) {
+          if (response && response.ok) {
             await cache.put(url, response);
           }
         } catch (e) {
-          console.warn("[JanCare SW] Pre-cache item skipped:", url, e);
+          console.warn("[JanCare SW] Pre-cache item skipped:", url);
         }
       }
     })
   );
 });
 
-// Activate: Clean up old caches and claim all open tabs immediately
+// Activate: Take control of all tabs immediately and clean up old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keyList) => {
@@ -44,14 +52,14 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch: Intercept all network traffic
+// Fetch: Complete offline interception
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  // Only handle GET requests with http/https
+  // Only intercept HTTP GET requests
   if (request.method !== "GET" || !request.url.startsWith("http")) return;
 
-  // 1. Navigation Requests (HTML Page Loads / Reloads)
+  // 1. Navigation Requests (Page Loads / Tab switches / Dashboard routing)
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -63,23 +71,26 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(async () => {
-          // Network failed (Offline) - search cache
           const cache = await caches.open(CACHE_NAME);
-          const cachedMatch = await cache.match(request, { ignoreSearch: true });
-          if (cachedMatch) return cachedMatch;
+          // 1. Try exact requested URL in cache
+          const exactMatch = await cache.match(request, { ignoreSearch: true });
+          if (exactMatch) return exactMatch;
 
+          // 2. Try URL pathname
+          const urlObj = new URL(request.url);
+          const pathMatch = await cache.match(urlObj.pathname, { ignoreSearch: true });
+          if (pathMatch) return pathMatch;
+
+          // 3. Try Root
           const rootMatch = await cache.match("/", { ignoreSearch: true });
           if (rootMatch) return rootMatch;
 
+          // 4. Fallback to offline page
           const offlineFallback = await cache.match(OFFLINE_URL);
           if (offlineFallback) return offlineFallback;
 
           return new Response(
-            `<!DOCTYPE html>
-            <html lang="en">
-            <head><meta charset="UTF-8"><title>JanCare Offline</title><style>body{font-family:sans-serif;background:#F8FAFC;padding:40px;text-align:center;} .box{background:white;padding:30px;border-radius:20px;max-width:400px;margin:auto;box-shadow:0 10px 20px rgba(0,0,0,0.05);}</style></head>
-            <body><div class="box"><h2>📡 जनCare Offline Active</h2><p>You are currently offline. Your local data and health records are safe.</p><button onclick="window.history.back()" style="background:#1464D2;color:white;padding:10px 20px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">Go Back</button></div></body>
-            </html>`,
+            `<!DOCTYPE html><html><body style="font-family:sans-serif;padding:30px;text-align:center;"><h2>📡 JanCare Offline Active</h2><p>Working in local offline mode.</p><button onclick="window.history.back()">Go Back</button></body></html>`,
             { headers: { "Content-Type": "text/html" } }
           );
         })
@@ -87,11 +98,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2. Static Resources (JS, CSS, Images, Fonts, Next.js chunks)
+  // 2. Static Assets (JS Chunks, CSS, Images, Next.js static files)
   event.respondWith(
     caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) {
-        // Return cached instantly, fetch fresh copy in background if online
+        // Fetch fresh copy in background if online
         fetch(request)
           .then((networkResponse) => {
             if (networkResponse && networkResponse.status === 200) {
@@ -102,7 +113,7 @@ self.addEventListener("fetch", (event) => {
         return cachedResponse;
       }
 
-      // Not in cache, try network and cache the result
+      // Not in cache, try network and dynamically cache
       return fetch(request)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
@@ -112,9 +123,8 @@ self.addEventListener("fetch", (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If it's an image request, return nothing or empty SVG
           if (request.destination === "image") {
-            return new Response("", { status: 408, headers: { "Content-Type": "image/png" } });
+            return new Response("", { status: 200, headers: { "Content-Type": "image/svg+xml" } });
           }
           return new Response("", { status: 503, statusText: "Offline" });
         });
