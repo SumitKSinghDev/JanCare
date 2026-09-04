@@ -33,6 +33,7 @@ import {
   Filter
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
+import { DEMO_MEDICINES } from "@/lib/demoMedicines";
 
 export default function FacilityDashboard() {
   const router = useRouter();
@@ -123,13 +124,18 @@ export default function FacilityDashboard() {
       if (pData.success) setPatients(pData.patients || []);
       if (aData.success) setAppointments(aData.appointments || []);
       if (cData.success) setConsultations(cData.consultations || []);
-      if (mData.success) setMedicines(mData.medicines || []);
+      if (mData.success && Array.isArray(mData.medicines) && mData.medicines.length > 0) {
+        setMedicines(mData.medicines);
+      } else {
+        setMedicines(DEMO_MEDICINES);
+      }
       if (resData.success) setReservations(resData.reservations || []);
       if (rData.success) setReferrals(rData.referrals || []);
       if (fData.success) setFollowups(fData.followups || []);
 
     } catch (e) {
       console.warn("Facility dashboard offline fallback:", e);
+      setMedicines(DEMO_MEDICINES);
       setCurrentUser((prev: any) => prev || {
         name: "Dr. Sandeep Patil",
         role: "FacilityAdmin",

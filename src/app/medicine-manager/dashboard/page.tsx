@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import AppShell from "@/components/AppShell";
 import { divisions } from "@/lib/maharashtra";
+import { DEMO_MEDICINES } from "@/lib/demoMedicines";
 
 export default function MedicineManagerDashboard() {
   const router = useRouter();
@@ -123,19 +124,35 @@ export default function MedicineManagerDashboard() {
     try {
       const res = await fetch(`/api/facilities?district=${district}`);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.facilities && data.facilities.length > 0) {
         setFacilities(data.facilities);
-        if (data.facilities.length > 0) {
-          // Pre-select first facility
-          setSelectedFacility(data.facilities[0]);
-        } else {
-          setSelectedFacility(null);
-          setMedicines([]);
-          setMovements([]);
-        }
+        setSelectedFacility(data.facilities[0]);
+      } else {
+        const defaultFac = {
+          _id: "fac-nashik-med1",
+          name: "Nashik MED-01 (Jan Aushadhi Kendra)",
+          type: "MedicalStore",
+          district: "Nashik",
+          taluka: "Nashik",
+          village: "Demo Village",
+        };
+        setFacilities([defaultFac]);
+        setSelectedFacility(defaultFac);
+        setMedicines(DEMO_MEDICINES);
       }
     } catch (e) {
-      console.error(e);
+      console.warn("Facilities fallback:", e);
+      const defaultFac = {
+        _id: "fac-nashik-med1",
+        name: "Nashik MED-01 (Jan Aushadhi Kendra)",
+        type: "MedicalStore",
+        district: "Nashik",
+        taluka: "Nashik",
+        village: "Demo Village",
+      };
+      setFacilities([defaultFac]);
+      setSelectedFacility(defaultFac);
+      setMedicines(DEMO_MEDICINES);
     }
   }
 
@@ -143,11 +160,14 @@ export default function MedicineManagerDashboard() {
     try {
       const res = await fetch(`/api/medicines?facilityId=${facilityId}`);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && Array.isArray(data.medicines) && data.medicines.length > 0) {
         setMedicines(data.medicines);
+      } else {
+        setMedicines(DEMO_MEDICINES);
       }
     } catch (e) {
-      console.error(e);
+      console.warn("Medicines fallback:", e);
+      setMedicines(DEMO_MEDICINES);
     }
   }
 
