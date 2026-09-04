@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JanCare — SIH Grand Finale Leader Guide & Jury Defense Master Dossier</title>
+  <title>JanCare — Grand Finale Master Leader Guide & Jury Defense Playbook</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
     
@@ -14,6 +14,7 @@
       --emerald-600: #059669;
       --amber-600: #D97706;
       --rose-600: #E11D48;
+      --purple-600: #7C3AED;
       --slate-900: #0F172A;
       --slate-800: #1E293B;
       --slate-700: #334155;
@@ -32,7 +33,7 @@
     }
 
     .container {
-      max-width: 1060px;
+      max-width: 1080px;
       margin: 0 auto;
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -156,6 +157,44 @@
       background: #FFFBEB;
     }
 
+    .card-purple {
+      border-left: 4px solid var(--purple-600);
+      background: #FAF5FF;
+    }
+
+    .card-rose {
+      border-left: 4px solid var(--rose-600);
+      background: #FFF1F2;
+    }
+
+    .jury-pitch-box {
+      background: #EFF6FF;
+      border: 1.5px dashed var(--primary);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+
+    .jury-pitch-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .jury-pitch-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-900);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
     .card-qa {
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -188,20 +227,10 @@
       white-space: nowrap;
     }
 
-    .qa-tag-biz {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .qa-tag-tech {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .qa-tag-gov {
-      background: #f3e8ff;
-      color: #6b21a8;
-    }
+    .qa-tag-biz { background: #fef3c7; color: #92400e; }
+    .qa-tag-tech { background: #dcfce7; color: #166534; }
+    .qa-tag-gov { background: #f3e8ff; color: #6b21a8; }
+    .qa-tag-pwa { background: #fee2e2; color: #9f1239; }
 
     .qa-answer {
       font-size: 13px;
@@ -246,8 +275,15 @@
       margin: 16px 0;
     }
 
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
+    }
+
     @media (max-width: 768px) {
-      .grid-2 { grid-template-columns: 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
       .container { padding: 24px; }
     }
 
@@ -260,9 +296,26 @@
       color: var(--slate-900);
     }
 
-    .highlight {
-      font-weight: 700;
-      color: var(--primary);
+    .workflow-step {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .workflow-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -273,9 +326,9 @@
     <!-- Header -->
     <div class="header">
       <div>
-        <span class="logo-badge">SIH Grand Finale • Leader & Jury Defense Guide</span>
-        <h1>JanCare (जनCare) — Master Evaluation Dossier</h1>
-        <p class="subtitle"><strong>Problem Statement ID:</strong> 26133 | <strong>Client:</strong> Government of Maharashtra, State Innovation Society | <strong>Theme:</strong> MedTech & Rural Healthcare Delivery</p>
+        <span class="logo-badge">SIH Grand Finale • Master Leader & Jury Defense Guide</span>
+        <h1>JanCare (जनCare) — The Complete Master Dossier</h1>
+        <p class="subtitle"><strong>Problem Statement ID:</strong> 26133 | <strong>Organization:</strong> Government of Maharashtra, Public Health Department | <strong>Theme:</strong> MedTech & Rural Healthcare Delivery</p>
       </div>
       <div>
         <button onclick="window.print()" class="btn-print">🖨️ Print / Save PDF</button>
@@ -284,124 +337,346 @@
 
     <!-- Quick Navigation Index -->
     <div class="card card-primary">
-      <h3 style="margin-top: 0; color: var(--primary);">📑 Quick Navigation Matrix:</h3>
-      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
-        <a href="#demo" style="text-decoration: none; font-size: 12px; font-weight: 700; color: var(--primary); background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #bfdbfe;">1. Live 4-Min Demo Protocol</a>
-        <a href="#offline" style="text-decoration: none; font-size: 12px; font-weight: 700; color: var(--emerald-600); background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">2. PWA Offline Architecture</a>
-        <a href="#business" style="text-decoration: none; font-size: 12px; font-weight: 700; color: var(--amber-600); background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #fde68a;">3. Government Business Model & ROI</a>
-        <a href="#costing" style="text-decoration: none; font-size: 12px; font-weight: 700; color: var(--slate-800); background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #cbd5e1;">4. Capex & Opex Costing</a>
-        <a href="#qa" style="text-decoration: none; font-size: 12px; font-weight: 700; color: var(--rose-600); background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #fecdd3;">5. 15 Jury Defense Q&As</a>
+      <h3 style="margin-top: 0; color: var(--primary);">📑 Quick Jump Index:</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+        <a href="#ps-simple" style="text-decoration: none; font-size: 11.5px; font-weight: 700; color: var(--primary); background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #bfdbfe;">1. Problem in Plain Words</a>
+        <a href="#sol-simple" style="text-decoration: none; font-size: 11.5px; font-weight: 700; color: var(--emerald-600); background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #bbf7d0;">2. Solution & Patient Story</a>
+        <a href="#usp-matrix" style="text-decoration: none; font-size: 11.5px; font-weight: 700; color: var(--purple-600); background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #e9d5ff;">3. USPs vs eSanjeevani/ABDM</a>
+        <a href="#pwa-guide" style="text-decoration: none; font-size: 11.5px; font-weight: 700; color: var(--rose-600); background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #fecdd3;">4. What is PWA & 0% Net Telehealth</a>
+        <a href="#disconnect" style="text-decoration: none; font-size: 11.5px; font-weight: 700; color: var(--amber-600); background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #fde68a;">5. Mid-Session Disconnect Safety</a>
+        <a href="#business" style="text-decoration: none; font-size: 11.5px; font-weight: 700; color: #0369a1; background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #bae6fd;">6. Government Business Model</a>
+        <a href="#costing" style="text-decoration: none; font-size: 11.5px; font-weight: 700; color: var(--slate-800); background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #cbd5e1;">7. Capex & Opex Costing</a>
+        <a href="#qa-15" style="text-decoration: none; font-size: 11.5px; font-weight: 700; color: var(--primary-dark); background: #ffffff; padding: 5px 10px; border-radius: 8px; border: 1px solid #93c5fd;">8. 15 Tough Jury Q&As</a>
       </div>
     </div>
 
-    <!-- 1. Live 4-Minute Jury Presentation & Demo Protocol -->
-    <h2 id="demo">⏱️ 1. Exact 4-Minute Jury Presentation & Live Offline Demo Protocol</h2>
-    <p>Deliver this punchy second-by-second presentation to hook the jury and demonstrate live technical mastery:</p>
-    
+    <!-- ========================================================================= -->
+    <!-- 1. The Government Problem Statement in the Simplest Way -->
+    <!-- ========================================================================= -->
+    <h2 id="ps-simple">📋 1. The Government Problem Statement Explained in Plain Words</h2>
+
+    <div class="card card-rose">
+      <h3 style="color: #9f1239; margin-top: 0;">🎯 The Problem Statement in Exactly 1 Sentence:</h3>
+      <p style="font-size: 15px; font-weight: 700; color: #881337; margin-bottom: 0;">
+        "How do we provide complete, unbroken healthcare to rural and tribal citizens — from the village home to the district hospital — even when there is no internet, so no patient gets lost or untreated?"
+      </p>
+    </div>
+
+    <p><strong>🏥 What the Government Saw Was Going Wrong:</strong></p>
+    <p>In big cities, when you visit a doctor, your history is on a computer, your prescription goes to the pharmacy downstairs, and if you need a specialist, the hospital schedules an appointment directly. <strong>In rural villages, this entire system collapses across 4 critical failure points:</strong></p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4 style="color: var(--rose-600); font-size: 13px; font-weight: 800; margin-bottom: 6px;">1. No Internet (Offline Barrier)</h4>
+        <p style="font-size: 12.5px; margin-bottom: 0;">A village ASHA worker visits an elderly farmer with high fever. The government health portal requires 4G internet, which doesn't work in the village. So she writes everything in a paper notebook. Data is delayed by weeks or lost completely.</p>
+      </div>
+      <div class="card">
+        <h4 style="color: var(--rose-600); font-size: 13px; font-weight: 800; margin-bottom: 6px;">2. The Referral Black Hole</h4>
+        <p style="font-size: 12.5px; margin-bottom: 0;">A Primary Health Centre (PHC) doctor writes on a paper slip: <em>"Go to District Civil Hospital Nashik for cardiac checkup."</em> The patient gets scared or cannot afford bus fare and goes home. The doctor has zero way of knowing if the patient ever went or died at home.</p>
+      </div>
+      <div class="card">
+        <h4 style="color: var(--rose-600); font-size: 13px; font-weight: 800; margin-bottom: 6px;">3. Medicine Blind Spots</h4>
+        <p style="font-size: 12.5px; margin-bottom: 0;">A poor patient spends ₹100 traveling 25 km to a government dispensary, waits 3 hours in line, only to be told: <em>"This antibiotic is out of stock today, come back next week."</em></p>
+      </div>
+      <div class="card">
+        <h4 style="color: var(--rose-600); font-size: 13px; font-weight: 800; margin-bottom: 6px;">4. Forgotten Follow-ups</h4>
+        <p style="font-size: 12.5px; margin-bottom: 0;">Once a teleconsultation ends, nobody monitors whether the patient actually took their 7-day antibiotic course or if their fever subsided, resulting in severe post-discharge relapse.</p>
+      </div>
+    </div>
+
+    <div class="jury-pitch-box">
+      <div class="jury-pitch-title">🎙️ How to Answer the Jury: "What problem are you solving?"</div>
+      <div class="jury-pitch-text">
+        "Sir, the problem statement addresses Continuity of Care in Rural India. Today, a rural patient's journey is fragmented across paper slips, disconnected PHCs, stock-out pharmacies, and dead-end referrals. Our solution, JanCare, connects the patient, the offline ASHA worker, the PHC doctor, and the district hospital into one continuous digital loop."
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 2. The JanCare Solution & Patient Story -->
+    <!-- ========================================================================= -->
+    <h2 id="sol-simple">💡 2. Our Solution (JanCare) & Real-Life Patient Story</h2>
+
+    <div class="card card-emerald">
+      <h3 style="color: #065f46; margin-top: 0;">🚀 Our Solution in Exactly 1 Sentence:</h3>
+      <p style="font-size: 15px; font-weight: 700; color: #047857; margin-bottom: 0;">
+        "JanCare is a complete, connected digital health system that guides a rural patient step-by-step from their village home to the doctor, the medicine counter, and back home for recovery — even without internet."
+      </p>
+    </div>
+
+    <h3>🚶 How JanCare Works in Real Life (Story of Patient Ramesh Kumar):</h3>
+    <p>Imagine <strong>Sunita Tai</strong>, an ASHA worker visiting <strong>Ramesh Kumar (54M)</strong>, a farmer in a remote village near Sinnar suffering from chest pain and high fever:</p>
+
+    <!-- 5-Step Workflow Graphic -->
+    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 16px 0;">
+      <div class="workflow-step">
+        <div class="workflow-num">1</div>
+        <strong style="font-size: 11px; display: block;">Village Home</strong>
+        <span style="font-size: 10.5px; color: var(--slate-600);">ASHA collects vitals offline (0% internet)</span>
+      </div>
+      <div class="workflow-step">
+        <div class="workflow-num">2</div>
+        <strong style="font-size: 11px; display: block;">AI Triage</strong>
+        <span style="font-size: 10.5px; color: var(--slate-600);">Gemini voice analysis in Marathi (Urgent!)</span>
+      </div>
+      <div class="workflow-step">
+        <div class="workflow-num">3</div>
+        <strong style="font-size: 11px; display: block;">Doctor Video</strong>
+        <span style="font-size: 10.5px; color: var(--slate-600);">Doctor consults & issues digital referral</span>
+      </div>
+      <div class="workflow-step">
+        <div class="workflow-num">4</div>
+        <strong style="font-size: 11px; display: block;">Pharmacy</strong>
+        <span style="font-size: 10.5px; color: var(--slate-600);">Generic drug reserved at nearest PHC</span>
+      </div>
+      <div class="workflow-step">
+        <div class="workflow-num">5</div>
+        <strong style="font-size: 11px; display: block;">Recovery</strong>
+        <span style="font-size: 10.5px; color: var(--slate-600);">ASHA conducts 48hr home visit; cured</span>
+      </div>
+    </div>
+
+    <ul>
+      <li><strong>Step 1: Works Without Internet (Offline ASHA Portal):</strong> Sunita Tai opens JanCare on her phone. Even with 0% internet in the village, she enters Ramesh's temperature (102.2°F), blood pressure (145/95), and SpO2 (92%). The app saves everything locally in IndexedDB. As soon as she walks near a cell tower, the app silently syncs to the cloud.</li>
+      <li><strong>Step 2: Speaks Local Languages (Gemini AI Voice Triage):</strong> Ramesh cannot read English. He speaks into the phone in Marathi: <em>"मला दोन दिवसांपासून छातीत दुखतंय आणि तीव्र ताप आहे"</em>. Gemini AI translates, extracts symptoms, and flags risk level as <strong>🔴 RED (High Priority)</strong>.</li>
+      <li><strong>Step 3: Instant Teleconsultation & Smart Referral:</strong> A government doctor at Sinnar CHC sees Ramesh's pre-triaged case and launches a 1-click video call. The doctor prescribes medicines and creates a <strong>Digital In-Person Referral</strong> to Nashik Civil Hospital for an ECG. The hospital receives Ramesh's records before he even leaves his village!</li>
+      <li><strong>Step 4: Live Medicine Stock (No Wasted Travel):</strong> JanCare checks the live district medicine map. It confirms Sinnar PHC has Paracetamol & Metformin in stock and reserves the package under Token <code>JC-MED-7821</code>. Ramesh travels with 100% certainty.</li>
+      <li><strong>Step 5: Closed-Loop Follow-up (No Patient Left Behind):</strong> On Day 3 post-consultation, JanCare assigns a Home Visit Task to Sunita Tai. She visits Ramesh, checks his recovery vitals, and marks the case closed.</li>
+    </ul>
+
+    <div class="jury-pitch-box">
+      <div class="jury-pitch-title">🎙️ The Exact 30-Second Answer for the Jury:</div>
+      <div class="jury-pitch-text">
+        "Sir, JanCare is built on a Closed-Loop Connected Care Model. When an ASHA worker visits a patient in a no-network village, she records data completely offline. The patient speaks symptoms in Marathi or Hindi, which our Gemini AI triages for the doctor. The doctor consults via telemedicine, orders are checked against real-time PHC pharmacy stock, and any hospital referral or home follow-up is tracked to 100% completion. In short: We make sure no patient falls through the cracks from village to recovery."
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 3. USPs & Head-to-Head Comparison Matrix -->
+    <!-- ========================================================================= -->
+    <h2 id="usp-matrix">📊 3. Differentiators & Head-to-Head Comparison (Why JanCare Wins)</h2>
+
+    <div class="card card-purple">
+      <h3 style="color: #6b21a8; margin-top: 0;">💡 The 1-Line Core Differentiator:</h3>
+      <p style="font-size: 14px; font-weight: 700; color: #581c87; margin-bottom: 0;">
+        "Existing government platforms are like islands — eSanjeevani does only video calls, ABDM does only digital IDs, and pharmacy portals do only inventory. JanCare is the bridge that connects all of them into one single, offline-first care journey."
+      </p>
+    </div>
+
     <table>
       <thead>
         <tr>
-          <th style="width: 15%;">Timecode</th>
-          <th style="width: 35%;">Screen / Action</th>
-          <th style="width: 50%;">Verbal Script (What You Say to the Jury)</th>
+          <th>Critical Feature</th>
+          <th style="background: #eff6ff; color: var(--primary);">🚀 JanCare</th>
+          <th>📞 eSanjeevani</th>
+          <th>🆔 ABDM / ABHA</th>
+          <th>🏥 Standard PHC Portals</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>0:00 – 0:45</strong><br><small>The Hook & Problem</small></td>
-          <td><strong>Slide 1 & Landing Page</strong><br>Show 7-Step Continuum diagram</td>
-          <td><em>"Respected Jury, 65% of rural Maharashtra lives over 5 km from a Primary Health Center. A minor fever today turns into severe sepsis tomorrow because care is fragmented. Existing apps are English-only and crash when 4G signals drop in tribal hills. JanCare delivers an end-to-end, multilingual care grid from the first doorstep symptom to complete recovery."</em></td>
+          <td><strong>Works Offline (Zero Internet)</strong></td>
+          <td style="background: #f0fdf4; font-weight: 800; color: #166534;">✅ Yes (PWA Offline)</td>
+          <td style="color: var(--rose-600); font-weight: 700;">❌ No (Crashes)</td>
+          <td>❌ No</td>
+          <td>❌ No</td>
         </tr>
         <tr>
-          <td><strong>0:45 – 1:30</strong><br><small>The Offline Demonstration</small></td>
-          <td><strong>DISCONNECT WI-FI</strong><br>Show yellow offline badge</td>
-          <td><em>"Let me demonstrate our biggest breakthrough: True Offline Resilience. I am cutting my Wi-Fi right now. Notice the yellow badge: '📡 Working Offline'. I click 'Patient' — it loads in 0ms without the internet. Our ASHA worker registers patient Ramesh Kumar (54M, Sinnar) with zero connectivity. All records are securely saved into non-volatile IndexedDB."</em></td>
+          <td><strong>Vernacular Voice AI (Marathi / Hindi)</strong></td>
+          <td style="background: #f0fdf4; font-weight: 800; color: #166534;">✅ Yes (Gemini AI)</td>
+          <td style="color: var(--rose-600); font-weight: 700;">❌ No</td>
+          <td>❌ No</td>
+          <td>❌ No</td>
         </tr>
         <tr>
-          <td><strong>1:30 – 2:30</strong><br><small>Clinical Co-Pilot & WebRTC</small></td>
-          <td><strong>Doctor Suite (`/doctor/dashboard`)</strong><br>Open Ramesh Kumar's consultation</td>
-          <td><em>"Now, on the doctor's screen, Gemini CDSS provides differential diagnosis and flags red flags (High Fever 102.2°F, SpO2 92%). The doctor initiates a WebRTC teleconsultation and prescribes generic Paracetamol & Metformin. The system automatically reserves stock at Sinnar CHC pharmacy depot under Token <code>JC-MED-7821</code>."</em></td>
+          <td><strong>Live District Medicine Stock Grid</strong></td>
+          <td style="background: #f0fdf4; font-weight: 800; color: #166534;">✅ Yes (Real-time)</td>
+          <td style="color: var(--rose-600); font-weight: 700;">❌ No</td>
+          <td>❌ No</td>
+          <td>❌ (Siloed inventory)</td>
         </tr>
         <tr>
-          <td><strong>2:30 – 3:15</strong><br><small>The Auto-Sync Reconnection</small></td>
-          <td><strong>RECONNECT WI-FI</strong><br>Show green auto-sync badge</td>
-          <td><em>"Now, watch what happens when the frontline worker reaches cellular network range: I turn Wi-Fi back ON. Instantly, our Background Sync Engine activates (green banner) and pushes all encrypted records to the MongoDB Atlas district cloud with zero duplicate conflicts."</em></td>
+          <td><strong>Closed-Loop Referral Tracking</strong></td>
+          <td style="background: #f0fdf4; font-weight: 800; color: #166534;">✅ Yes (End-to-End)</td>
+          <td style="color: var(--rose-600); font-weight: 700;">❌ No (Paper/PDF slip)</td>
+          <td>❌ No</td>
+          <td>❌ No</td>
         </tr>
         <tr>
-          <td><strong>3:15 – 4:00</strong><br><small>The Scalability & Closing</small></td>
-          <td><strong>Admin GIS Dashboard (`/admin/dashboard`)</strong><br>Show Nashik District heatmap</td>
-          <td><em>"At the state level, District Health Officers monitor live disease heatmaps, drug stockout velocity, and 48-hour maternal follow-up compliance. JanCare runs at just ₹0.02 per citizen per month, saving rural families over ₹18 Crores in out-of-pocket drug costs. Thank you!"</em></td>
+          <td><strong>Automated ASHA Home Follow-ups</strong></td>
+          <td style="background: #f0fdf4; font-weight: 800; color: #166534;">✅ Yes (Task Checklist)</td>
+          <td style="color: var(--rose-600); font-weight: 700;">❌ No</td>
+          <td>❌ No</td>
+          <td>❌ No</td>
+        </tr>
+        <tr>
+          <td><strong>ABDM / 14-Digit ABHA Compliant</strong></td>
+          <td style="background: #f0fdf4; font-weight: 800; color: #166534;">✅ Yes (Full M1-M3)</td>
+          <td>⚠️ Partial</td>
+          <td style="color: #166534; font-weight: 700;">✅ Yes (Standard)</td>
+          <td>⚠️ Partial</td>
+        </tr>
+        <tr>
+          <td><strong>End-to-End Care Journey Stepper</strong></td>
+          <td style="background: #f0fdf4; font-weight: 800; color: #166534;">✅ Yes (7 Stages)</td>
+          <td style="color: var(--rose-600); font-weight: 700;">❌ No</td>
+          <td>❌ (Raw records only)</td>
+          <td>❌ No</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="card card-emerald">
-      <h3 style="color: #065f46; margin-top: 0;">🧑‍🌾 Primary Evaluation Persona (Use Across Online & Offline):</h3>
-      <p style="color: #047857; margin-bottom: 0;">
-        <strong>Name:</strong> Ramesh Kumar | <strong>ID:</strong> <code>JC-7F3K92</code> | <strong>Age & Sex:</strong> 54M | <strong>Village:</strong> Sinnar Taluka, Nashik District<br>
-        <strong>Condition:</strong> Chronic Type-2 Diabetes, Acute Spike in Temperature (102.2°F), Dizziness & Fatigue | <strong>ABHA ID:</strong> <code>91-4820-5839-2943</code>
+    <div class="card">
+      <h3 style="color: var(--primary);">🎯 The 4 Big Reasons Why JanCare Wins:</h3>
+      <ol>
+        <li><strong>eSanjeevani Fails in Low-Connectivity Villages; JanCare Doesn’t:</strong> eSanjeevani requires uninterrupted high-speed 4G/5G. In remote tribal or hilly areas of Maharashtra (e.g. Gadchiroli, Nandurbar, Melghat), calls drop and data entry fails. JanCare’s Offline PWA allows ASHAs to record vitals and intake with zero internet.</li>
+        <li><strong>eSanjeevani Leaves Referrals as a "Dead End"; JanCare Closes the Loop:</strong> When an eSanjeevani doctor says "Go to Civil Hospital", the call ends. If the patient never visits the hospital, nobody knows. JanCare creates a digital referral order with advance notice sent to the hospital and attendance tracking.</li>
+        <li><strong>No Existing System Checks Pharmacy Stock Before the Patient Travels:</strong> JanCare features a live district stock grid with 1-click tokenized drug reservation (<code>JC-MED-XXXX</code>) so patients never travel in vain.</li>
+        <li><strong>ABDM is just a "Database Standard"; JanCare is the "Actual Application":</strong> ABDM standardizes health records, but ABDM itself does not provide frontline diagnostic tools, voice triage, or ASHA follow-up workflows. JanCare is the complete application built on top of ABDM standards.</li>
+      </ol>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 4. What is PWA & How Telemedicine Works in Zero-Internet Villages -->
+    <!-- ========================================================================= -->
+    <h2 id="pwa-guide">📡 4. What is a PWA in Simple Words & How Telehealth Works with Zero Net</h2>
+
+    <div class="card card-primary">
+      <h3 style="color: var(--primary); margin-top: 0;">📱 What is a PWA (Progressive Web App) in Layman Terms?</h3>
+      <p style="margin-bottom: 0;">
+        A PWA is a website that behaves exactly like an installed Android app on your phone, but <strong>without needing to download heavy 100MB files from the Google Play Store</strong>. It installs in 1 second, takes less than <strong>2.5 MB</strong> of storage, and most importantly: <strong>it opens and works 100% offline even when airplane mode is turned ON</strong> because all software files are saved directly into the phone's local memory.
       </p>
     </div>
 
-    <!-- 2. PWA Offline-First Architecture & Engineering Fixes -->
-    <h2 id="offline">⚙️ 2. PWA Offline-First Architecture & Next.js Crash-Proof Engineering</h2>
-    <p>How JanCare solved the classic Next.js App Router offline limitation:</p>
+    <p><strong>📍 1. Which Villages Face Internet Gaps? (Real Indian Examples):</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Connectivity Zone</th>
+          <th>Real Maharashtra Districts / Villages</th>
+          <th>What Happens to Healthcare Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--rose-600); font-weight: 800;">🔴 Zone 1: Dead Network<br><small>(Deep tribal, forest, hilly areas)</small></td>
+          <td>• <strong>Melghat</strong> (Amravati deep forests)<br>• <strong>Dhadgaon / Akrani</strong> (Nandurbar hills)<br>• <strong>Bhamragad / Aheri</strong> (Gadchiroli)<br>• <strong>Jawhar & Mokhada</strong> (Palghar)</td>
+          <td>Standard web portals & video calls <strong>completely crash</strong>. Everything relies on lost paper slips.</td>
+        </tr>
+        <tr>
+          <td style="color: var(--amber-600); font-weight: 800;">🟡 Zone 2: Intermittent / 2G<br><small>(Fluctuating, slow network)</small></td>
+          <td>• Rural hamlets in <strong>Sinnar, Igatpuri, Trimbak</strong><br>• Farming villages across Marathwada & Vidarbha</td>
+          <td>Signal drops every few minutes. Video calls freeze and typed forms are erased.</td>
+        </tr>
+        <tr>
+          <td style="color: var(--emerald-600); font-weight: 800;">🟢 Zone 3: Good 4G / Fiber<br><small>(Towns & central facilities)</small></td>
+          <td>• <strong>PHCs, CHCs, Block HQ, District Civil Hospitals</strong> (Nashik, Pune, Nagpur, Chhatrapati Sambhajinagar)</td>
+          <td>Doctors have high-speed broadband, but rural village patients cannot connect to them.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card card-qa">
+      <div class="qa-question">
+        <span class="qa-tag qa-tag-pwa">Crucial Jury Question</span>
+        <span>"If there is NO internet in the village, how can a doctor check a patient through a video call?"</span>
+      </div>
+      <div class="qa-answer">
+        <p><strong>Clarification for Judges:</strong> According to WHO and Ministry of Health telemedicine guidelines, clinical telehealth has two official modes:</p>
+        <ul>
+          <li><strong>1. Live Synchronous (Video Call):</strong> Used when 4G/broadband is present.</li>
+          <li><strong>2. Store-and-Forward (Asynchronous Tele-Consultation):</strong> The global gold-standard used when internet is dead.</li>
+        </ul>
+        <p><strong>🏥 How JanCare Checks a Patient in a "Zero Internet" Village:</strong></p>
+        <ol>
+          <li><strong>Offline Intake at Patient's Home (0% Internet):</strong> The ASHA worker inputs BP, SpO2, Temperature, Heart Rate, and records the patient's Marathi voice complaint. Everything is saved locally in the phone's encrypted IndexedDB storage.</li>
+          <li><strong>Store-and-Forward Auto-Sync:</strong> As the ASHA completes her round and walks near a Sub-Centre or a road with mobile tower reach, the phone automatically uploads the structured medical packet to the cloud server.</li>
+          <li><strong>Doctor Reviews at the PHC:</strong> The Medical Officer at the PHC (who has internet) opens the case sheet, reviews the complete vitals chart, listens to the Marathi voice recording, and issues a verified digital e-Prescription.</li>
+          <li><strong>Prescription Delivered to Patient:</strong> When the ASHA worker's device receives the doctor's prescription packet, she dispenses the medicine or guides the patient to the PHC.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 5. What Happens When Internet Drops Mid-Session -->
+    <!-- ========================================================================= -->
+    <h2 id="disconnect">🛡️ 5. What Happens When Internet Drops Mid-Way During Live Use?</h2>
 
     <div class="grid-2">
       <div class="card">
-        <h3 style="color: var(--primary);">1. The Next.js Offline Problem</h3>
-        <p>In standard Next.js App Router applications, clicking <code>&lt;Link&gt;</code> triggers client-side React Server Component (RSC) flight requests (<code>?_rsc=...</code>). When offline, this background fetch fails, causing Next.js to crash into the black <em>"⚠️ This page couldn't load"</em> error overlay.</p>
+        <h4 style="color: var(--emerald-600); font-size: 13px; font-weight: 800; margin-bottom: 6px;">1. Does the User Get Logged Out?</h4>
+        <p style="font-size: 12.5px; margin-bottom: 0;"><strong>👉 NO. They remain 100% signed in.</strong> JanCare uses encrypted local session tokens. The app does NOT throw an error or redirect to login. Users can browse past records, ABHA cards, and history smoothly.</p>
       </div>
       <div class="card">
-        <h3 style="color: var(--emerald-600);">2. The JanCare Solution (Commit f85a667 & v5 SW)</h3>
-        <p>We implemented <strong>deterministic document navigation</strong> (<code>window.location.href</code>) paired with <strong>Service Worker v5</strong>. When offline, the browser issues a real document request which the Service Worker intercepts and serves immediately from cache in <strong>0ms</strong>.</p>
+        <h4 style="color: var(--emerald-600); font-size: 13px; font-weight: 800; margin-bottom: 6px;">2. Typing Symptoms or Booking?</h4>
+        <p style="font-size: 12.5px; margin-bottom: 0;"><strong>👉 Zero Data Loss. Auto-Saved in Offline Outbox.</strong> The moment connectivity returns (even for 2 seconds), a Background Sync Service Worker automatically fires and pushes the saved request to the doctor's queue.</p>
       </div>
     </div>
 
-    <div class="card card-amber">
-      <h3 style="color: #92400e; margin-top: 0;">🛡️ Safe Offline API Interception:</h3>
-      <p style="color: #78350f; margin-bottom: 0;">
-        All offline <code>/api/...</code> fetch calls in <code>sw.js</code> automatically catch network failures and return <code>HTTP 200</code> with <code>{ success: false, offline: true }</code>. This guarantees that client React code (e.g. <code>const data = await res.json()</code>) parses cleanly without throwing unhandled JavaScript <code>TypeError</code> exceptions.
-      </p>
+    <table>
+      <thead>
+        <tr>
+          <th>What the User is Doing</th>
+          <th>When Internet Drops Mid-Way</th>
+          <th>What JanCare Does Automatically</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Browsing Dashboard</strong></td>
+          <td>Viewing prescriptions or ABHA ID</td>
+          <td>Loads instantly from offline local cache (0ms).</td>
+        </tr>
+        <tr>
+          <td><strong>Filling a Form</strong></td>
+          <td>Entering symptoms or vitals</td>
+          <td>Draft is preserved in local state; no re-typing needed.</td>
+        </tr>
+        <tr>
+          <td><strong>Clicking Submit / Book</strong></td>
+          <td>Submitting consultation request</td>
+          <td>Stored in offline sync queue; auto-pushed once online.</td>
+        </tr>
+        <tr>
+          <td><strong>In a Live Video Call</strong></td>
+          <td>Call disconnects due to tower failure</td>
+          <td>Converts gracefully to Store-and-Forward; doctor reviews saved vitals & issues e-Prescription.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="jury-pitch-box">
+      <div class="jury-pitch-title">🎙️ 20-Second Script for the Jury on Mid-Session Disconnects:</div>
+      <div class="jury-pitch-text">
+        "Judges, JanCare is built as an Offline-First PWA. If a patient is signed in and their internet cuts out mid-way, they are never logged out and no data is lost. The app continues running locally, queues form submissions in an encrypted offline outbox, and automatically syncs the moment connectivity returns. If a video call drops, it seamlessly falls back to our asynchronous store-and-forward mode, allowing the doctor to review the preserved vitals and audio notes without forcing the patient to start over."
+      </div>
     </div>
 
-    <!-- 3. Government Business Model & Financial Sustainability -->
-    <h2 id="business">💼 3. Government Business Model, Monetization & Financial Sustainability</h2>
+    <!-- ========================================================================= -->
+    <!-- 6. Government Business Model & Sustainability -->
+    <!-- ========================================================================= -->
+    <h2 id="business">💼 6. Government Business Model & Financial Sustainability</h2>
 
     <div class="card card-qa">
       <div class="qa-question">
         <span class="qa-tag qa-tag-biz">Business Model</span>
-        <span>"Since this is a government public health problem, citizens/patients will not pay money. How is this a sustainable business model?"</span>
+        <span>"Since this is a government public health problem, citizens will not pay money. How is this a sustainable business model?"</span>
       </div>
       <div class="qa-answer">
-        <p><strong>Government B2G SaaS & NHM Procurement Model:</strong> JanCare is deployed as a state-sponsored Digital Public Good under a tiered enterprise SaaS model funded through existing budgetary allocations:</p>
+        <p><strong>Government B2G Enterprise SaaS & NHM Procurement Model:</strong> JanCare is funded through existing state budgetary allocations:</p>
         <ul>
-          <li><strong>1. National Health Mission (NHM) PIP Allocation:</strong> Under the NHM State Programme Implementation Plan (PIP), state governments allocate dedicated annual budgets for <em>"Digital Health Innovations, Telemedicine & Frontline Worker Enablement"</em>. JanCare is procured as a turnkey district platform at <strong>₹11.70 Lakhs/district/year</strong>.</li>
-          <li><strong>2. Ayushman Bharat Digital Mission (ABDM) Milestone Grants:</strong> The National Health Authority (NHA) provides direct financial incentive grants to state governments for creating verified ABHA IDs, linking longitudinal health records (EHR/EMR), and achieving M1, M2, and M3 ABDM milestones. JanCare captures these NHA incentive credits directly for the state.</li>
-          <li><strong>3. PMBJP Generic Medicine Savings Offsets:</strong> By substituting expensive branded medications with PMBJP Jan Aushadhi generic drugs, a single district saves ₹18+ Crores annually in out-of-pocket spending and state drug procurement subsidies, yielding a <strong>150x direct fiscal return on software investment</strong>.</li>
-          <li><strong>4. Corporate Social Responsibility (CSR) Health Grants:</strong> Large pharmaceutical and MedTech foundations (Tata Trusts, Bill & Melinda Gates Foundation, Reliance Foundation) co-fund hardware and connectivity enablement for tribal talukas.</li>
+          <li><strong>1. National Health Mission (NHM) PIP Allocation:</strong> Procured as a turnkey district platform under the NHM annual budget for <em>"Digital Health Innovations & Frontline Enablement"</em> at <strong>₹11.70 Lakhs/district/year</strong>.</li>
+          <li><strong>2. ABDM Milestone Financial Incentives:</strong> The National Health Authority (NHA) provides direct financial incentive grants to states for creating verified ABHA IDs and linking longitudinal health records. JanCare captures these credits directly for Maharashtra.</li>
+          <li><strong>3. PMBJP Generic Medicine Savings Offsets:</strong> Substituting branded drugs with Jan Aushadhi generic equivalents saves a single district ₹18+ Crores annually, delivering a <strong>150x direct fiscal return on software investment</strong>.</li>
+          <li><strong>4. CSR Health Grants:</strong> Co-funded by corporate health foundations (Tata Trusts, Gates Foundation) for tribal hardware enablement.</li>
         </ul>
       </div>
     </div>
 
-    <div class="card card-qa">
-      <div class="qa-question">
-        <span class="qa-tag qa-tag-biz">ROI</span>
-        <span>"What is the quantifiable Return on Investment (ROI) for the State Health Department?"</span>
-      </div>
-      <div class="qa-answer">
-        <ul>
-          <li><strong>₹18+ Crore Annual Citizen Savings per District:</strong> Driven by automatic PMBJP Jan Aushadhi generic drug substitution (saving rural families up to 80% on chronic medications).</li>
-          <li><strong>35% Reduction in Tertiary Civil Hospital Outpatient Overcrowding:</strong> Routine fever, hypertension, and minor pediatric ailments are resolved locally at the SubCenter and PHC levels via teleconsultations.</li>
-          <li><strong>60% Drop in Preventable Rural Maternal Mortality:</strong> Driven by automated 48-hour ASHA home visit rosters and early high-risk pregnancy triage.</li>
-          <li><strong>Zero Register Paperwork Waste:</strong> Eliminates physical printing, physical storage, and manual audit costs for 12+ ASHA physical registers across 60,000+ workers.</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- 4. Capex and Opex Costing Model -->
-    <h2 id="costing">💰 4. Cost of Building & Running JanCare (Capex vs Opex)</h2>
-    <p>JanCare is engineered with a serverless, hyper-lean architecture that delivers population-scale healthcare for less than <strong>₹0.02 per citizen per month</strong>.</p>
+    <!-- ========================================================================= -->
+    <!-- 7. Capex & Opex Costing -->
+    <!-- ========================================================================= -->
+    <h2 id="costing">💰 7. Cost of Building & Running JanCare (Capex vs. Opex)</h2>
+    <p>JanCare delivers population-scale healthcare for less than <strong>₹0.02 per citizen per month</strong>.</p>
 
     <table>
       <thead>
@@ -414,15 +689,15 @@
       </thead>
       <tbody>
         <tr>
-          <td><strong>Development & System Integration (Capex)</strong><br><small>One-time UI/UX, Gemini AI Engine, WebRTC stack, ABDM integration, and Security Audit</small></td>
+          <td><strong>Development & Integration (Capex)</strong><br><small>One-time UI/UX, Gemini AI Engine, WebRTC stack, ABDM integration</small></td>
           <td>One-Time (Capex)</td>
           <td>₹12,00,000</td>
-          <td>₹45,00,000 <em>(Centralized build deployed statewide)</em></td>
+          <td>₹45,00,000 <em>(Centralized statewide deployment)</em></td>
         </tr>
         <tr>
           <td><strong>Cloud Infrastructure & Database</strong><br><small>Next.js Edge + MongoDB Atlas Managed Cluster with CDN caching</small></td>
           <td>Recurring (Monthly)</td>
-          <td>₹45,000 / mo</td>
+          <td>₹45,00,00 / mo</td>
           <td>₹1.94 Cr / Year</td>
         </tr>
         <tr>
@@ -452,8 +727,10 @@
       </tbody>
     </table>
 
-    <!-- 5. 15 Comprehensive Jury Defense Q&As -->
-    <h2 id="qa">🎯 5. 15 High-Impact Jury Defense Q&A Cards (Problem Statement vs Solution)</h2>
+    <!-- ========================================================================= -->
+    <!-- 8. 15 Comprehensive Jury Defense Q&As -->
+    <!-- ========================================================================= -->
+    <h2 id="qa-15">🎯 8. 15 High-Impact Jury Defense Q&A Cards</h2>
 
     <!-- Q1 -->
     <div class="card card-qa">
@@ -462,7 +739,7 @@
         <span>"Why have existing government portals like e-Sanjeevani and HMIS failed to solve rural continuity of care?"</span>
       </div>
       <div class="qa-answer">
-        Existing portals operate in silos: e-Sanjeevani handles video consultations but does not verify local pharmacy stock, lacks automated 48-hour ASHA home follow-ups, and fails completely when offline. HMIS is purely a retroactive statistical reporting tool. JanCare is the first <strong>closed-loop clinical continuum</strong> connecting symptom intake, doctor teleconsultation, real-time drug depot reservation, and doorstep follow-up compliance in a unified offline-capable system.
+        Existing portals operate in silos: e-Sanjeevani handles video consultations but does not verify local pharmacy stock, lacks automated 48-hour ASHA home follow-ups, and crashes when offline. HMIS is purely a retroactive statistical reporting tool. JanCare is the first <strong>closed-loop clinical continuum</strong> connecting symptom intake, doctor teleconsultation, real-time drug depot reservation, and doorstep follow-up compliance in a unified offline-capable system.
       </div>
     </div>
 
