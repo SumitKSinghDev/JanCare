@@ -925,6 +925,25 @@ export default function PatientDashboard() {
     );
   }
 
+  function getTimeGreeting(lang: string, name?: string) {
+    const hour = new Date().getHours();
+    const displayName = name || (lang === "mr" ? "रुग्ण" : lang === "hi" ? "मरीज" : "Patient");
+
+    if (hour >= 4 && hour < 12) {
+      if (lang === "mr") return `शुभ प्रभात, ${displayName} 👋`;
+      if (lang === "hi") return `शुभ प्रभात, ${displayName} 👋`;
+      return `Good morning, ${displayName} 👋`;
+    } else if (hour >= 12 && hour < 17) {
+      if (lang === "mr") return `शुभ दुपार, ${displayName} 👋`;
+      if (lang === "hi") return `शुभ दोपहर, ${displayName} 👋`;
+      return `Good afternoon, ${displayName} 👋`;
+    } else {
+      if (lang === "mr") return `शुभ संध्याकाळ, ${displayName} 👋`;
+      if (lang === "hi") return `शुभ संध्या, ${displayName} 👋`;
+      return `Good evening, ${displayName} 👋`;
+    }
+  }
+
   return (
     <AppShell
       role="Patient"
@@ -940,7 +959,7 @@ export default function PatientDashboard() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
               <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-                {language === "mr" ? `शुभ प्रभात, ${user?.name || "रुग्ण"} 👋` : language === "hi" ? `शुभ प्रभात, ${user?.name || "मरीज"} 👋` : `Good morning, ${user?.name || "Patient"} 👋`}
+                {getTimeGreeting(language, user?.name)}
               </h2>
               <p className="text-xs text-slate-300">
                 {language === "mr" ? "आपले स्वागत आहे. हा आपला वैयक्तिक आरोग्य डॅशबोर्ड आहे." : language === "hi" ? "वापसी पर स्वागत है। यह आपका व्यक्तिगत स्वास्थ्य डैशबोर्ड है।" : "Welcome back. Here is your personalized health dashboard overview."}
