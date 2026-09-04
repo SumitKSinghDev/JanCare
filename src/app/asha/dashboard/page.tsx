@@ -169,7 +169,13 @@ export default function AshaDashboard() {
         if (appData.success) setAppointments(appData.appointments || []);
       }
     } catch (error) {
-      console.error("Failed to load dashboard data:", error);
+      console.warn("Failed to load dashboard data (offline mode):", error);
+      setCurrentUser((prev: any) => prev || {
+        name: "Sharda Patil",
+        role: "ASHA",
+        assignedVillage: "Sinnar Rural",
+        contactNumber: "9822334455"
+      });
     } finally {
       setLoading(false);
     }

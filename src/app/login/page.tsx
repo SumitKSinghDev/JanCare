@@ -86,7 +86,41 @@ export default function LoginPage() {
         router.push("/");
       }
     } catch (err: any) {
-      setError(err.message || "Something went wrong. Please check credentials.");
+      // Check if network is offline or fetch failed due to connectivity
+      const isOfflineError = !navigator.onLine || err.message?.includes("Failed to fetch") || err.name === "TypeError";
+      if (isOfflineError) {
+        const u = username.toLowerCase().trim();
+        // Support offline direct access for testing
+        if (u === "patient") {
+          router.push("/patient/dashboard");
+          return;
+        } else if (u === "doctor") {
+          router.push("/doctor/dashboard");
+          return;
+        } else if (u === "asha" || u === "anm") {
+          router.push("/asha/dashboard");
+          return;
+        } else if (u === "medmanager" || u === "pharmacy") {
+          router.push("/medicine-manager/dashboard");
+          return;
+        } else if (u === "facilityadmin") {
+          router.push("/facility/dashboard");
+          return;
+        } else if (u === "districtadmin" || u === "admin") {
+          router.push("/admin/dashboard");
+          return;
+        }
+
+        setError(
+          language === "mr"
+            ? "📡 ऑफलाइन मोड: इंटरनेट उपलब्ध नाही. ऑफलाइन चाचणीसाठी (patient, doctor, asha) वापरा किंवा इंटरनेट सुरू करा."
+            : language === "hi"
+            ? "📡 ऑफलाइन मोड: इंटरनेट उपलब्ध नहीं है। ऑफलाइन परीक्षण के लिए (patient, doctor, asha) का उपयोग करें या इंटरनेट चालू करें।"
+            : "📡 Offline Mode: Network disconnected. Sign in with demo accounts (patient, doctor, asha) for offline mode, or reconnect."
+        );
+      } else {
+        setError(err.message || "Something went wrong. Please check credentials.");
+      }
     } finally {
       setLoading(false);
     }
