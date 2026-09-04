@@ -38,6 +38,21 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${notoDevanagari.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function(reg) {
+                  console.log('[JanCare PWA] SW registered:', reg.scope);
+                }).catch(function(err) {
+                  console.warn('[JanCare PWA] SW registration failed:', err);
+                });
+              }
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-bg-brand text-text-primary">
         <LanguageProvider>
           {children}
