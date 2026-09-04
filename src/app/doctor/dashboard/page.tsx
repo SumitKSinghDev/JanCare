@@ -394,31 +394,61 @@ export default function DoctorDashboard() {
           <div className="text-left bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Clinical Workspace: Dr. {currentUser?.name?.split(" ")[1] || "Kulkarni"}</h2>
-              <p className="text-xs text-slate-300">Manage live teleconsultations, write prescriptions, and coordinate patient referrals.</p>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                {language === "mr" 
+                  ? `वैद्यकीय कार्यक्षेत्र: डॉ. ${currentUser?.name?.split(" ")[1] || "कुलकर्णी"}` 
+                  : language === "hi" 
+                  ? `चिकित्सा कार्यक्षेत्र: डॉ. ${currentUser?.name?.split(" ")[1] || "कुलकर्णी"}` 
+                  : `Clinical Workspace: Dr. ${currentUser?.name?.split(" ")[1] || "Kulkarni"}`}
+              </h2>
+              <p className="text-xs text-slate-300">
+                {language === "mr"
+                  ? "थेट टेलिकन्सल्टेशन्स व्यवस्थापित करा, औषधोपचार पत्रके लिहा आणि संदर्भ समन्वय करा."
+                  : language === "hi"
+                  ? "लाइव टेली-परामर्श प्रबंधित करें, प्रिस्क्रिप्शन लिखें और मरीज रेफरल का समन्वय करें।"
+                  : "Manage live teleconsultations, write prescriptions, and coordinate patient referrals."}
+              </p>
             </div>
           </div>
 
           {/* Today's Metrics widgets */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Queue Size</span>
-              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">{consultations.length} Consults</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                {language === "mr" ? "एकूण रांग" : language === "hi" ? "कुल कतार" : "Queue Size"}
+              </span>
+              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">
+                {consultations.length} {language === "mr" ? "सल्ला" : language === "hi" ? "परामर्श" : "Consults"}
+              </span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between border-l-4 border-l-red-500 h-22 sm:h-24">
-              <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider">Urgent Cases</span>
-              <span className="text-base sm:text-lg font-extrabold text-red-600 mt-1">{urgentCount} Cases</span>
+              <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider">
+                {language === "mr" ? "तातडीची प्रकरणे" : language === "hi" ? "आपातकालीन मामले" : "Urgent Cases"}
+              </span>
+              <span className="text-base sm:text-lg font-extrabold text-red-600 mt-1">
+                {urgentCount} {language === "mr" ? "रुग्ण" : language === "hi" ? "मरीज" : "Cases"}
+              </span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between border-l-4 border-l-orange-500 h-22 sm:h-24">
-              <span className="text-[8px] text-orange-500 font-bold uppercase tracking-wider">Priority Cases</span>
-              <span className="text-base sm:text-lg font-extrabold text-orange-600 mt-1">{priorityCount} Cases</span>
+              <span className="text-[8px] text-orange-500 font-bold uppercase tracking-wider">
+                {language === "mr" ? "प्राधान्य प्रकरणे" : language === "hi" ? "प्राथमिकता मामले" : "Priority Cases"}
+              </span>
+              <span className="text-base sm:text-lg font-extrabold text-orange-600 mt-1">
+                {priorityCount} {language === "mr" ? "रुग्ण" : language === "hi" ? "मरीज" : "Cases"}
+              </span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Follow-ups</span>
-              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">2 Scheduled</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                {language === "mr" ? "फॉलो-अप भेटी" : language === "hi" ? "फॉलो-अप" : "Follow-ups"}
+              </span>
+              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">
+                2 {language === "mr" ? "नियोजित" : language === "hi" ? "शेड्यूल" : "Scheduled"}
+              </span>
             </div>
             <div className="col-span-2 sm:col-span-1 bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Facility Hub</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                {language === "mr" ? "आरोग्य केंद्र हब" : language === "hi" ? "स्वास्थ्य केंद्र" : "Facility Hub"}
+              </span>
               <span className="text-xs font-bold text-slate-700 mt-1 truncate">{currentUser?.associatedFacility?.name || "Sinnar CHC"}</span>
             </div>
           </div>
@@ -429,25 +459,25 @@ export default function DoctorDashboard() {
             <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800">
-                  Today's Consultation Queue
+                  {language === "mr" ? "आजची रुग्ण सल्लामसलत रांग" : language === "hi" ? "आज की परामर्श कतार" : "Today's Consultation Queue"}
                 </h3>
                 <span className="sm:hidden text-[9px] font-bold text-primary bg-blue-50 px-2 py-0.5 rounded-full">← Swipe →</span>
               </div>
 
               {sortedConsultations.length === 0 ? (
                 <div className="py-12 text-center text-xs text-slate-400">
-                  No consultations currently in your queue.
+                  {language === "mr" ? "सध्या आपल्या रांगेत कोणतीही सल्लामसलत नाही." : language === "hi" ? "वर्तमान में आपकी कतार में कोई परामर्श नहीं है।" : "No consultations currently in your queue."}
                 </div>
               ) : (
                 <div className="overflow-x-auto -mx-2 sm:mx-0">
                   <table className="w-full min-w-[480px] text-left border-collapse text-xs">
                     <thead>
                       <tr className="border-b border-slate-100 text-slate-400 font-bold bg-slate-50/50">
-                        <th className="py-3 px-3 sm:px-4">Triage Priority</th>
-                        <th className="py-3 px-3 sm:px-4">Patient ID</th>
-                        <th className="py-3 px-3 sm:px-4">Name</th>
-                        <th className="py-3 px-3 sm:px-4">Complaint</th>
-                        <th className="py-3 px-3 sm:px-4 text-center">Action</th>
+                        <th className="py-3 px-3 sm:px-4">{language === "mr" ? "वर्गीकरण प्राधान्य" : language === "hi" ? "ट्राइएज प्राथमिकता" : "Triage Priority"}</th>
+                        <th className="py-3 px-3 sm:px-4">{language === "mr" ? "रुग्ण आयडी" : language === "hi" ? "मरीज आईडी" : "Patient ID"}</th>
+                        <th className="py-3 px-3 sm:px-4">{language === "mr" ? "नाव" : language === "hi" ? "नाम" : "Name"}</th>
+                        <th className="py-3 px-3 sm:px-4">{language === "mr" ? "लक्षणे व तक्रार" : language === "hi" ? "लक्षण / शिकायत" : "Complaint"}</th>
+                        <th className="py-3 px-3 sm:px-4 text-center">{language === "mr" ? "कृती" : language === "hi" ? "कार्रवाई" : "Action"}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -462,14 +492,26 @@ export default function DoctorDashboard() {
                             onClick={() => setActiveConsult(consult)}
                           >
                             <td className="py-3.5 px-4 font-bold">
-                              {level === "Urgent" && <span className="bg-red-50 text-red-600 border border-red-200/50 px-2.5 py-1 rounded-full text-[10px]">🔴 Urgent</span>}
-                              {level === "Priority" && <span className="bg-orange-50 text-orange-600 border border-orange-200/50 px-2.5 py-1 rounded-full text-[10px]">🟠 Priority</span>}
-                              {level === "Routine" && <span className="bg-green-50 text-green-600 border border-green-200/50 px-2.5 py-1 rounded-full text-[10px]">🟢 Routine</span>}
+                              {level === "Urgent" && (
+                                <span className="bg-red-50 text-red-600 border border-red-200/50 px-2.5 py-1 rounded-full text-[10px]">
+                                  🔴 {language === "mr" ? "तातडीचे" : language === "hi" ? "आपातकालीन" : "Urgent"}
+                                </span>
+                              )}
+                              {level === "Priority" && (
+                                <span className="bg-orange-50 text-orange-600 border border-orange-200/50 px-2.5 py-1 rounded-full text-[10px]">
+                                  🟠 {language === "mr" ? "प्राधान्य" : language === "hi" ? "प्राथमिकता" : "Priority"}
+                                </span>
+                              )}
+                              {level === "Routine" && (
+                                <span className="bg-green-50 text-green-600 border border-green-200/50 px-2.5 py-1 rounded-full text-[10px]">
+                                  🟢 {language === "mr" ? "नियमित" : language === "hi" ? "सामान्य" : "Routine"}
+                                </span>
+                              )}
                             </td>
                             <td className="py-3.5 px-4 font-mono text-slate-400 font-semibold">{consult.patientId?.patientRefId}</td>
                             <td className="py-3.5 px-4 text-slate-700">{consult.patientId?.name}</td>
                             <td className="py-3.5 px-4 text-slate-500 truncate max-w-[140px]">
-                              {symptoms.map((s: any) => s.name).join(", ") || "Routine checkup"}
+                              {symptoms.map((s: any) => s.name).join(", ") || (language === "mr" ? "नियमित तपासणी" : language === "hi" ? "नियमित जांच" : "Routine checkup")}
                             </td>
                             <td className="py-3.5 px-4 text-center">
                               <button
@@ -479,7 +521,7 @@ export default function DoctorDashboard() {
                                 }}
                                 className="bg-primary hover:bg-blue-600 text-white font-bold py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 mx-auto transition-all cursor-pointer text-[10px] border-0"
                               >
-                                <Video size={12} /> Start Session
+                                <Video size={12} /> {language === "mr" ? "सत्र सुरू करा" : language === "hi" ? "सत्र शुरू करें" : "Start Session"}
                               </button>
                             </td>
                           </tr>
@@ -496,8 +538,12 @@ export default function DoctorDashboard() {
               {activeConsult ? (
                 <div className="bg-white border border-slate-200/80 p-5 rounded-3xl shadow-xs space-y-4 text-left">
                   <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                    <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800">Current Consultation</h3>
-                    <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full uppercase">Active</span>
+                    <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800">
+                      {language === "mr" ? "सध्याची सल्लामसलत" : language === "hi" ? "वर्तमान परामर्श" : "Current Consultation"}
+                    </h3>
+                    <span className="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full uppercase">
+                      {language === "mr" ? "सक्रिय" : language === "hi" ? "सक्रिय" : "Active"}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-3 bg-slate-50 border border-slate-200/60 p-3 rounded-xl">
@@ -507,23 +553,27 @@ export default function DoctorDashboard() {
                     <div className="text-xs">
                       <strong className="text-slate-800 block">{activeConsult.patientId?.name}</strong>
                       <span className="text-[10px] text-slate-400 block mt-0.5">
-                        {activeConsult.patientId?.age} Years / {activeConsult.patientId?.gender} | ID: {activeConsult.patientId?.patientRefId}
+                        {activeConsult.patientId?.age} {language === "mr" ? "वर्षे" : language === "hi" ? "वर्ष" : "Years"} / {activeConsult.patientId?.gender} | ID: {activeConsult.patientId?.patientRefId}
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-3 text-xs">
                     <div>
-                      <span className="text-[9px] text-slate-400 font-bold uppercase block">Symptoms Complaint</span>
+                      <span className="text-[9px] text-slate-400 font-bold uppercase block">
+                        {language === "mr" ? "लक्षणांची तक्रार" : language === "hi" ? "लक्षण / शिकायत" : "Symptoms Complaint"}
+                      </span>
                       <p className="font-semibold text-slate-700 mt-0.5">
-                        {activeConsult.healthRecordId?.symptoms?.map((s: any) => `${s.name} (${s.severity})`).join(", ") || "No symptoms logged"}
+                        {activeConsult.healthRecordId?.symptoms?.map((s: any) => `${s.name} (${s.severity})`).join(", ") || (language === "mr" ? "नोंदवलेली लक्षणे नाहीत" : language === "hi" ? "कोई लक्षण दर्ज नहीं" : "No symptoms logged")}
                       </p>
                     </div>
 
                     <div className="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl space-y-2 text-[10px]">
-                      <span className="text-[9px] text-primary font-bold uppercase tracking-wider block">AI-Assisted Clinical Copilot</span>
+                      <span className="text-[9px] text-primary font-bold uppercase tracking-wider block">
+                        {language === "mr" ? "AI वैद्यकीय सह-पायलट" : language === "hi" ? "AI चिकित्सा सहायक" : "AI-Assisted Clinical Copilot"}
+                      </span>
                       <p className="text-slate-600 leading-relaxed font-semibold">
-                        {activeConsult.healthRecordId?.triage?.aiExplanation || "Patient requires diagnosis and paracetamol Rx check."}
+                        {activeConsult.healthRecordId?.triage?.aiExplanation || (language === "mr" ? "रुग्णाचे निदान आणि औषधोपचार आवश्यक आहे." : language === "hi" ? "मरीज के लिए निदान और दवा जांच आवश्यक है।" : "Patient requires diagnosis and paracetamol Rx check.")}
                       </p>
                     </div>
                   </div>
@@ -533,7 +583,7 @@ export default function DoctorDashboard() {
                       onClick={() => router.push(`/doctor/consultation/${activeConsult._id}`)}
                       className="bg-primary hover:bg-blue-600 text-white py-2.5 rounded-xl cursor-pointer border-0"
                     >
-                      Start Call
+                      {language === "mr" ? "कॉल सुरू करा" : language === "hi" ? "कॉल शुरू करें" : "Start Call"}
                     </button>
                     <button
                       onClick={() => {
@@ -541,13 +591,13 @@ export default function DoctorDashboard() {
                       }}
                       className="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 py-2.5 rounded-xl cursor-pointer"
                     >
-                      Dismiss
+                      {language === "mr" ? "बंद करा" : language === "hi" ? "खारिज करें" : "Dismiss"}
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="bg-white border border-slate-200/80 p-8 rounded-3xl shadow-xs text-center text-xs text-slate-400">
-                  Select a consultation from the queue to review patient documents.
+                  {language === "mr" ? "रुग्ण तपासणीसाठी रांगेतून सल्लामसलत निवडा." : language === "hi" ? "मरीज की समीक्षा के लिए कतार से परामर्श चुनें।" : "Select a consultation from the queue to review patient documents."}
                 </div>
               )}
             </div>

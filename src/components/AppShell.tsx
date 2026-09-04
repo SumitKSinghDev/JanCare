@@ -301,7 +301,7 @@ export default function AppShell({
             <img src="/logo.png" alt="JanCare Logo" className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl object-cover shadow-sm bg-white" />
             <div className="flex flex-col">
               <span className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight leading-tight">जनCare</span>
-              <span className="hidden sm:inline-block text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">{role} PORTAL</span>
+              <span className="hidden sm:inline-block text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">{role} {t("common.portal") || "PORTAL"}</span>
             </div>
           </div>
         </div>
@@ -311,7 +311,7 @@ export default function AppShell({
           <Search size={16} className="text-slate-400 shrink-0" />
           <input
             type="text"
-            placeholder="Search records, doctors, prescriptions..."
+            placeholder={t("common.searchPlaceholder") || "Search records, doctors, prescriptions..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-transparent border-0 outline-hidden text-xs pl-2 text-slate-700 placeholder-slate-400"
@@ -361,8 +361,8 @@ export default function AppShell({
             {showNotifications && (
               <div className="absolute right-0 mt-2.5 w-72 sm:w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="px-4 pb-2 border-b border-slate-100 flex justify-between items-center">
-                  <span className="font-extrabold text-xs text-slate-800">Notifications</span>
-                  <span className="text-[9px] font-bold text-primary cursor-pointer hover:underline">Mark all read</span>
+                  <span className="font-extrabold text-xs text-slate-800">{t("common.notifications") || "Notifications"}</span>
+                  <span className="text-[9px] font-bold text-primary cursor-pointer hover:underline">{t("common.markAllRead") || "Mark all read"}</span>
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {notifications.map((n) => (
@@ -385,7 +385,7 @@ export default function AppShell({
               {user?.name?.slice(0, 2) || "U"}
             </div>
             <div className="hidden sm:flex flex-col text-left">
-              <span className="text-xs font-extrabold text-slate-700 leading-tight block truncate max-w-[120px]">{user?.name || "Guest User"}</span>
+              <span className="text-xs font-extrabold text-slate-700 leading-tight block truncate max-w-[120px]">{user?.name || t("common.guestUser") || "Guest User"}</span>
               <span className="text-[9px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md w-fit leading-none mt-0.5 uppercase tracking-wider">{role}</span>
             </div>
           </div>
@@ -414,13 +414,14 @@ export default function AppShell({
               <div key={gIdx} className="space-y-1">
                 {!isCollapsed && (
                   <span className="text-[9px] font-extrabold tracking-widest text-slate-400 block px-3 mb-2.5 uppercase">
-                    {group.group}
+                    {t("navGroups." + group.group) || group.group}
                   </span>
                 )}
                 <div className="space-y-1">
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.name;
+                    const localizedName = t("navItems." + item.name) || item.name;
                     return (
                       <button
                         key={item.name}
@@ -432,7 +433,7 @@ export default function AppShell({
                         }`}
                       >
                         <Icon size={16} className={isActive ? "text-white" : "text-slate-400"} />
-                        {!isCollapsed && <span className="truncate">{item.name}</span>}
+                        {!isCollapsed && <span className="truncate">{localizedName}</span>}
                       </button>
                     );
                   })}
@@ -450,7 +451,7 @@ export default function AppShell({
               }`}
             >
               <LogOut size={16} className="text-red-500 shrink-0" />
-              {!isCollapsed && <span>Logout</span>}
+              {!isCollapsed && <span>{t("common.logout") || "Logout"}</span>}
             </button>
           </div>
         </aside>
@@ -484,12 +485,13 @@ export default function AppShell({
                 {navGroups.map((group, gIdx) => (
                   <div key={gIdx} className="space-y-1">
                     <span className="text-[9px] font-extrabold tracking-widest text-slate-400 block px-3 mb-2 uppercase">
-                      {group.group}
+                      {t("navGroups." + group.group) || group.group}
                     </span>
                     <div className="space-y-0.5">
                       {group.items.map((item) => {
                         const Icon = item.icon;
                         const isActive = activeTab === item.name;
+                        const localizedName = t("navItems." + item.name) || item.name;
                         return (
                           <button
                             key={item.name}
@@ -504,7 +506,7 @@ export default function AppShell({
                             }`}
                           >
                             <Icon size={16} className={isActive ? "text-white" : "text-slate-400"} />
-                            <span className="truncate">{item.name}</span>
+                            <span className="truncate">{localizedName}</span>
                           </button>
                         );
                       })}
@@ -520,7 +522,7 @@ export default function AppShell({
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition-all border-0 bg-transparent cursor-pointer"
                 >
                   <LogOut size={16} className="text-red-500 shrink-0" />
-                  <span>Logout</span>
+                  <span>{t("common.logout") || "Logout"}</span>
                 </button>
               </div>
             </aside>

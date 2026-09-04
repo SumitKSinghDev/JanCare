@@ -617,8 +617,20 @@ export default function AshaDashboard() {
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Village Health Outreach: {currentUser?.name}</h2>
-              <p className="text-xs text-slate-300">Register new patients, record baseline triage vitals, and synchronize records.</p>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                {language === "mr"
+                  ? `गाव आरोग्य आउटरीच: ${currentUser?.name || "आशा सेविका"}`
+                  : language === "hi"
+                  ? `ग्राम स्वास्थ्य आउटरीच: ${currentUser?.name || "आशा कार्यकर्ता"}`
+                  : `Village Health Outreach: ${currentUser?.name || "ASHA Worker"}`}
+              </h2>
+              <p className="text-xs text-slate-300">
+                {language === "mr"
+                  ? "नवीन रुग्णांची नोंदणी करा, प्राथमिक तपासणी नोंदवा आणि डेटा सिंक करा."
+                  : language === "hi"
+                  ? "नए मरीजों का पंजीकरण करें, बुनियादी ट्राइएज जांचें दर्ज करें और डेटा सिंक करें।"
+                  : "Register new patients, record baseline triage vitals, and synchronize records."}
+              </p>
             </div>
             
             <button
@@ -630,28 +642,46 @@ export default function AshaDashboard() {
               }`}
             >
               {isOnline ? <Wifi size={16} /> : <WifiOff size={16} />}
-              {isOnline ? "Go Offline" : "Go Online & Sync"}
+              {isOnline 
+                ? (language === "mr" ? "ऑफलाइन मोड चालू करा" : language === "hi" ? "ऑफलाइन मोड चालू करें" : "Go Offline") 
+                : (language === "mr" ? "ऑनलाइन जा व सिंक करा" : language === "hi" ? "ऑनलाइन जाएं और सिंक करें" : "Go Online & Sync")}
             </button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
             <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Patients Registered</span>
-              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">{patients.length} Enrolled</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                {language === "mr" ? "नोंदणीकृत रुग्ण" : language === "hi" ? "पंजीकृत मरीज" : "Patients Registered"}
+              </span>
+              <span className="text-base sm:text-lg font-extrabold text-slate-800 mt-1">
+                {patients.length} {language === "mr" ? "नोंदणीकृत" : language === "hi" ? "पंजीकृत" : "Enrolled"}
+              </span>
             </div>
             <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Pending Follow-ups</span>
-              <span className="text-base sm:text-lg font-extrabold text-amber-600 mt-1">{followups.filter(f => f.status !== "Completed").length} Visits</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                {language === "mr" ? "प्रलंबित फॉलो-अप" : language === "hi" ? "लंबित फॉलो-अप" : "Pending Follow-ups"}
+              </span>
+              <span className="text-base sm:text-lg font-extrabold text-amber-600 mt-1">
+                {followups.filter(f => f.status !== "Completed").length} {language === "mr" ? "भेटी" : language === "hi" ? "दौरे" : "Visits"}
+              </span>
             </div>
             <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Doctor Referrals</span>
-              <span className="text-base sm:text-lg font-extrabold text-primary mt-1">{referrals.filter(r => r.status !== "Completed").length} Active</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                {language === "mr" ? "डॉक्टर संदर्भ (रेफरल्स)" : language === "hi" ? "डॉक्टर रेफरल" : "Doctor Referrals"}
+              </span>
+              <span className="text-base sm:text-lg font-extrabold text-primary mt-1">
+                {referrals.filter(r => r.status !== "Completed").length} {language === "mr" ? "सक्रिय" : language === "hi" ? "सक्रिय" : "Active"}
+              </span>
             </div>
             <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">IndexedDB Sync Queue</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                {language === "mr" ? "ऑफलाइन सिंक रांग" : language === "hi" ? "ऑफलाइन सिंक कतार" : "IndexedDB Sync Queue"}
+              </span>
               <span className="text-xs font-bold text-slate-850 mt-1 flex items-center gap-1">
                 <span className={`h-2 w-2 rounded-full ${isOnline ? "bg-green-500" : "bg-amber-500"}`} />
-                {offlineCount > 0 ? `${offlineCount} Offline` : "Synced"}
+                {offlineCount > 0 
+                  ? `${offlineCount} ${language === "mr" ? "ऑफलाइन नोंदी" : language === "hi" ? "ऑफलाइन रिकॉर्ड" : "Offline"}` 
+                  : (language === "mr" ? "सिंक झाले आहे" : language === "hi" ? "सिंक पूर्ण" : "Synced")}
               </span>
             </div>
           </div>
@@ -659,7 +689,9 @@ export default function AshaDashboard() {
           <div className="grid lg:grid-cols-12 gap-6">
             {/* Quick Actions Panel */}
             <div className="lg:col-span-8 bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
-              <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">Outreach Operations Queue</h3>
+              <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
+                {language === "mr" ? "फील्ड आउटरीच ऑपरेशन्स" : language === "hi" ? "आउटरीच संचालन कतार" : "Outreach Operations Queue"}
+              </h3>
               
               <div className="grid sm:grid-cols-2 gap-4">
                 <button
@@ -667,16 +699,24 @@ export default function AshaDashboard() {
                   className="p-5 border border-slate-200/80 hover:bg-slate-50 text-left rounded-2xl transition-all cursor-pointer bg-white"
                 >
                   <PlusCircle className="text-primary" size={24} />
-                  <strong className="text-sm text-slate-800 block mt-3">Register Village Patient</strong>
-                  <span className="text-[10px] text-slate-400 block mt-1">Create unique Patient reference cards offline.</span>
+                  <strong className="text-sm text-slate-800 block mt-3">
+                    {language === "mr" ? "गावातील रुग्णाची नोंदणी करा" : language === "hi" ? "ग्रामीण मरीज का पंजीकरण करें" : "Register Village Patient"}
+                  </strong>
+                  <span className="text-[10px] text-slate-400 block mt-1">
+                    {language === "mr" ? "इंटरनेटशिवाय ऑफलाइन रुग्ण ओळखपत्र कार्ड तयार करा." : language === "hi" ? "इंटरनेट के बिना ऑफलाइन मरीज कार्ड बनाएं।" : "Create unique Patient reference cards offline."}
+                  </span>
                 </button>
                 <button
                   onClick={() => setActiveTab("Vitals & Symptoms")}
                   className="p-5 border border-slate-200/80 hover:bg-slate-50 text-left rounded-2xl transition-all cursor-pointer bg-white"
                 >
                   <Activity className="text-primary" size={24} />
-                  <strong className="text-sm text-slate-800 block mt-3">Log Symptoms & Vitals</strong>
-                  <span className="text-[10px] text-slate-400 block mt-1">Triage patient health logs directly from households.</span>
+                  <strong className="text-sm text-slate-800 block mt-3">
+                    {language === "mr" ? "लक्षणे व तपासणी नोंदवा" : language === "hi" ? "लक्षण और वाइटल्स दर्ज करें" : "Log Symptoms & Vitals"}
+                  </strong>
+                  <span className="text-[10px] text-slate-400 block mt-1">
+                    {language === "mr" ? "घरोघरी जाऊन रुग्णांची आरोग्य तपासणी नोंदवा." : language === "hi" ? "घर-घर जाकर मरीजों के स्वास्थ्य वाइटल्स दर्ज करें।" : "Triage patient health logs directly from households."}
+                  </span>
                 </button>
               </div>
             </div>
@@ -684,7 +724,7 @@ export default function AshaDashboard() {
             {/* Sync logs display */}
             <div className="lg:col-span-4 bg-slate-900 text-slate-300 p-5 rounded-3xl border border-slate-800 space-y-3">
               <h4 className="text-xs font-bold text-slate-400 flex items-center gap-1.5 border-b border-slate-800 pb-2">
-                <FolderSync size={14} /> Synchronization Log Console
+                <FolderSync size={14} /> {language === "mr" ? "सिंक्रोनायझेशन लॉग कन्सोल" : language === "hi" ? "सिंक्रनाइज़ेशन लॉग कंसोल" : "Synchronization Log Console"}
               </h4>
               <div className="text-[10px] font-mono space-y-1.5 max-h-40 overflow-y-auto">
                 {syncLogs.length > 0 ? (
@@ -694,7 +734,9 @@ export default function AshaDashboard() {
                     </p>
                   ))
                 ) : (
-                  <p className="text-slate-500">No logs generated. Standby connection state.</p>
+                  <p className="text-slate-500">
+                    {language === "mr" ? "सध्या कोणतेही लॉग नाहीत. सर्व सिंक आहे." : language === "hi" ? "वर्तमान में कोई लॉग नहीं हैं। स्टैंडबाय मोड।" : "No logs generated. Standby connection state."}
+                  </p>
                 )}
               </div>
             </div>
@@ -707,12 +749,14 @@ export default function AshaDashboard() {
           {!selectedPatient ? (
             <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4 text-left animate-in fade-in duration-200">
               <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-100 pb-3 gap-3">
-                <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">Outreach Patient Registry</h2>
+                <h2 className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
+                  {language === "mr" ? "आशा रुग्ण नोंदवही" : language === "hi" ? "आउटरीच मरीज रजिस्ट्री" : "Outreach Patient Registry"}
+                </h2>
                 <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 text-xs">
                   <Search size={14} className="text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Search name, ID..."
+                    placeholder={language === "mr" ? "नाव किंवा आयडी शोधा..." : language === "hi" ? "नाम या आईडी खोजें..." : "Search name, ID..."}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="bg-transparent border-0 outline-hidden pl-2 text-xs text-slate-700 font-bold"
@@ -723,11 +767,11 @@ export default function AshaDashboard() {
               {/* Segmented Filters */}
               <div className="flex flex-wrap gap-2 pb-2">
                 {[
-                  { type: "all", label: "All Patients" },
-                  { type: "registered", label: "Registered by Me" },
-                  { type: "referred", label: "Doctor Referrals" },
-                  { type: "followup", label: "Follow-ups Due" },
-                  { type: "priority", label: "Priority Cases" },
+                  { type: "all", label: language === "mr" ? "सर्व रुग्ण" : language === "hi" ? "सभी मरीज" : "All Patients" },
+                  { type: "registered", label: language === "mr" ? "मी नोंदणी केलेले" : language === "hi" ? "मेरे द्वारा पंजीकृत" : "Registered by Me" },
+                  { type: "referred", label: language === "mr" ? "डॉक्टर संदर्भ" : language === "hi" ? "डॉक्टर रेफरल" : "Doctor Referrals" },
+                  { type: "followup", label: language === "mr" ? "फॉलो-अप देय" : language === "hi" ? "फॉलो-अप देय" : "Follow-ups Due" },
+                  { type: "priority", label: language === "mr" ? "तातडीची प्रकरणे" : language === "hi" ? "प्राथमिकता मामले" : "Priority Cases" },
                 ].map((btn) => (
                   <button
                     key={btn.type}

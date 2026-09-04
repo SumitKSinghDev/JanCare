@@ -379,8 +379,12 @@ export default function AdminDashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">District Intelligence Command</h2>
-              <p className="text-xs text-slate-300">Nashik District Network, Maharashtra</p>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                {language === "mr" ? "जिल्हा आरोग्य इंटेलिजन्स कमांड" : language === "hi" ? "जिला स्वास्थ्य इंटेलिजेंस कमांड" : "District Intelligence Command"}
+              </h2>
+              <p className="text-xs text-slate-300">
+                {language === "mr" ? "नाशिक जिल्हा नेटवर्क, महाराष्ट्र" : language === "hi" ? "नासिक जिला नेटवर्क, महाराष्ट्र" : "Nashik District Network, Maharashtra"}
+              </p>
             </div>
             
             <div className="flex flex-wrap gap-2 relative z-10 shrink-0 w-full sm:w-auto">
@@ -390,14 +394,16 @@ export default function AdminDashboard() {
                 className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer border-0 shadow-md transition-all"
               >
                 {seedLoading ? <Loader2 className="animate-spin" size={14} /> : <RotateCcw size={14} />}
-                {seedLoading ? "Seeding..." : "Populate Full Demo DB"}
+                {seedLoading 
+                  ? (language === "mr" ? "डेटा लोड होत आहे..." : language === "hi" ? "डेटा लोड हो रहा है..." : "Seeding...") 
+                  : (language === "mr" ? "डेमो डेटा रिफ्रेश करा" : language === "hi" ? "डेमो डेटा रीसेट करें" : "Populate Full Demo DB")}
               </button>
 
               <button
                 onClick={handleDownloadDistrictReport}
                 className="bg-primary hover:bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer border-0 shadow-md shadow-primary/20 w-full sm:w-auto"
               >
-                <Download size={14} /> Download Report
+                <Download size={14} /> {language === "mr" ? "अहवाल डाउनलोड करा" : language === "hi" ? "रिपोर्ट डाउनलोड करें" : "Download Report"}
               </button>
             </div>
           </div>
@@ -405,42 +411,60 @@ export default function AdminDashboard() {
           {/* 8 Stats Metrics block */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-4">
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Total Patients</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "एकूण रुग्ण" : language === "hi" ? "कुल मरीज" : "Total Patients"}
+              </span>
               <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">18,420</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 12% vs LW</span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Consults</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "सल्लामसलत" : language === "hi" ? "परामर्श" : "Consults"}
+              </span>
               <strong className="text-base sm:text-lg font-extrabold text-primary mt-1.5 block">12,832</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 15% vs LW</span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs border-l-4 border-l-red-500">
-              <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider block">High Risk Cases</span>
+              <span className="text-[8px] text-red-500 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "गंभीर प्रकरणे" : language === "hi" ? "गंभीर मामले" : "High Risk Cases"}
+              </span>
               <strong className="text-base sm:text-lg font-extrabold text-red-600 mt-1.5 block">1,245</strong>
               <span className="text-[8px] text-red-500 font-bold block mt-0.5">↑ 8% vs LW</span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Referrals</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "संदर्भ (रेफरल्स)" : language === "hi" ? "रेफरल्स" : "Referrals"}
+              </span>
               <strong className="text-base sm:text-lg font-extrabold text-orange-600 mt-1.5 block">2,345</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 10% vs LW</span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs border-l-4 border-l-green-500">
-              <span className="text-[8px] text-green-500 font-bold uppercase tracking-wider block">Referral Comp.</span>
+              <span className="text-[8px] text-green-500 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "संदर्भ पूर्णता" : language === "hi" ? "रेफरल पूर्णता" : "Referral Comp."}
+              </span>
               <strong className="text-base sm:text-lg font-extrabold text-green-700 mt-1.5 block">91%</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 6% vs LW</span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Follow-up Rate</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "फॉलो-अप दर" : language === "hi" ? "फॉलो-अप दर" : "Follow-up Rate"}
+              </span>
               <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">84%</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 5% vs LW</span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Avg. Wait</span>
-              <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">26 min</strong>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "सरासरी प्रतीक्षा" : language === "hi" ? "औसत प्रतीक्षा" : "Avg. Wait"}
+              </span>
+              <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">
+                26 {language === "mr" ? "मि" : language === "hi" ? "मिनट" : "min"}
+              </strong>
               <span className="text-[8px] text-red-500 font-bold block mt-0.5">↓ 8% vs LW</span>
             </div>
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">Meds Availability</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "औषध उपलब्धता" : language === "hi" ? "दवा उपलब्धता" : "Meds Availability"}
+              </span>
               <strong className="text-base sm:text-lg font-extrabold text-slate-800 mt-1.5 block">87%</strong>
               <span className="text-[8px] text-green-600 font-bold block mt-0.5">↑ 4% vs LW</span>
             </div>

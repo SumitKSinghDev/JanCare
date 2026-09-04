@@ -180,12 +180,20 @@ export default function FacilityDashboard() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="bg-primary/30 text-blue-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-blue-400/30">
-                    {facility?.type || "CHC"} Node Active
+                    {facility?.type || "CHC"} {language === "mr" ? "नोड सक्रिय" : language === "hi" ? "नोड सक्रिय" : "Node Active"}
                   </span>
                   <span className="text-xs text-slate-300">• {facility?.taluka || "Sinnar"}, {facility?.district || "Nashik"}</span>
                 </div>
-                <h2 className="text-2xl font-extrabold tracking-tight">{facility?.name || "Sinnar CHC-01 Operations Portal"}</h2>
-                <p className="text-xs text-slate-300">Live clinical queues, patient registry, telemedicine rooms, and pharmacy inventory control.</p>
+                <h2 className="text-2xl font-extrabold tracking-tight">
+                  {facility?.name || (language === "mr" ? "सिन्नर ग्रामीण रुग्णालय ऑपरेशन्स" : language === "hi" ? "सिन्नर सीएचसी संचालन पोर्टल" : "Sinnar CHC-01 Operations Portal")}
+                </h2>
+                <p className="text-xs text-slate-300">
+                  {language === "mr"
+                    ? "थेट OPD रांगा, रुग्ण नोंदवही, टेलिमेडिसीन कक्ष आणि औषध साठा नियंत्रण."
+                    : language === "hi"
+                    ? "लाइव ओपीडी कतार, मरीज रजिस्ट्री, टेलीमेडिसिन रूम और दवा इन्वेंटरी नियंत्रण।"
+                    : "Live clinical queues, patient registry, telemedicine rooms, and pharmacy inventory control."}
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -193,7 +201,7 @@ export default function FacilityDashboard() {
                   onClick={() => setActiveTab("Appointments")}
                   className="bg-primary hover:bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md border-0 cursor-pointer"
                 >
-                  <Calendar size={14} /> Schedule OPD
+                  <Calendar size={14} /> {language === "mr" ? "OPD नियोजित करा" : language === "hi" ? "OPD शेड्यूल करें" : "Schedule OPD"}
                 </button>
               </div>
             </div>
@@ -202,34 +210,56 @@ export default function FacilityDashboard() {
           {/* Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             <div className="bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Registered Patients</span>
+              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "नोंदणीकृत रुग्ण" : language === "hi" ? "पंजीकृत मरीज" : "Registered Patients"}
+              </span>
               <span className="text-xl font-extrabold text-slate-800 block mt-1">{patients.length || 6}</span>
-              <span className="text-[9px] text-green-600 font-bold mt-0.5 block">↑ Active Footprint</span>
+              <span className="text-[9px] text-green-600 font-bold mt-0.5 block">
+                {language === "mr" ? "↑ सक्रिय नोंदणी" : language === "hi" ? "↑ सक्रिय मरीज" : "↑ Active Footprint"}
+              </span>
             </div>
             <div className="bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Today's Consults</span>
+              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "आजची सल्लामसलत" : language === "hi" ? "आज के परामर्श" : "Today's Consults"}
+              </span>
               <span className="text-xl font-extrabold text-slate-800 block mt-1">{consultations.length || 5}</span>
-              <span className="text-[9px] text-primary font-bold mt-0.5 block">OPD & Video</span>
+              <span className="text-[9px] text-primary font-bold mt-0.5 block">
+                {language === "mr" ? "OPD व व्हिडिओ" : language === "hi" ? "ओपीडी और वीडियो" : "OPD & Video"}
+              </span>
             </div>
             <div className="bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Active Queue</span>
+              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "सक्रिय OPD रांग" : language === "hi" ? "सक्रिय कतार" : "Active Queue"}
+              </span>
               <span className="text-xl font-extrabold text-primary block mt-1">{appointments.filter(a => a.status === "Scheduled").length || 4}</span>
-              <span className="text-[9px] text-amber-600 font-bold mt-0.5 block">Avg Wait: 15m</span>
+              <span className="text-[9px] text-amber-600 font-bold mt-0.5 block">
+                {language === "mr" ? "प्रतीक्षा: ~१५ मि" : language === "hi" ? "प्रतीक्षा: ~15 मिनट" : "Avg Wait: 15m"}
+              </span>
             </div>
             <div className="bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Active Referrals</span>
+              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "सक्रिय संदर्भ" : language === "hi" ? "सक्रिय रेफरल" : "Active Referrals"}
+              </span>
               <span className="text-xl font-extrabold text-slate-800 block mt-1">{referrals.length || 4}</span>
-              <span className="text-[9px] text-red-500 font-bold mt-0.5 block">108 Transport Sync</span>
+              <span className="text-[9px] text-red-500 font-bold mt-0.5 block">
+                {language === "mr" ? "१०८ वाहतूक सिंक" : language === "hi" ? "108 एम्बुलेंस सिंक" : "108 Transport Sync"}
+              </span>
             </div>
             <div className="bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Pharmacy Items</span>
+              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "औषध साठा प्रकार" : language === "hi" ? "दवा इन्वेंटरी" : "Pharmacy Items"}
+              </span>
               <span className="text-xl font-extrabold text-slate-800 block mt-1">{medicines.length || 7}</span>
               <span className="text-[9px] text-teal-600 font-bold mt-0.5 block">PMBJP Generic</span>
             </div>
             <div className="bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">ASHA Follow-ups</span>
+              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">
+                {language === "mr" ? "आशा फॉलो-अप" : language === "hi" ? "आशा फॉलो-अप" : "ASHA Follow-ups"}
+              </span>
               <span className="text-xl font-extrabold text-slate-800 block mt-1">{followups.length || 5}</span>
-              <span className="text-[9px] text-green-600 font-bold mt-0.5 block">Doorstep Care</span>
+              <span className="text-[9px] text-green-600 font-bold mt-0.5 block">
+                {language === "mr" ? "घरोघरी सेवा" : language === "hi" ? "घर पर देखभाल" : "Doorstep Care"}
+              </span>
             </div>
           </div>
 
@@ -239,14 +269,18 @@ export default function FacilityDashboard() {
             <div className="md:col-span-8 bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
               <div className="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-800">Live Facility Patient Queue</h3>
-                  <span className="text-[10px] text-slate-400">Real-time OPD token progression & triage sorting</span>
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-slate-800">
+                    {language === "mr" ? "थेट केंद्र रुग्ण रांग" : language === "hi" ? "लाइव मरीज ओपीडी कतार" : "Live Facility Patient Queue"}
+                  </h3>
+                  <span className="text-[10px] text-slate-400">
+                    {language === "mr" ? "रिअल-टाइम OPD टोकन आणि वर्गीकरण" : language === "hi" ? "रीयल-टाइम ओपीडी टोकन और ट्राइएज" : "Real-time OPD token progression & triage sorting"}
+                  </span>
                 </div>
                 <button
                   onClick={() => setActiveTab("Queue")}
                   className="text-primary hover:underline text-xs font-bold border-0 bg-transparent cursor-pointer"
                 >
-                  View Full Queue →
+                  {language === "mr" ? "संपूर्ण रांग पहा →" : language === "hi" ? "पूरी कतार देखें →" : "View Full Queue →"}
                 </button>
               </div>
 

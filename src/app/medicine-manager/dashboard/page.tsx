@@ -609,8 +609,16 @@ export default function MedicineManagerDashboard() {
             <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.12),transparent)] pointer-events-none" />
               <div className="space-y-1 relative z-10">
-                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Medicine Management Portal</h2>
-                <p className="text-xs text-slate-300">Monitor and update drug availability across Primary Health Centers (PHC) and pharmacies.</p>
+                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                  {language === "mr" ? "औषध साठा व्यवस्थापन पोर्टल" : language === "hi" ? "दवा प्रबंधन पोर्टल" : "Medicine Management Portal"}
+                </h2>
+                <p className="text-xs text-slate-300">
+                  {language === "mr" 
+                    ? "प्राथमिक आरोग्य केंद्र (PHC) आणि फार्मसीमधील औषध उपलब्धता निरीक्षण व व्यवस्थापन करा."
+                    : language === "hi"
+                    ? "प्राथमिक स्वास्थ्य केंद्र (PHC) और फार्मेसी में दवा उपलब्धता की निगरानी और अद्यतन करें।"
+                    : "Monitor and update drug availability across Primary Health Centers (PHC) and pharmacies."}
+                </p>
               </div>
             </div>
 
@@ -621,8 +629,12 @@ export default function MedicineManagerDashboard() {
                   <Package size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Stock Items</span>
-                  <span className="text-base sm:text-lg font-extrabold text-slate-800">{totalItems} Unique</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">
+                    {language === "mr" ? "एकूण औषधे" : language === "hi" ? "कुल दवाएं" : "Stock Items"}
+                  </span>
+                  <span className="text-base sm:text-lg font-extrabold text-slate-800">
+                    {totalItems} {language === "mr" ? "प्रकार" : language === "hi" ? "प्रकार" : "Unique"}
+                  </span>
                 </div>
               </div>
               <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3 sm:gap-4">
@@ -630,8 +642,12 @@ export default function MedicineManagerDashboard() {
                   <AlertTriangle size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Low Stock</span>
-                  <span className="text-base sm:text-lg font-extrabold text-amber-600">{lowStockCount} Items</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">
+                    {language === "mr" ? "कमी साठा" : language === "hi" ? "कम स्टॉक" : "Low Stock"}
+                  </span>
+                  <span className="text-base sm:text-lg font-extrabold text-amber-600">
+                    {lowStockCount} {language === "mr" ? "औषधे" : language === "hi" ? "दवाएं" : "Items"}
+                  </span>
                 </div>
               </div>
               <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3 sm:gap-4">
@@ -639,8 +655,12 @@ export default function MedicineManagerDashboard() {
                   <TrendingDown size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Out of Stock</span>
-                  <span className="text-base sm:text-lg font-extrabold text-red-600">{outOfStockCount} Items</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">
+                    {language === "mr" ? "साठा संपला" : language === "hi" ? "स्टॉक समाप्त" : "Out of Stock"}
+                  </span>
+                  <span className="text-base sm:text-lg font-extrabold text-red-600">
+                    {outOfStockCount} {language === "mr" ? "औषधे" : language === "hi" ? "दवाएं" : "Items"}
+                  </span>
                 </div>
               </div>
               <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3 sm:gap-4">
@@ -648,8 +668,12 @@ export default function MedicineManagerDashboard() {
                   <Layers size={18} className="sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Reservations</span>
-                  <span className="text-base sm:text-lg font-extrabold text-green-600">{reservations.length || pendingReservations} Logged</span>
+                  <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">
+                    {language === "mr" ? "औषध आरक्षणे" : language === "hi" ? "दवा आरक्षण" : "Reservations"}
+                  </span>
+                  <span className="text-base sm:text-lg font-extrabold text-green-600">
+                    {reservations.length || pendingReservations} {language === "mr" ? "नोंदणी" : language === "hi" ? "दर्ज" : "Logged"}
+                  </span>
                 </div>
               </div>
             </div>

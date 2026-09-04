@@ -802,31 +802,22 @@ export default function PatientDashboard() {
 
   // Dynamic calculations for Care Journey Stepper
   const getJourneySteps = () => {
-    if (!latestConsult) {
-      return [
-        { label: "Symptoms", status: "Upcoming" },
-        { label: "AI Triage", status: "Upcoming" },
-        { label: "Doctor", status: "Upcoming" },
-        { label: "Medicine", status: "Upcoming" },
-        { label: "Referral", status: "Upcoming" },
-        { label: "Follow-up", status: "Upcoming" },
-        { label: "Complete Care", status: "Upcoming" }
-      ];
-    }
-    
-    const isScheduled = latestConsult.status === "Scheduled" || latestConsult.status === "Active";
-    const isCompleted = latestConsult.status === "Completed";
+    const isCompleted = latestConsult?.status === "Completed";
+    const isScheduled = latestConsult?.status === "Scheduled" || latestConsult?.status === "Active";
     const hasPrescription = prescriptions.length > 0;
     const hasOrder = !!orderTrackingId;
+    const upcomingText = language === "mr" ? "पुढील" : language === "hi" ? "आगामी" : "Upcoming";
+    const completedText = t("common.completed") || "Completed";
+    const inProgressText = t("common.inProgress") || "In Progress";
 
     return [
-      { label: "Symptoms", status: "Completed" },
-      { label: "AI Triage", status: "Completed" },
-      { label: "Doctor", status: isCompleted ? "Completed" : isScheduled ? "In Progress" : "Upcoming" },
-      { label: "Medicine", status: hasOrder ? "Completed" : hasPrescription ? "In Progress" : "Upcoming" },
-      { label: "Referral", status: orderStatus === "Collected" ? "Completed" : "Upcoming" },
-      { label: "Follow-up", status: "Upcoming" },
-      { label: "Complete Care", status: isCompleted && hasPrescription ? "In Progress" : "Upcoming" }
+      { label: t("journey.symptoms") || "Symptoms", status: latestConsult ? completedText : upcomingText },
+      { label: t("journey.triage") || "AI Triage", status: latestConsult ? completedText : upcomingText },
+      { label: t("journey.doctor") || "Doctor", status: isCompleted ? completedText : isScheduled ? inProgressText : upcomingText },
+      { label: t("journey.medicine") || "Medicine", status: hasOrder ? completedText : hasPrescription ? inProgressText : upcomingText },
+      { label: t("journey.referral") || "Referral", status: orderStatus === "Collected" ? completedText : upcomingText },
+      { label: t("journey.followUp") || "Follow-up", status: upcomingText },
+      { label: t("journey.completeCare") || "Complete Care", status: isCompleted && hasPrescription ? inProgressText : upcomingText }
     ];
   };
   const journeyStepsArray = getJourneySteps();
@@ -839,29 +830,29 @@ export default function PatientDashboard() {
       : new Date().toLocaleDateString();
     
     steps.push({
-      label: "Patient Registered",
-      desc: `Profile created successfully with Ref ID: ${user?.patientRefId || "JC-NEW"}`,
+      label: language === "mr" ? "रुग्ण नोंदणी पूर्ण" : language === "hi" ? "मरीज पंजीकरण पूर्ण" : "Patient Registered",
+      desc: `${language === "mr" ? "आयडीसह प्रोफाईल तयार केले" : language === "hi" ? "आईडी के साथ प्रोफाइल बनाई गई" : "Profile created with Ref ID"}: ${user?.patientRefId || "JC-NEW"}`,
       date: regDateStr,
       completed: true
     });
 
     if (consultations.length === 0) {
       steps.push({
-        label: "Await Appointment Booking",
-        desc: "Please select an available slot under Next Appointment to schedule a clinical consultation.",
-        date: "Pending Action",
+        label: language === "mr" ? "अपॉइंटमेंट बुकिंगची प्रतीक्षा" : language === "hi" ? "अपॉइंटमेंट बुकिंग की प्रतीक्षा" : "Await Appointment Booking",
+        desc: language === "mr" ? "कृपया तपासणीसाठी उपलब्ध स्लॉट निवडा." : language === "hi" ? "कृपया परामर्श के लिए उपलब्ध स्लॉट चुनें।" : "Please select an available slot under Next Appointment to schedule a clinical consultation.",
+        date: language === "mr" ? "प्रलंबित" : language === "hi" ? "लंबित" : "Pending Action",
         completed: false
       });
       steps.push({
-        label: "Doctor Consultation",
-        desc: "Real-time WebRTC teleconsultation call.",
-        date: "Upcoming",
+        label: language === "mr" ? "डॉक्टरांचा सल्ला" : language === "hi" ? "डॉक्टर परामर्श" : "Doctor Consultation",
+        desc: language === "mr" ? "थेट WebRTC व्हिडिओ सल्लामसलत." : language === "hi" ? "लाइव WebRTC वीडियो परामर्श।" : "Real-time WebRTC teleconsultation call.",
+        date: language === "mr" ? "पुढील" : language === "hi" ? "आगामी" : "Upcoming",
         completed: false
       });
       steps.push({
-        label: "Prescription & Pharmacy Dispatch",
-        desc: "Receive medicines from the closest rural pharmacy.",
-        date: "Upcoming",
+        label: language === "mr" ? "प्रिस्क्रिप्शन व औषध वितरण" : language === "hi" ? "पर्चा व दवा वितरण" : "Prescription & Pharmacy Dispatch",
+        desc: language === "mr" ? "जवळच्या आरोग्य केंद्रातून औषधे मिळवा." : language === "hi" ? "निकटतम स्वास्थ्य केंद्र से दवाएं प्राप्त करें।" : "Receive medicines from the closest rural pharmacy.",
+        date: language === "mr" ? "पुढील" : language === "hi" ? "आगामी" : "Upcoming",
         completed: false
       });
     } else {
@@ -869,41 +860,41 @@ export default function PatientDashboard() {
       const completedCons = consultations.find(c => c.status === "Completed");
 
       steps.push({
-        label: "Symptoms & AI Triage Intake",
-        desc: activeCons?.healthRecordId?.triage?.reason || "Intake assessment complete. Priority index logged.",
+        label: language === "mr" ? "लक्षणे व AI तपासणी" : language === "hi" ? "लक्षण व AI जांच" : "Symptoms & AI Triage Intake",
+        desc: activeCons?.healthRecordId?.triage?.reason || (language === "mr" ? "प्राथमिक तपासणी पूर्ण." : language === "hi" ? "प्राथमिक जांच पूर्ण।" : "Intake assessment complete. Priority index logged."),
         date: new Date(consultations[consultations.length - 1].createdAt).toLocaleDateString(),
         completed: true
       });
 
       steps.push({
-        label: "Doctor Consultation Room",
+        label: language === "mr" ? "डॉक्टर सल्लामसलत कक्ष" : language === "hi" ? "डॉक्टर परामर्श कक्ष" : "Doctor Consultation Room",
         desc: completedCons 
-          ? "Teleconsultation call successfully finished with Dr. Aniruddha Kulkarni." 
-          : "WebRTC consultation room is active. Click Join Consultation to enter.",
+          ? (language === "mr" ? "डॉक्टरांशी सल्लामसलत पूर्ण झाली." : language === "hi" ? "डॉक्टर से परामर्श सफलतापूर्वक पूरा हुआ।" : "Teleconsultation call successfully finished with Dr. Aniruddha Kulkarni.")
+          : (language === "mr" ? "व्हिडिओ कक्ष सक्रिय आहे. प्रवेश करण्यासाठी क्लिक करा." : language === "hi" ? "वीडियो कक्ष सक्रिय है। प्रवेश करने के लिए क्लिक करें।" : "WebRTC consultation room is active. Click Join Consultation to enter."),
         date: completedCons 
           ? new Date(completedCons.updatedAt).toLocaleDateString() 
-          : "Active Now",
+          : (language === "mr" ? "आता सक्रिय" : language === "hi" ? "अब सक्रिय" : "Active Now"),
         completed: !!completedCons
       });
 
       steps.push({
-        label: "Prescription Created",
+        label: language === "mr" ? "प्रिस्क्रिप्शन तयार झाले" : language === "hi" ? "पर्चा जारी किया गया" : "Prescription Created",
         desc: prescriptions.length > 0 
-          ? `${prescriptions[0].medicines.length} generic medicines issued by physician.` 
-          : "Pending doctor diagnosis and prescriptions.",
+          ? `${prescriptions[0].medicines.length} ${language === "mr" ? "औषधे डॉक्टरांनी लिहून दिली." : language === "hi" ? "दवाएं डॉक्टर द्वारा निर्धारित की गईं।" : "generic medicines issued by physician."}` 
+          : (language === "mr" ? "डॉक्टरांच्या निदानाची प्रतीक्षा." : language === "hi" ? "डॉक्टर के निदान की प्रतीक्षा।" : "Pending doctor diagnosis and prescriptions."),
         date: prescriptions.length > 0 
           ? new Date(prescriptions[0].createdAt).toLocaleDateString() 
-          : "Awaiting consultation end",
+          : (language === "mr" ? "प्रतीक्षेत" : language === "hi" ? "प्रतीक्षा में" : "Awaiting consultation end"),
         completed: prescriptions.length > 0
       });
 
       if (prescriptions.length > 0) {
         steps.push({
-          label: "Medicine Reservation",
+          label: language === "mr" ? "औषध आरक्षण" : language === "hi" ? "दवा आरक्षण" : "Medicine Reservation",
           desc: orderTrackingId 
-            ? `Reserved at ${selectedFacility || "PHC-01"}. Tracking ID: ${orderTrackingId}` 
-            : "Click 'Check Availability' to reserve generic drugs at nearest clinic.",
-          date: orderTrackingId ? "Reserved" : "Action Required",
+            ? `${language === "mr" ? "आरक्षित केले केंद्र" : language === "hi" ? "आरक्षित केंद्र" : "Reserved at"} ${selectedFacility || "PHC-01"}. ${language === "mr" ? "ट्रॅकिंग आयडी" : language === "hi" ? "ट्रैकिंग आईडी" : "Tracking ID"}: ${orderTrackingId}` 
+            : (language === "mr" ? "औषधे आरक्षित करण्यासाठी उपलब्धता तपासा." : language === "hi" ? "दवाएं आरक्षित करने के लिए उपलब्धता जांचें।" : "Click 'Check Availability' to reserve generic drugs at nearest clinic."),
+          date: orderTrackingId ? (language === "mr" ? "आरक्षित" : language === "hi" ? "आरक्षित" : "Reserved") : (language === "mr" ? "आवश्यक" : language === "hi" ? "आवश्यक" : "Action Required"),
           completed: !!orderTrackingId
         });
       }
@@ -928,7 +919,7 @@ export default function PatientDashboard() {
       <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="animate-spin text-primary" size={36} />
-          <p className="text-xs font-bold text-slate-500">Loading Patient Records...</p>
+          <p className="text-xs font-bold text-slate-500">{t("common.loading") || "Loading Patient Records..."}</p>
         </div>
       </div>
     );
@@ -948,8 +939,12 @@ export default function PatientDashboard() {
           <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-lg relative overflow-hidden space-y-4">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent)] pointer-events-none" />
             <div className="space-y-1 relative z-10">
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">Good morning, {user?.name || "Patient"} 👋</h2>
-              <p className="text-xs text-slate-300">Welcome back. Here is your personalized health dashboard overview.</p>
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                {language === "mr" ? `शुभ प्रभात, ${user?.name || "रुग्ण"} 👋` : language === "hi" ? `शुभ प्रभात, ${user?.name || "मरीज"} 👋` : `Good morning, ${user?.name || "Patient"} 👋`}
+              </h2>
+              <p className="text-xs text-slate-300">
+                {language === "mr" ? "आपले स्वागत आहे. हा आपला वैयक्तिक आरोग्य डॅशबोर्ड आहे." : language === "hi" ? "वापसी पर स्वागत है। यह आपका व्यक्तिगत स्वास्थ्य डैशबोर्ड है।" : "Welcome back. Here is your personalized health dashboard overview."}
+              </p>
             </div>
 
             {activeConsultation?.status === "In Progress" && (
@@ -957,7 +952,7 @@ export default function PatientDashboard() {
                 onClick={() => router.push(`/doctor/consultation/${activeConsultation._id}`)}
                 className="bg-primary hover:bg-deep-blue text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-md transition-all border-0 w-full sm:w-auto justify-center"
               >
-                <Video size={16} /> Join Consultation Call
+                <Video size={16} /> {language === "mr" ? "सल्लामसलत कॉलमध्ये सामील व्हा" : language === "hi" ? "परामर्श कॉल में शामिल हों" : "Join Consultation Call"}
               </button>
             )}
           </div>
@@ -969,12 +964,16 @@ export default function PatientDashboard() {
                 <div className="flex items-center gap-2">
                   <span className="bg-white/20 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-full flex items-center gap-1">
                     <AlertOctagon size={12} className="animate-pulse text-amber-300" />
-                    Urgent Clinical Escalation Active
+                    {language === "mr" ? "तातडीची वैद्यकीय आणीबाणी सक्रिय" : language === "hi" ? "आपातकालीन चिकित्सा सक्रिय" : "Urgent Clinical Escalation Active"}
                   </span>
-                  <span className="text-[10px] text-red-100 hidden sm:inline">• Sinnar CHC ICU Active</span>
+                  <span className="text-[10px] text-red-100 hidden sm:inline">• Sinnar CHC ICU</span>
                 </div>
-                <h3 className="text-sm font-extrabold text-white">Emergency Response Active for Your Care</h3>
-                <p className="text-[11px] text-red-100">AI triage or clinician flagged high-risk symptoms requiring prioritized emergency response.</p>
+                <h3 className="text-sm font-extrabold text-white">
+                  {language === "mr" ? "आपल्या उपचारासाठी तातडीची सेवा सक्रिय आहे" : language === "hi" ? "आपकी देखभाल के लिए आपातकालीन सेवा सक्रिय है" : "Emergency Response Active for Your Care"}
+                </h3>
+                <p className="text-[11px] text-red-100">
+                  {language === "mr" ? "AI तपासणीनुसार तातडीच्या उपचारांची आवश्यकता ओळखली गेली आहे." : language === "hi" ? "AI जांच के अनुसार आपातकालीन देखभाल की आवश्यकता है।" : "AI triage or clinician flagged high-risk symptoms requiring prioritized emergency response."}
+                </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
@@ -991,7 +990,7 @@ export default function PatientDashboard() {
                     }}
                     className="bg-white hover:bg-red-50 text-red-700 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
                   >
-                    <PhoneCall size={14} className="text-red-600" /> Call 108 Ambulance
+                    <PhoneCall size={14} className="text-red-600" /> {t("common.ambulance108") || "Call 108 Ambulance"}
                   </button>
                 )}
 
@@ -1001,14 +1000,14 @@ export default function PatientDashboard() {
                   className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm cursor-pointer border-0 transition-all w-full sm:w-auto"
                 >
                   {instantCalling ? <Loader2 size={14} className="animate-spin" /> : <Video size={14} />}
-                  Instant Doctor Call
+                  {t("common.emergencyCall") || "Instant Doctor Call"}
                 </button>
 
                 <button
                   onClick={() => setEmergencyDismissed(true)}
                   className="bg-red-800/80 hover:bg-red-800 text-white text-[11px] font-bold px-3 py-2.5 rounded-xl cursor-pointer border-0 transition-all"
                 >
-                  Dismiss
+                  {language === "mr" ? "बंद करा" : language === "hi" ? "खारिज करें" : "Dismiss"}
                 </button>
               </div>
             </div>
@@ -1017,15 +1016,17 @@ export default function PatientDashboard() {
           {/* Stepper Progress bar: Your Care Journey */}
           <div className="bg-white border border-slate-200/80 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xs space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">Your Care Journey Progression</h3>
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                {t("journey.title") || "Your Care Journey Progression"}
+              </h3>
               <span className="sm:hidden text-[9px] font-bold text-primary bg-blue-50 px-2 py-0.5 rounded-full">← Swipe →</span>
             </div>
             
             <div className="overflow-x-auto pb-2 scrollbar-none">
               <div className="flex items-center justify-between min-w-[620px] relative py-2 px-2 sm:px-4">
                 {journeyStepsArray.map((step, idx) => {
-                  const isActive = step.status === "In Progress";
-                  const isDone = step.status === "Completed";
+                  const isActive = step.status === (t("common.inProgress") || "In Progress");
+                  const isDone = step.status === (t("common.completed") || "Completed");
                   return (
                     <React.Fragment key={step.label}>
                       <div className="flex flex-col items-center relative z-10">
@@ -1047,7 +1048,7 @@ export default function PatientDashboard() {
                       </div>
                       {idx < 6 && (
                         <span className={`h-0.5 flex-1 mx-2 ${
-                          idx < journeyStepsArray.findIndex(s => s.status === "Upcoming" || s.status === "In Progress") ? "bg-green-brand" : "bg-slate-200"
+                          isDone ? "bg-green-brand" : "bg-slate-200"
                         }`} />
                       )}
                     </React.Fragment>
