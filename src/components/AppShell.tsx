@@ -416,14 +416,14 @@ export default function AppShell({
               <div key={gIdx} className="space-y-1">
                 {!isCollapsed && (
                   <span className="text-[9px] font-extrabold tracking-widest text-slate-400 block px-3 mb-2.5 uppercase">
-                    {t("navGroups." + group.group) || group.group}
+                    {t("navGroups." + group.group, group.group)}
                   </span>
                 )}
                 <div className="space-y-1">
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.name;
-                    const localizedName = t("navItems." + item.name) || item.name;
+                    const localizedName = t("navItems." + item.name, item.name);
                     return (
                       <button
                         key={item.name}
@@ -453,7 +453,7 @@ export default function AppShell({
               }`}
             >
               <LogOut size={16} className="text-red-500 shrink-0" />
-              {!isCollapsed && <span>{t("common.logout") || "Logout"}</span>}
+              {!isCollapsed && <span>{t("common.logout", "Logout")}</span>}
             </button>
           </div>
         </aside>
@@ -487,13 +487,13 @@ export default function AppShell({
                 {navGroups.map((group, gIdx) => (
                   <div key={gIdx} className="space-y-1">
                     <span className="text-[9px] font-extrabold tracking-widest text-slate-400 block px-3 mb-2 uppercase">
-                      {t("navGroups." + group.group) || group.group}
+                      {t("navGroups." + group.group, group.group)}
                     </span>
                     <div className="space-y-0.5">
                       {group.items.map((item) => {
                         const Icon = item.icon;
                         const isActive = activeTab === item.name;
-                        const localizedName = t("navItems." + item.name) || item.name;
+                        const localizedName = t("navItems." + item.name, item.name);
                         return (
                           <button
                             key={item.name}

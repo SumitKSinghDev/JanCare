@@ -10,7 +10,7 @@ type Language = "en" | "hi" | "mr";
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (keyPath: string) => string;
+  t: (keyPath: string, customFallback?: string) => string;
 }
 
 const translations: Record<Language, any> = { en, hi, mr };
@@ -36,8 +36,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Helper to resolve dot notation e.g., t("nav.howItWorks")
-  const t = (keyPath: string): string => {
+  // Helper to resolve dot notation e.g., t("nav.howItWorks", "How It Works")
+  const t = (keyPath: string, customFallback?: string): string => {
     try {
       const parts = keyPath.split(".");
       let currentTranslation = translations[language] || translations["en"];
@@ -48,9 +48,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         fallbackTranslation = fallbackTranslation?.[part];
       }
 
-      return currentTranslation || fallbackTranslation || keyPath;
+      if (typeof currentTranslation === "string" && currentTranslation.trim() !== "") {
+        return currentTranslation;
+      }
+      if (typeof fallbackTranslation === "string" && fallbackTranslation.trim() !== "") {
+        return fallbackTranslation;
+      }
+
+      // If custom fallback provided, use it; otherwise use the last section of keyPath (e.g. "Patients")
+      if (customFallback !== undefined && customFallback.trim() !== "") {
+        return customFallback;
+      }
+
+      const lastPart = parts[parts.length - 1];
+      return lastPart || keyPath;
     } catch {
-      return keyPath;
+      return customFallback || keyPath;
     }
   };
 
