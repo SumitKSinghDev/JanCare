@@ -165,6 +165,16 @@ export default function LoginPage() {
       setError(language === "mr" ? "कृपया आधी मोबाईल नंबर किंवा युझरनेम टाका" : "Please enter your Username / Mobile Number first.");
       return;
     }
+    if (typeof window !== "undefined" && !navigator.onLine) {
+      setError(
+        language === "mr"
+          ? "📡 ऑफलाइन मोड: OTP पाठवण्यासाठी इंटरनेट आवश्यक आहे. त्वरित चाचणीसाठी खालील डेमो खाती वापरा."
+          : language === "hi"
+          ? "📡 ऑफलाइन मोड: OTP भेजने के लिए इंटरनेट आवश्यक है। त्वरित परीक्षण के लिए नीचे डेमो खातों का उपयोग करें।"
+          : "📡 Offline Mode: SMS OTP dispatch requires network. Click any Demo Account below for offline access."
+      );
+      return;
+    }
     setError("");
     setLoading(true);
     try {
@@ -219,7 +229,8 @@ export default function LoginPage() {
       }
     } catch (e: any) {
       console.error("Failed to dispatch OTP:", e);
-      setError("Failed to dispatch OTP: " + e.message);
+      const isOff = !navigator.onLine || e.message?.includes("Failed to fetch") || e.name === "TypeError";
+      setError(isOff ? "📡 Offline Mode: Network unavailable for SMS dispatch." : ("Failed to dispatch OTP: " + (e.message || "Network issue")));
     } finally {
       setLoading(false);
     }
@@ -292,7 +303,8 @@ export default function LoginPage() {
         router.push("/");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to log in via OTP.");
+      const isOff = !navigator.onLine || err.message?.includes("Failed to fetch") || err.name === "TypeError";
+      setError(isOff ? "📡 Offline Mode: Unable to reach auth server." : (err.message || "OTP Verification failed"));
     } finally {
       setLoading(false);
     }
@@ -301,13 +313,14 @@ export default function LoginPage() {
   async function handleDemoLogin(account: typeof demoAccounts[0]) {
     setLoading(true);
     setError("");
-    setSeedingText(language === "mr" ? "डेटाबेस कनेक्ट करत आहे..." : "Connecting Database & Seeding Scenario...");
 
-    // If offline, route directly to offline dashboard
+    // If offline, route directly to offline dashboard instantly
     if (typeof window !== "undefined" && !navigator.onLine) {
       router.push(account.path);
       return;
     }
+
+    setSeedingText(language === "mr" ? "डेटाबेस कनेक्ट करत आहे..." : "Connecting Database & Seeding Scenario...");
 
     try {
       let loginRes = await fetch("/api/auth/login", {
@@ -340,8 +353,8 @@ export default function LoginPage() {
 
       router.push(account.path);
     } catch (err: any) {
+      // If network dropped mid-action or offline, route directly to offline dashboard
       if (!navigator.onLine || err.message?.includes("Failed to fetch") || err.name === "TypeError") {
-        // Smoothly fall back to offline dashboard
         router.push(account.path);
         return;
       }
