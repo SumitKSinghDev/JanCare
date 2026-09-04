@@ -18,6 +18,7 @@ import {
   getOfflineTriage,
   deleteOfflineTriage,
 } from "@/lib/offlineDb";
+import { isValidIndianMobile, sanitizeIndianMobile } from "@/lib/validation";
 import {
   Activity,
   Heart,
@@ -376,12 +377,25 @@ export default function AshaDashboard() {
       return;
     }
 
+    const cleanRegMobile = sanitizeIndianMobile(regMobile);
+    const cleanEmMobile = sanitizeIndianMobile(emMobile);
+
+    if (!isValidIndianMobile(cleanRegMobile)) {
+      alert("Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 for the patient (e.g. 9822114400).");
+      return;
+    }
+
+    if (!isValidIndianMobile(cleanEmMobile)) {
+      alert("Please enter a valid 10-digit Indian mobile number for the emergency contact.");
+      return;
+    }
+
     const patientData = {
       name: regName,
       age: Number(regAge),
       dateOfBirth: regDob,
       gender: regGender,
-      mobile: regMobile,
+      mobile: cleanRegMobile,
       email: regEmail,
       division: regDivision,
       district: regDistrict,
@@ -389,7 +403,7 @@ export default function AshaDashboard() {
       village: regVillage,
       emergencyContactName: emName,
       emergencyContactRelation: emRelation,
-      emergencyContactMobile: emMobile,
+      emergencyContactMobile: cleanEmMobile,
     };
 
     if (isOnline) {
@@ -899,14 +913,22 @@ export default function AshaDashboard() {
               </div>
               <div>
                 <label className="block font-bold text-slate-700">Mobile Number (Required)</label>
-                <input
-                  type="text"
-                  required
-                  value={regMobile}
-                  onChange={(e) => setRegMobile(e.target.value)}
-                  placeholder="e.g. 9822000000"
-                  className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:bg-white focus:outline-hidden"
-                />
+                <div className="mt-1 flex items-center rounded-xl bg-slate-50 border border-slate-200 focus-within:border-primary focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/10 transition-all overflow-hidden">
+                  <div className="flex items-center gap-1 px-2.5 py-2 bg-slate-100 border-r border-slate-200 text-xs font-bold text-slate-700 select-none shrink-0">
+                    <span>🇮🇳</span>
+                    <span>+91</span>
+                  </div>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    value={regMobile}
+                    onChange={(e) => setRegMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    placeholder="98220 00000"
+                    className="w-full bg-transparent px-3 py-2 text-xs focus:outline-hidden font-medium"
+                  />
+                </div>
+                <p className="mt-1 text-[10px] text-slate-400">10 digits starting with 6, 7, 8, or 9</p>
               </div>
               <div>
                 <label className="block font-bold text-slate-700">Age</label>
@@ -1010,14 +1032,21 @@ export default function AshaDashboard() {
                 </div>
                 <div>
                   <label className="block font-bold text-slate-700">Mobile Number</label>
-                  <input
-                    type="text"
-                    required
-                    value={emMobile}
-                    onChange={(e) => setEmMobile(e.target.value)}
-                    placeholder="e.g. 9822000000"
-                    className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:bg-white"
-                  />
+                  <div className="mt-1 flex items-center rounded-xl bg-slate-50 border border-slate-200 focus-within:border-primary focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/10 transition-all overflow-hidden">
+                    <div className="flex items-center gap-1 px-2.5 py-2 bg-slate-100 border-r border-slate-200 text-xs font-bold text-slate-700 select-none shrink-0">
+                      <span>🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <input
+                      type="tel"
+                      required
+                      maxLength={10}
+                      value={emMobile}
+                      onChange={(e) => setEmMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      placeholder="98220 00000"
+                      className="w-full bg-transparent px-3 py-2 text-xs focus:outline-hidden font-medium"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import Patient from "@/models/Patient";
 import User from "@/models/User";
 import { authenticateRequest } from "@/lib/authMiddleware";
+import { isValidIndianMobile, sanitizeIndianMobile } from "@/lib/validation";
 
 // Helper to generate a random JC patient reference ID: JC-XXXXXX
 function generatePatientRefId(): string {
@@ -98,6 +99,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Missing required demographic fields" }, { status: 400 });
     }
 
+    const cleanMobile = sanitizeIndianMobile(mobile);
+    if (!isValidIndianMobile(cleanMobile)) {
+      return NextResponse.json(
+        { success: false, error: "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 (e.g. 9822114400)" },
+        { status: 400 }
+      );
+    }
+
     // Generate unique patientRefId
     let uniqueId = false;
     let refId = "";
@@ -113,7 +122,7 @@ export async function POST(request: Request) {
       age: Number(age),
       dateOfBirth: new Date(dateOfBirth),
       gender,
-      mobile,
+      mobile: cleanMobile,
       email: email || "",
       state: "Maharashtra",
       division,
@@ -121,7 +130,10 @@ export async function POST(request: Request) {
       taluka,
       village,
       preferredLanguage: preferredLanguage || "Marathi",
-      emergencyContact,
+      emergencyContact: {
+        ...emergencyContact,
+        mobile: sanitizeIndianMobile(emergencyContact.mobile || emergencyContact.phone || cleanMobile),
+      },
       abhaLinked: false,
       registeredBy: currentUser.userId as any,
     });

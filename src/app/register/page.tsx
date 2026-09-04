@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18nContext";
 import { divisions, getDistrictsForDivision, getTalukasForDistrict, getVillagesForTaluka } from "@/lib/maharashtra";
+import { isValidIndianMobile, sanitizeIndianMobile } from "@/lib/validation";
 import { auth, RecaptchaVerifier, signInWithPhoneNumber, hasFirebase } from "@/lib/firebase";
 import type { ConfirmationResult } from "@/lib/firebase";
 import {
@@ -101,6 +102,14 @@ export default function RegisterPage() {
       setError("Please fill all required login credential fields.");
       return;
     }
+    if (role === "Patient" && !isValidIndianMobile(username)) {
+      setError(
+        language === "mr"
+          ? "कृपया 10 अंकी वैध भारतीय मोबाईल क्रमांक टाका (उदा. 9822114400)"
+          : "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 (e.g. 9822114400)."
+      );
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -113,9 +122,10 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
+    const cleanMobile = sanitizeIndianMobile(mobile || username);
     const payload: any = {
       name,
-      username,
+      username: cleanMobile || username,
       password: password || "OtpAuthPass123!",
       role,
     };
@@ -124,7 +134,7 @@ export default function RegisterPage() {
       payload.age = Number(age) || 54;
       payload.dateOfBirth = dob || "1972-04-15";
       payload.gender = gender;
-      payload.mobile = mobile || username;
+      payload.mobile = cleanMobile;
       payload.email = email;
       payload.division = division;
       payload.district = district;
@@ -133,7 +143,7 @@ export default function RegisterPage() {
       payload.emergencyContact = {
         name: emergencyName,
         relation: emergencyRelation,
-        mobile: emergencyMobile,
+        mobile: sanitizeIndianMobile(emergencyMobile) || "9822114401",
       };
     }
 
@@ -179,8 +189,13 @@ export default function RegisterPage() {
       setError("Please enter your Full Name first.");
       return;
     }
-    if (!username || username.length < 10) {
-      setError("Please enter a valid 10-digit mobile number in the Mobile Number field first.");
+    const cleanPhone = sanitizeIndianMobile(username);
+    if (!isValidIndianMobile(cleanPhone)) {
+      setError(
+        language === "mr"
+          ? "कृपया आधी 10 अंकी वैध भारतीय मोबाईल क्रमांक टाका (उदा. 9822114400)"
+          : "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 in the Mobile Number field first."
+      );
       return;
     }
     setError("");
@@ -417,18 +432,31 @@ export default function RegisterPage() {
 
                 <div className="grid sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-text-primary">Mobile Number</label>
-                    <input
-                      type="text"
-                      required
-                      value={username}
-                      onChange={(e) => {
-                        setUsername(e.target.value);
-                        setMobile(e.target.value);
-                      }}
-                      className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:bg-white focus:border-primary focus:outline-hidden transition-all text-text-primary"
-                      placeholder="Username / Mobile"
-                    />
+                    <label className="block text-xs font-bold text-text-primary">
+                      Mobile Number (मोबाईल क्रमांक)
+                    </label>
+                    <div className="mt-1 flex items-center rounded-xl bg-slate-50 border border-slate-200 focus-within:border-primary focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/10 transition-all overflow-hidden">
+                      <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 border-r border-slate-200 text-xs font-bold text-slate-700 select-none shrink-0">
+                        <span>🇮🇳</span>
+                        <span>+91</span>
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        maxLength={10}
+                        value={username}
+                        onChange={(e) => {
+                          const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 10);
+                          setUsername(digitsOnly);
+                          setMobile(digitsOnly);
+                        }}
+                        className="w-full bg-transparent px-3 py-2 text-xs focus:outline-hidden text-text-primary font-medium tracking-wide"
+                        placeholder="98221 14400"
+                      />
+                    </div>
+                    <p className="mt-1 text-[10px] text-slate-400 font-medium">
+                      10-digit Indian number (starts with 6, 7, 8, or 9)
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>

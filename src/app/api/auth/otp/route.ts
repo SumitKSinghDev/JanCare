@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendSMS } from "@/lib/sms";
+import { isValidIndianMobile, sanitizeIndianMobile } from "@/lib/validation";
 
 export async function POST(request: Request) {
   try {
@@ -10,19 +11,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Mobile number is required" }, { status: 400 });
     }
 
+    const cleanMobile = sanitizeIndianMobile(mobile);
+    if (!isValidIndianMobile(cleanMobile)) {
+      return NextResponse.json(
+        { success: false, error: "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9" },
+        { status: 400 }
+      );
+    }
+
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
-    // Standardize mobile number format
-    let toFormatted = mobile.trim();
-    if (!toFormatted.startsWith("+")) {
-      if (toFormatted.length === 10) {
-        toFormatted = `+91${toFormatted}`;
-      } else {
-        toFormatted = `+${toFormatted}`;
-      }
-    }
+    // Standardize mobile number format with India country code
+    let toFormatted = `+91${cleanMobile}`;
 
     // 1. If verifying the code
     if (action === "verify") {

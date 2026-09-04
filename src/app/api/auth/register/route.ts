@@ -5,6 +5,7 @@ import Patient from "@/models/Patient";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/jwt";
 import { cookies } from "next/headers";
+import { isValidIndianMobile, sanitizeIndianMobile } from "@/lib/validation";
 
 // Helper to generate a random JC patient reference ID: JC-XXXXXX
 function generatePatientRefId(): string {
@@ -51,8 +52,21 @@ export async function POST(request: Request) {
       );
     }
 
+    let finalUsername = username.trim();
+    let cleanMobile = sanitizeIndianMobile(mobile || username);
+
+    if (resolvedRole === "Patient") {
+      if (!isValidIndianMobile(cleanMobile)) {
+        return NextResponse.json(
+          { success: false, error: "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 (e.g. 9822114400)" },
+          { status: 400 }
+        );
+      }
+      finalUsername = cleanMobile;
+    }
+
     // Check if user already exists
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ username: finalUsername });
     if (existingUser) {
       return NextResponse.json(
         { success: false, error: "Username (email or mobile) already registered" },
@@ -67,7 +81,7 @@ export async function POST(request: Request) {
     // Create User record
     const user = await User.create({
       name,
-      username,
+      username: finalUsername,
       passwordHash,
       role: resolvedRole,
       associatedFacility: associatedFacility || undefined,
@@ -93,7 +107,7 @@ export async function POST(request: Request) {
         age: Number(age) || 30,
         dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : new Date("1996-01-01"),
         gender: gender || "Male",
-        mobile: mobile || username,
+        mobile: cleanMobile,
         email: email || "",
         state: "Maharashtra",
         division: division || "Nashik",
