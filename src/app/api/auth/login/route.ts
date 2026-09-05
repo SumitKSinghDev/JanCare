@@ -26,10 +26,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find user by exact username
+    // 1. Find user by exact username or case-insensitive username
     let user = await User.findOne({ username: username.trim() });
+    if (!user) {
+      user = await User.findOne({ username: { $regex: `^${username.trim()}$`, $options: "i" } });
+    }
+
+    // 2. Find user by doctor/staff name match (e.g. "Dr. Smita Rao", "smita", "dr.smita", "dr.rajesh")
+    if (!user) {
+      const cleanSearch = username.trim().replace(/^dr\.?\s*/i, "").replace(/[._-]/g, " ").trim();
+      if (cleanSearch.length >= 3) {
+        user = await User.findOne({ name: { $regex: cleanSearch, $options: "i" } });
+      }
+    }
     
-    // If not found by direct username, check if username is a Patient ID (JC-...) or Mobile Number
+    // 3. If not found, check if username is a Patient ID (JC-...) or Mobile Number
     if (!user) {
       const patientMatch = await Patient.findOne({
         $or: [
