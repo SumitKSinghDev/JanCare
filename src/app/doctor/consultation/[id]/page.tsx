@@ -76,6 +76,12 @@ export default function ConsultationWorkspace() {
   const [followUpDate, setFollowUpDate] = useState("");
   const [followUpNotes, setFollowUpNotes] = useState("");
 
+  // ABHA PM-JAY Cashless Surgery Package Pre-Auth
+  const [needPmjayPreAuth, setNeedPmjayPreAuth] = useState(false);
+  const [pmjaySurgeryProcedure, setPmjaySurgeryProcedure] = useState("Cervical Spine Decompression & Nerve Release");
+  const [pmjayHospitalTarget, setPmjayHospitalTarget] = useState("Sahyadri Super-Specialty Hospital (Private Empanelled)");
+  const [pmjaySurgeryAmount, setPmjaySurgeryAmount] = useState(175000);
+
   async function fetchAshaWorkers() {
     try {
       const res = await fetch("/api/asha");
@@ -507,7 +513,23 @@ export default function ConsultationWorkspace() {
         });
       }
 
-      alert("Consultation successfully concluded and coordinated!");
+      // 5. Submit PM-JAY Cashless Surgery Package Pre-Auth if authorized by Doctor
+      if (needPmjayPreAuth) {
+        await fetch("/api/pmjay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            patientRefId: consult?.patientId?.patientRefId || "JC-7F3K92",
+            hospitalName: pmjayHospitalTarget,
+            hospitalType: pmjayHospitalTarget.includes("Sahyadri") || pmjayHospitalTarget.includes("Wockhardt") ? "Private (Empanelled)" : "Public (Government)",
+            procedureName: pmjaySurgeryProcedure,
+            packageCode: pmjaySurgeryProcedure.includes("Spine") ? "NEURO-SP-04" : pmjaySurgeryProcedure.includes("Bypass") ? "CARD-CABG-01" : pmjaySurgeryProcedure.includes("Knee") ? "ORTHO-TKR-02" : "SURG-GEN-08",
+            amount: pmjaySurgeryAmount,
+          }),
+        });
+      }
+
+      alert("Consultation successfully concluded! All records, prescriptions, and cashless surgery pre-authorizations coordinated.");
       router.push("/doctor/dashboard");
     } catch (err: any) {
       alert(err.message || "Failed to conclude consultation");
@@ -1216,6 +1238,78 @@ export default function ConsultationWorkspace() {
                     className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs"
                     placeholder="e.g. Please verify BP and confirm meds compliance."
                   />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Form 5: ABHA PM-JAY Cashless Surgery Package Pre-Authorization */}
+          <div className="border-t border-border-brand pt-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="pmjay-preauth-check"
+                checked={needPmjayPreAuth}
+                onChange={(e) => setNeedPmjayPreAuth(e.target.checked)}
+                className="rounded-sm border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+              />
+              <label htmlFor="pmjay-preauth-check" className="text-sm font-bold text-slate-800 cursor-pointer flex items-center gap-1.5">
+                <Shield size={14} className="text-emerald-600" />
+                <span>Authorize Cashless Surgery Package (ABHA PM-JAY ₹5L Wallet)</span>
+              </label>
+            </div>
+
+            {needPmjayPreAuth && (
+              <div className="grid gap-4 bg-gradient-to-r from-emerald-50/70 to-teal-50/70 p-5 rounded-xl border border-emerald-200/80 text-xs">
+                <div className="flex items-center justify-between border-b border-emerald-200/60 pb-2">
+                  <span className="font-bold text-emerald-900 text-[11px] flex items-center gap-1.5">
+                    🏥 National Health Benefit Package (Cashless Pre-Auth)
+                  </span>
+                  <span className="bg-emerald-600 text-white font-black text-[9px] px-2 py-0.5 rounded-md">
+                    ₹0 Patient Out-of-Pocket
+                  </span>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700">Surgery / Procedure Package</label>
+                    <select
+                      value={pmjaySurgeryProcedure}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setPmjaySurgeryProcedure(val);
+                        if (val.includes("Spine")) setPmjaySurgeryAmount(175000);
+                        else if (val.includes("Bypass")) setPmjaySurgeryAmount(185000);
+                        else if (val.includes("Knee")) setPmjaySurgeryAmount(120000);
+                        else if (val.includes("Gallbladder")) setPmjaySurgeryAmount(45000);
+                      }}
+                      className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-800"
+                    >
+                      <option value="Cervical Spine Decompression & Nerve Release">🧠 Cervical Spine Decompression (₹1,75,000)</option>
+                      <option value="Coronary Artery Bypass Graft (CABG) Heart Surgery">❤️ Coronary Artery Bypass (CABG) (₹1,85,000)</option>
+                      <option value="Total Knee / Hip Joint Replacement">🦴 Total Knee Joint Replacement (₹1,20,000)</option>
+                      <option value="Laparoscopic Cholecystectomy (Gallbladder)">🔬 Laparoscopic Cholecystectomy (₹45,000)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700">Destination Empanelled Facility (Public/Private)</label>
+                    <select
+                      value={pmjayHospitalTarget}
+                      onChange={(e) => setPmjayHospitalTarget(e.target.value)}
+                      className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-800"
+                    >
+                      <option value="Sahyadri Super-Specialty Hospital (Private Empanelled)">🏥 Sahyadri Super-Specialty Hospital (Private Empanelled)</option>
+                      <option value="Nashik District Civil Hospital & Trauma ICU">🏛️ Nashik District Civil Hospital & Trauma ICU (Govt)</option>
+                      <option value="Wockhardt Super-Specialty Care (Private Empanelled)">🏥 Wockhardt Super-Specialty Care (Private Empanelled)</option>
+                      <option value="Sinnar Rural CHC Facility">🏛️ Sinnar Rural CHC Facility (Govt)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1 text-[11px] text-slate-600">
+                  <span>Pre-Auth Package Amount: <strong className="text-emerald-700 font-bold">₹{pmjaySurgeryAmount.toLocaleString('en-IN')}</strong></span>
+                  <span className="text-[10px] text-slate-500">Deducts automatically from patient's ₹5,00,000 ABHA balance upon conclusion.</span>
                 </div>
               </div>
             )}
