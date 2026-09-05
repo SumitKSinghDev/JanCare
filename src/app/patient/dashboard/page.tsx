@@ -220,6 +220,26 @@ export default function PatientDashboard() {
   const [selectedMedicineCheck, setSelectedMedicineCheck] = useState<string>("");
   const [realStockAvailability, setRealStockAvailability] = useState<any[]>([]);
   const [stockLoading, setStockLoading] = useState(false);
+  const [myReservations, setMyReservations] = useState<any[]>([]);
+
+  async function fetchPatientReservations(patientRef?: string) {
+    try {
+      const ref = patientRef || user?.patientRefId || "JC-7F3K92";
+      const res = await fetch(`/api/medicines/reserve?patientRefId=${ref}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.reservations)) {
+        setMyReservations(data.reservations);
+        if (data.reservations.length > 0 && !orderTrackingId) {
+          const latest = data.reservations[0];
+          setOrderTrackingId(latest.trackingId);
+          setOrderStatus(latest.status || "Requested");
+          setSelectedFacility(latest.facilityName || "Sinnar CHC-01");
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to fetch reservations:", e);
+    }
+  }
 
   async function checkMedicineAvailability(medName: string) {
     setSelectedMedicineCheck(medName);
@@ -235,15 +255,22 @@ export default function PatientDashboard() {
           const medData = await medRes.json();
           if (medData.success && medData.medicines.length > 0) {
             const matchedMed = medData.medicines[0];
+            const coordStr = typeof fac.coordinates === "object" && fac.coordinates !== null
+              ? `${fac.coordinates.lat || 19.8517},${fac.coordinates.lng || 74.0006}`
+              : String(fac.coordinates || "19.8517,74.0006");
+
             availabilityList.push({
               name: fac.name,
+              facilityId: fac._id,
               medicineId: matchedMed._id,
+              medicineName: matchedMed.name,
+              genericName: matchedMed.genericName,
               distance: fac.type === "CHC" ? "2.1 km" : fac.type === "PHC" ? "4.5 km" : "6.8 km",
               qty: matchedMed.quantity,
               MC1: matchedMed.quantity > 0 ? "Available" : "Out of Stock",
               MC2: matchedMed.status || (matchedMed.quantity === 0 ? "Out of Stock" : matchedMed.quantity < matchedMed.minimumRequired ? "Low Stock" : "Available"),
-              updated: new Date(matchedMed.lastUpdated || fac.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              coordinates: fac.coordinates || "19.8517,74.0006",
+              updated: new Date(matchedMed.lastUpdated || fac.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              coordinates: coordStr,
             });
           }
         }
@@ -402,6 +429,9 @@ export default function PatientDashboard() {
         console.warn("PM-JAY fetch failed:", e);
       }
 
+      // Fetch patient medicine reservations
+      await fetchPatientReservations(meData.user.patientRefId);
+
       // Mock ABHA linkage check
       if (meData.user.patientRefId) {
         setAbhaLinked(true);
@@ -506,9 +536,12 @@ export default function PatientDashboard() {
   }
 
   // Handle real medicine reservation in database
-  async function handleReserveMedicine(facilityName: string, medicineId?: string) {
-    const pId = user?.patientId || "guest";
-    setSelectedFacility(facilityName);
+  async function handleReserveMedicine(facilityName: string, medicineId?: string, medicineNameOverride?: string) {
+    const pId = user?.patientId || user?.patientRefId || "JC-7F3K92";
+    const targetFacility = facilityName || selectedFacility || "Sinnar CHC-01";
+    const medTitle = medicineNameOverride || selectedMedicineCheck || "Prescribed Generic Medicines (PMBJP Generic)";
+    
+    setSelectedFacility(targetFacility);
     setOrderStatus("Requested");
 
     try {
@@ -517,8 +550,9 @@ export default function PatientDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           medicineId,
-          facilityName,
-          medicineName: selectedMedicineCheck || "Prescribed Generic Medicines",
+          facilityName: targetFacility,
+          medicineName: medTitle,
+          patientRefId: user?.patientRefId || "JC-7F3K92",
           quantity: 1
         })
       });
@@ -528,8 +562,13 @@ export default function PatientDashboard() {
       setOrderTrackingId(trackingId);
       localStorage.setItem(`jc_active_order_id_${pId}`, trackingId);
       localStorage.setItem(`jc_active_order_status_${pId}`, "Requested");
-      localStorage.setItem(`jc_active_order_facility_${pId}`, facilityName);
-      alert(`Medicines successfully reserved at ${facilityName}! Tracking ID: ${trackingId} generated.`);
+      localStorage.setItem(`jc_active_order_facility_${pId}`, targetFacility);
+      localStorage.setItem(`jc_active_order_med_${pId}`, medTitle);
+      
+      // Refresh reservations from DB
+      await fetchPatientReservations(user?.patientRefId);
+
+      alert(`✅ Medicines Successfully Reserved!\n• Tracking ID: ${trackingId}\n• Pharmacy: ${targetFacility}\n• Medicines: ${medTitle}\n• Status: Requested (Ready for Verification)`);
       
       if (selectedMedicineCheck) {
         checkMedicineAvailability(selectedMedicineCheck);
@@ -541,24 +580,39 @@ export default function PatientDashboard() {
       setOrderTrackingId(randomId);
       localStorage.setItem(`jc_active_order_id_${pId}`, randomId);
       localStorage.setItem(`jc_active_order_status_${pId}`, "Requested");
-      localStorage.setItem(`jc_active_order_facility_${pId}`, facilityName);
-      alert(`Medicines successfully reserved at ${facilityName}! Tracking ID: ${randomId} generated.`);
+      localStorage.setItem(`jc_active_order_facility_${pId}`, targetFacility);
+      alert(`✅ Medicines Successfully Reserved!\n• Tracking ID: ${randomId}\n• Pharmacy: ${targetFacility}\n• Medicines: ${medTitle}`);
       setActiveTab("Medicine Orders");
     }
   }
 
   // Trigger simulated progression of order status for the hackathon presentation
-  function advanceOrderStatus() {
+  async function advanceOrderStatus(specificTrackingId?: string) {
     let nextStatus: typeof orderStatus = "Requested";
     if (orderStatus === "Requested") nextStatus = "Preparing";
     else if (orderStatus === "Preparing") nextStatus = "Ready";
     else if (orderStatus === "Ready") nextStatus = "Collected";
-    else return;
+    else nextStatus = "Requested";
 
-    const pId = user?.patientId || "guest";
+    const pId = user?.patientId || user?.patientRefId || "JC-7F3K92";
     setOrderStatus(nextStatus);
     localStorage.setItem(`jc_active_order_status_${pId}`, nextStatus);
-    alert(`Simulation: Order status updated to "${nextStatus}"`);
+
+    const token = specificTrackingId || orderTrackingId;
+    if (token) {
+      try {
+        await fetch("/api/medicines/reserve", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ trackingId: token, status: nextStatus })
+        });
+        await fetchPatientReservations(user?.patientRefId);
+      } catch (e) {
+        console.warn("Failed to patch status:", e);
+      }
+    }
+
+    alert(`Simulation: Order ${token || ""} status updated to "${nextStatus}"`);
   }
 
   // Real PDF-friendly print compilers
@@ -2471,7 +2525,7 @@ export default function PatientDashboard() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3">
                     <button
                       onClick={() => handleDownloadPrescription(pres)}
                       className="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-bold py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1.5"
@@ -2484,9 +2538,18 @@ export default function PatientDashboard() {
                         checkMedicineAvailability(firstMed);
                         setActiveTab("Medicines");
                       }}
-                      className="bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded-xl cursor-pointer border-0"
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-[10px] font-bold py-2 rounded-xl cursor-pointer border-0"
                     >
-                      {language === "mr" ? "औषध साठा तपासा" : language === "hi" ? "दवा स्टॉक जांचें" : "Check Pharmacy Stock"}
+                      {language === "mr" ? "साठा तपासा" : language === "hi" ? "स्टॉक जांचें" : "Check Stock"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const medNames = pres.medicines.map((m: any) => `${m.name} (${m.strength || "500mg"})`).join(", ");
+                        handleReserveMedicine("Nashik MED-01 (Jan Aushadhi Kendra)", undefined, medNames);
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold py-2 rounded-xl cursor-pointer border-0 flex items-center justify-center gap-1 shadow-xs"
+                    >
+                      <Package size={12} /> {language === "mr" ? "औषधे आरक्षित करा" : language === "hi" ? "दवाएं आरक्षित करें" : "Reserve Medicines"}
                     </button>
                   </div>
                 </div>
@@ -2513,59 +2576,96 @@ export default function PatientDashboard() {
       {/* 6. MEDICINE ORDERS VIEW */}
       {activeTab === "Medicine Orders" && (
         <div className="space-y-6">
-          <div>
-            <h2 className="text-lg font-extrabold text-slate-800">
-              {language === "mr" ? "फार्मसी औषध आरक्षण व ऑर्डर्स" : language === "hi" ? "फार्मेसी दवा ऑर्डर / आरक्षण" : "Pharmacy Medicine Orders"}
-            </h2>
-            <p className="text-xs text-slate-500">
-              {language === "mr"
-                ? "आपल्या आरक्षित जेनेरिक औषधांचा मागोवा घ्या आणि व्यवस्थापित करा."
-                : language === "hi"
-                ? "अपने आरक्षित जेनेरिक दवाओं के पैकेज को ट्रैक और प्रबंधित करें।"
-                : "Track and manage your reserved generic medicines package."}
-            </p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 className="text-lg font-extrabold text-slate-800">
+                {language === "mr" ? "फार्मसी औषध आरक्षण व ऑर्डर्स" : language === "hi" ? "फार्मेसी दवा ऑर्डर / आरक्षण" : "Pharmacy Medicine Orders & Reservations"}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {language === "mr"
+                  ? "आपल्या आरक्षित जेनेरिक औषधांचा मागोवा घ्या आणि व्यवस्थापित करा."
+                  : language === "hi"
+                  ? "अपने आरक्षित जेनेरिक दवाओं के पैकेज को ट्रैक और प्रबंधित करें।"
+                  : "Track and manage your reserved generic medicines package across Jan Aushadhi & PHC pharmacies."}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                handleReserveMedicine("Sinnar CHC-01", undefined, "Paracetamol 500mg + ORS Sachet (PMBJP Generic)");
+              }}
+              className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl border-0 cursor-pointer flex items-center gap-2 shadow-xs"
+            >
+              <Package size={14} />
+              <span>{language === "mr" ? "+ नवीन औषधे आरक्षित करा" : language === "hi" ? "+ नई दवाएं आरक्षित करें" : "+ Quick Reserve Medicines"}</span>
+            </button>
           </div>
 
           <div className="grid lg:grid-cols-12 gap-6 items-start">
             {/* Left Col: list of orders */}
             <div className="lg:col-span-6 space-y-4">
               <div className="border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
-                  {language === "mr" ? "औषध आरक्षण यादी" : language === "hi" ? "दवा आरक्षण सूची" : "Medicine Reserves List"}
-                </h3>
+                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800">
+                    {language === "mr" ? "औषध आरक्षण यादी" : language === "hi" ? "दवा आरक्षण सूची" : "Medicine Reserves List"}
+                  </h3>
+                  <span className="text-[10px] font-bold text-slate-400">
+                    Total: {myReservations.length > 0 ? myReservations.length : (orderTrackingId ? 1 : 0)}
+                  </span>
+                </div>
                 
-                {orderTrackingId ? (
-                  <div className="border border-slate-200 p-4.5 rounded-2xl bg-slate-50 space-y-3">
+                {(myReservations.length > 0 ? myReservations : (orderTrackingId ? [{
+                  id: "active-1",
+                  trackingId: orderTrackingId,
+                  facilityName: selectedFacility || "Sinnar CHC-01",
+                  medicineName: "Prescribed Generic Medicines (PMBJP Generic)",
+                  status: orderStatus,
+                  createdAt: new Date()
+                }] : [])).map((order: any, idx: number) => (
+                  <div key={idx} className="border border-slate-200 p-4 rounded-2xl bg-slate-50 space-y-3 hover:bg-slate-100/60 transition-all">
                     <div className="flex justify-between items-start">
                       <div>
-                        <strong className="text-sm text-slate-800 block">{orderTrackingId}</strong>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">
-                          {language === "mr" ? "आरोग्य केंद्र:" : language === "hi" ? "स्वास्थ्य केंद्र:" : "Facility:"} {selectedFacility || "Sinnar CHC"}
+                        <strong className="text-sm text-slate-800 block font-mono">{order.trackingId}</strong>
+                        <h4 className="text-xs font-bold text-slate-700 mt-0.5">{order.medicineName}</h4>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">
+                          🏥 {order.facilityName} • {new Date(order.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                         </span>
                       </div>
-                      <span className="text-[10px] font-bold text-orange-700 bg-orange-50 px-2.5 py-0.5 rounded-md uppercase tracking-wider">{orderStatus}</span>
+                      <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                        order.status === "Collected" || order.status === "Dispensed"
+                          ? "bg-green-100 text-green-800 border border-green-200"
+                          : order.status === "Ready"
+                          ? "bg-blue-100 text-blue-800 border border-blue-200"
+                          : order.status === "Preparing"
+                          ? "bg-amber-100 text-amber-800 border border-amber-200"
+                          : "bg-orange-100 text-orange-800 border border-orange-200"
+                      }`}>
+                        {order.status || "Requested"}
+                      </span>
                     </div>
 
                     <div className="flex justify-between items-center pt-2 border-t border-slate-200/60 text-xs">
-                      <span className="text-slate-500">
-                        {language === "mr" ? "एकूण औषधे:" : language === "hi" ? "कुल दवाएं:" : "Total Medicines:"} <strong>2 Codes</strong>
+                      <span className="text-slate-500 text-[10px]">
+                        Qty: <strong>{order.quantity || 1} Pack</strong>
                       </span>
                       <button
-                        onClick={advanceOrderStatus}
-                        className="text-primary font-bold hover:underline cursor-pointer border-0 bg-transparent"
+                        onClick={() => advanceOrderStatus(order.trackingId)}
+                        className="text-primary hover:underline font-bold cursor-pointer border-0 bg-transparent text-[11px]"
                       >
-                        {language === "mr" ? "स्थिती पुढे ढकला (सिम्युलेशन)" : language === "hi" ? "स्थिति आगे बढ़ाएं (सिम्युलेशन)" : "Advance Simulation Status"}
+                        {language === "mr" ? "स्थिती पुढे ढकला (सिम्युलेशन) →" : language === "hi" ? "स्थिति आगे बढ़ाएं (सिम्युलेशन) →" : "Advance Status (Simulation) →"}
                       </button>
                     </div>
                   </div>
-                ) : (
+                ))}
+
+                {myReservations.length === 0 && !orderTrackingId && (
                   <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
                     <Package size={28} className="text-slate-300" />
                     <span className="text-[11px] font-bold">
                       {language === "mr" ? "कोणतीही सक्रिय ऑर्डर नाही" : language === "hi" ? "कोई सक्रिय ऑर्डर नहीं" : "No active orders"}
                     </span>
                     <span className="text-[9px] text-slate-400">
-                      {language === "mr" ? "साठा तपासून आरक्षित केल्यावर तपशील येथे दिसतील." : language === "hi" ? "स्टॉक आरक्षित करने पर ऑर्डर विवरण यहां दिखाई देंगे।" : "Order details will appear once you check availability and reserve stock."}
+                      {language === "mr" ? "साठा तपासून आरक्षित केल्यावर तपशील येथे दिसतील." : language === "hi" ? "स्टॉक आरक्षित करने पर ऑर्डर विवरण यहां दिखाई देंगे।" : "Click '+ Quick Reserve Medicines' or select from Pharmacy Checker."}
                     </span>
                   </div>
                 )}
@@ -2575,64 +2675,52 @@ export default function PatientDashboard() {
             {/* Right Col: order tracking timeline */}
             <div className="lg:col-span-6 border border-slate-200/80 bg-white rounded-3xl p-5 shadow-xs space-y-4">
               <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-3">
-                {language === "mr" ? "आरक्षण ट्रॅकिंग टाइमलाइन" : language === "hi" ? "आरक्षण ट्रैकिंग टाइमलाइन" : "Reserves Tracking Timeline"}
+                {language === "mr" ? "आरक्षण ट्रॅकिंग टाइमलाइन" : language === "hi" ? "आरक्षण ट्रैकिंग टाइमलाइन" : "Live Pharmacy Dispensation Timeline"}
               </h3>
 
-              {orderTrackingId ? (
-                <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 mt-4">
-                  {[
-                    { 
-                      label: language === "mr" ? "विनंती सबमिट केली" : language === "hi" ? "अनुरोध सबमिट किया" : "Request Submitted", 
-                      desc: language === "mr" ? "डिजिटल फार्मसी आरक्षण विनंती प्राप्त झाली." : language === "hi" ? "डिजिटल फार्मेसी आरक्षण अनुरोध प्राप्त हुआ।" : "Digital pharmacy reserve request received.", 
-                      done: true 
-                    },
-                    { 
-                      label: language === "mr" ? "केंद्राने पुष्टी केली" : language === "hi" ? "केंद्र द्वारा पुष्टि" : "Facility Confirmed", 
-                      desc: language === "mr" ? `${selectedFacility || "PHC-01"} येथे साठा पडताळला.` : language === "hi" ? `${selectedFacility || "PHC-01"} पर स्टॉक सत्यापित हुआ।` : `Stock verified at ${selectedFacility || "PHC-01"}.`, 
-                      done: true 
-                    },
-                    { 
-                      label: language === "mr" ? "औषध तयार होत आहे" : language === "hi" ? "दवा तैयार की जा रही है" : "Preparing Medicine", 
-                      desc: language === "mr" ? "जेनेरिक पॅकेज सॉर्ट करून बॅग केले." : language === "hi" ? "जेनेरिक पैकेज पैक किए गए।" : "Generic packages sorted and bagged.", 
-                      done: orderStatus !== "Requested" 
-                    },
-                    { 
-                      label: language === "mr" ? "काउंटरवर संकलनासाठी तयार" : language === "hi" ? "लेने के लिए तैयार" : "Ready for Collection", 
-                      desc: language === "mr" ? "फार्मसी काउंटरवर रुग्णाची प्रतीक्षा." : language === "hi" ? "काउंटर पर मरीज के लेने की प्रतीक्षा।" : "Awaiting patient pickup at counter.", 
-                      done: orderStatus === "Ready" || orderStatus === "Collected" 
-                    },
-                    { 
-                      label: language === "mr" ? "औषध वितरित केले" : language === "hi" ? "दवा प्राप्त हुई" : "Collected", 
-                      desc: language === "mr" ? "हस्तांतरित केले. व्यवहार सिंक झाला." : language === "hi" ? "दवा सौंप दी गई। सिंक पूर्ण।" : "Handed over. Transaction synchronized.", 
-                      done: orderStatus === "Collected" 
-                    }
-                  ].map((step, idx) => (
-                    <div key={idx} className="relative flex gap-3 items-start text-xs">
-                      <span className={`absolute -left-[22px] top-0.5 h-3.5 w-3.5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
-                        step.done 
-                          ? "bg-green-brand border-green-brand text-white" 
-                          : "bg-white border-slate-300 text-slate-400"
-                      }`}>
-                        {step.done ? "✓" : idx + 1}
-                      </span>
-                      <div>
-                        <strong className={`font-bold block ${step.done ? "text-green-800" : "text-slate-500"}`}>{step.label}</strong>
-                        <p className="text-[10px] text-slate-400 mt-0.5 leading-normal">{step.desc}</p>
-                      </div>
+              <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 mt-4">
+                {[
+                  { 
+                    label: language === "mr" ? "विनंती सबमिट केली" : language === "hi" ? "अनुरोध सबमिट किया" : "1. Request Submitted", 
+                    desc: language === "mr" ? "डिजिटल फार्मसी आरक्षण विनंती प्राप्त झाली." : language === "hi" ? "डिजिटल फार्मेसी आरक्षण अनुरोध प्राप्त हुआ।" : "Digital pharmacy reserve request logged with token ID.", 
+                    done: true 
+                  },
+                  { 
+                    label: language === "mr" ? "केंद्राने पुष्टी केली" : language === "hi" ? "केंद्र द्वारा पुष्टि" : "2. Facility Confirmed", 
+                    desc: language === "mr" ? `${selectedFacility || "PHC-01"} येथे साठा पडताळला.` : language === "hi" ? `${selectedFacility || "PHC-01"} पर स्टॉक सत्यापित हुआ।` : `Stock held and verified at ${selectedFacility || "Sinnar CHC-01"}.`, 
+                    done: true 
+                  },
+                  { 
+                    label: language === "mr" ? "औषध तयार होत आहे" : language === "hi" ? "दवा तैयार की जा रही है" : "3. Packaging Medicine", 
+                    desc: language === "mr" ? "जेनेरिक पॅकेज सॉर्ट करून बॅग केले." : language === "hi" ? "जेनेरिक पैकेज पैक किए गए।" : "PMBJP generic drugs sealed in patient verification pouch.", 
+                    done: orderStatus === "Preparing" || orderStatus === "Ready" || orderStatus === "Collected"
+                  },
+                  { 
+                    label: language === "mr" ? "काउंटरवर संकलनासाठी तयार" : language === "hi" ? "लेने के लिए तैयार" : "4. Ready for Collection", 
+                    desc: language === "mr" ? "फार्मसी काउंटरवर रुग्णाची प्रतीक्षा." : language === "hi" ? "काउंटर पर मरीज के लेने की प्रतीक्षा।" : "Available at Jan Aushadhi dispensing window.", 
+                    done: orderStatus === "Ready" || orderStatus === "Collected"
+                  },
+                  { 
+                    label: language === "mr" ? "औषध वितरित केले" : language === "hi" ? "दवा प्राप्त हुई" : "5. Collected & Dispensed", 
+                    desc: language === "mr" ? "हस्तांतरित केले. व्यवहार सिंक झाला." : language === "hi" ? "दवा सौंप दी गई। सिंक पूर्ण।" : "Handed over to patient. Stock movement synchronized.", 
+                    done: orderStatus === "Collected"
+                  }
+                ].map((step, idx) => (
+                  <div key={idx} className="relative flex gap-3 items-start text-xs">
+                    <span className={`absolute -left-[22px] top-0.5 h-3.5 w-3.5 rounded-full border flex items-center justify-center text-[7px] font-bold ${
+                      step.done 
+                        ? "bg-green-brand border-green-brand text-white" 
+                        : "bg-white border-slate-300 text-slate-400"
+                    }`}>
+                      {step.done ? "✓" : idx + 1}
+                    </span>
+                    <div>
+                      <strong className={`font-bold block ${step.done ? "text-green-800" : "text-slate-500"}`}>{step.label}</strong>
+                      <p className="text-[10px] text-slate-400 mt-0.5 leading-normal">{step.desc}</p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-10 text-slate-400 text-center space-y-1">
-                  <Clock size={28} className="text-slate-300" />
-                  <span className="text-[11px] font-bold">
-                    {language === "mr" ? "कोणतीही सक्रिय टाइमलाइन नाही" : language === "hi" ? "कोई सक्रिय टाइमलाइन नहीं" : "No active timeline"}
-                  </span>
-                  <span className="text-[9px] text-slate-400">
-                    {language === "mr" ? "औषध आरक्षणानंतर ट्रॅकिंग सुरू होईल." : language === "hi" ? "दवा आरक्षण के बाद ट्रैकिंग शुरू होगी।" : "Order tracking timeline will activate after medicine dispatch."}
-                  </span>
-                </div>
-              )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -2671,37 +2759,73 @@ export default function PatientDashboard() {
             </div>
           </div>
 
-          {selectedMedicineCheck && (
-            <div className="bg-blue-50 border border-blue-150 p-4 rounded-2xl flex justify-between items-center text-xs">
-              <div>
-                <span className="font-bold text-slate-700">
-                  {language === "mr" ? "या औषधासाठी थेट साठा तपासत आहे: " : language === "hi" ? "इस दवा के लिए लाइव स्टॉक जांच: " : "Checking Live Availability for: "}
-                </span>
-                <strong className="text-primary font-extrabold">{selectedMedicineCheck}</strong>
+          {/* Search bar for any drug */}
+          <div className="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs flex flex-col sm:flex-row gap-3 items-center">
+            <div className="flex-1 w-full">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                {language === "mr" ? "औषध किंवा जेनेरिक नाव शोधा" : language === "hi" ? "दवा या जेनेरिक नाम खोजें" : "Search Medicine or Generic Formula"}
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="e.g. Paracetamol, Metformin, Amoxicillin, ORS, Cetirizine..."
+                  value={selectedMedicineCheck}
+                  onChange={(e) => setSelectedMedicineCheck(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && selectedMedicineCheck) {
+                      checkMedicineAvailability(selectedMedicineCheck);
+                    }
+                  }}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-primary pl-9"
+                />
+                <Search size={14} className="absolute left-3 top-3 text-slate-400" />
               </div>
-              <button
-                onClick={() => {
-                  setSelectedMedicineCheck("");
-                  setRealStockAvailability([]);
-                }}
-                className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg font-bold border-0 cursor-pointer text-[10px]"
-              >
-                {language === "mr" ? "रीसेट / सर्व दाखवा" : language === "hi" ? "रीसेट / सभी दिखाएं" : "Reset / Show All"}
-              </button>
             </div>
-          )}
+
+            <div className="flex gap-2 w-full sm:w-auto self-end">
+              <button
+                type="button"
+                onClick={() => checkMedicineAvailability(selectedMedicineCheck || "Paracetamol")}
+                className="bg-primary hover:bg-blue-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl border-0 cursor-pointer shadow-xs"
+              >
+                {language === "mr" ? "साठा शोधा" : language === "hi" ? "स्टॉक खोजें" : "Check Live Stock"}
+              </button>
+              {selectedMedicineCheck && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedMedicineCheck("");
+                    setRealStockAvailability([]);
+                  }}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2.5 rounded-xl border-0 cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
 
           <div className="border border-slate-200/80 bg-white rounded-3xl p-6 shadow-xs space-y-4">
             {mapMode === "Map" ? (
               <div className="space-y-4">
                 <div className="bg-slate-100 border border-slate-200 rounded-2xl h-80 overflow-hidden relative">
-                  <iframe
-                    className="w-full h-full rounded-2xl border-0"
-                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${(Number(realStockAvailability.length > 0 ? realStockAvailability[0].coordinates.split(",")[1] : "74.0006") - 0.05).toFixed(4)}%2C${(Number(realStockAvailability.length > 0 ? realStockAvailability[0].coordinates.split(",")[0] : "19.8517") - 0.05).toFixed(4)}%2C${(Number(realStockAvailability.length > 0 ? realStockAvailability[0].coordinates.split(",")[1] : "74.0006") + 0.05).toFixed(4)}%2C${(Number(realStockAvailability.length > 0 ? realStockAvailability[0].coordinates.split(",")[0] : "19.8517") + 0.05).toFixed(4)}&layer=mapnik&marker=${realStockAvailability.length > 0 ? realStockAvailability[0].coordinates : "19.8517%2C74.0006"}`}
-                    title="OSM Sinnar Map Grid"
-                  />
+                  {(() => {
+                    const coordStr = realStockAvailability.length > 0 && typeof realStockAvailability[0].coordinates === "string" && realStockAvailability[0].coordinates.includes(",")
+                      ? realStockAvailability[0].coordinates
+                      : "19.8517,74.0006";
+                    const [cLat, cLng] = coordStr.split(",").map(Number);
+                    const latNum = isNaN(cLat) ? 19.8517 : cLat;
+                    const lngNum = isNaN(cLng) ? 74.0006 : cLng;
+                    return (
+                      <iframe
+                        className="w-full h-full rounded-2xl border-0"
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${(lngNum - 0.05).toFixed(4)}%2C${(latNum - 0.05).toFixed(4)}%2C${(lngNum + 0.05).toFixed(4)}%2C${(latNum + 0.05).toFixed(4)}&layer=mapnik&marker=${latNum}%2C${lngNum}`}
+                        title="OSM Sinnar Map Grid"
+                      />
+                    );
+                  })()}
                   <div className="absolute top-3 left-3 bg-slate-900/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow-md">
-                    {selectedMedicineCheck ? "Matched Stock Coordinates" : "Sinnar District Pharmacy Network"}
+                    {selectedMedicineCheck ? `Stock: ${selectedMedicineCheck}` : "Sinnar District Pharmacy Network"}
                   </div>
                 </div>
 
@@ -2718,21 +2842,21 @@ export default function PatientDashboard() {
                         <span className="text-[10px] text-slate-500 block mt-0.5">
                           {language === "mr" ? "अंतर: " : language === "hi" ? "दूरी: " : "Distance: "}{fac.distance}
                         </span>
-                        {selectedMedicineCheck && (
-                          <div className="mt-2 space-y-0.5 font-bold">
-                            <span className="text-[9px] text-slate-550 block">
-                              {language === "mr" ? `उपलब्ध: ${fac.qty} युनिट्स` : language === "hi" ? `उपलब्ध: ${fac.qty} यूनिट्स` : `Available: ${fac.qty} units`}
-                            </span>
-                            <span className={`text-[9px] block ${
-                              fac.MC2 === "Available" ? "text-green-700" : fac.MC2 === "Low" || fac.MC2 === "Low Stock" ? "text-amber-700" : "text-red-705"
-                            }`}>
-                              {language === "mr" ? "स्थिती: " : language === "hi" ? "स्थिति: " : "Status: "}{fac.MC2}
-                            </span>
-                          </div>
-                        )}
+                        <div className="mt-2 space-y-0.5 font-bold">
+                          <span className="text-[9px] text-slate-550 block">
+                            {fac.qty !== undefined 
+                              ? (language === "mr" ? `उपलब्ध: ${fac.qty} युनिट्स` : language === "hi" ? `उपलब्ध: ${fac.qty} यूनिट्स` : `Available: ${fac.qty} units`)
+                              : "Stock: Available"}
+                          </span>
+                          <span className={`text-[9px] block ${
+                            fac.MC2 === "Available" || fac.MC1 === "Available" ? "text-green-700" : "text-amber-700"
+                          }`}>
+                            {language === "mr" ? "स्थिती: " : language === "hi" ? "स्थिति: " : "Status: "}{fac.MC2 || "Available"}
+                          </span>
+                        </div>
                       </div>
                       <button
-                        onClick={() => handleReserveMedicine(fac.name, fac.medicineId)}
+                        onClick={() => handleReserveMedicine(fac.name, fac.medicineId, fac.medicineName || selectedMedicineCheck)}
                         className="bg-primary hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded-lg cursor-pointer border-0"
                       >
                         {language === "mr" ? "औषध पॅकेज आरक्षित करा" : language === "hi" ? "दवा पैकेज आरक्षित करें" : "Reserve Package"}
@@ -2753,26 +2877,22 @@ export default function PatientDashboard() {
                     <div>
                       <strong className="text-slate-800 text-sm block">{fac.name}</strong>
                       <span className="text-[10px] text-slate-500 mt-0.5 block">
-                        {language === "mr" ? "अंतर: " : language === "hi" ? "दूरी: " : "Distance: "}{fac.distance} | {language === "mr" ? "साठा अद्ययावत: " : language === "hi" ? "स्टॉक अपडेट: " : "Stock Updated: "}{fac.updated}
+                        {language === "mr" ? "अंतर: " : language === "hi" ? "दूरी: " : "Distance: "}{fac.distance} | {language === "mr" ? "साठा अद्ययावत: " : language === "hi" ? "स्टॉक अपडेट: " : "Stock Updated: "}{fac.updated || "10:00 AM"}
                       </span>
                       <div className="flex gap-2 mt-1.5">
-                        {selectedMedicineCheck ? (
-                          <span className="text-[9px] bg-blue-50 text-primary px-2 py-0.5 rounded-md font-bold">
-                            {language === "mr" ? `प्रमाण: ${fac.qty} युनिट्स` : language === "hi" ? `मात्रा: ${fac.qty} यूनिट्स` : `Qty: ${fac.qty} units`}
-                          </span>
-                        ) : (
-                          <span className="text-[9px] bg-green-50 text-green-700 px-2 py-0.5 rounded-md font-bold">MC1 Code: {fac.MC1}</span>
-                        )}
+                        <span className="text-[9px] bg-blue-50 text-primary px-2 py-0.5 rounded-md font-bold">
+                          {fac.qty !== undefined ? `Qty: ${fac.qty} units` : "Verified Stock"}
+                        </span>
                         <span className={`text-[9px] px-2 py-0.5 rounded-md font-bold ${
-                          fac.MC2 === "Available" ? "bg-green-50 text-green-700" : fac.MC2 === "Low" || fac.MC2 === "Low Stock" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"
+                          fac.MC2 === "Available" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"
                         }`}>
-                          {selectedMedicineCheck ? (language === "mr" ? "स्थिती: " : language === "hi" ? "स्थिति: " : "Status: ") : "MC2 Code: "}{fac.MC2}
+                          {fac.MC2 || "Available"}
                         </span>
                       </div>
                     </div>
                     
                     <button
-                      onClick={() => handleReserveMedicine(fac.name, fac.medicineId)}
+                      onClick={() => handleReserveMedicine(fac.name, fac.medicineId, fac.medicineName || selectedMedicineCheck)}
                       className="bg-primary hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl cursor-pointer border-0"
                     >
                       {language === "mr" ? "औषधालयात आरक्षित करा" : language === "hi" ? "फ़ार्मेसी में आरक्षित करें" : "Reserve at Pharmacy"}

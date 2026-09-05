@@ -11,11 +11,6 @@ import { DEMO_MEDICINES } from "@/lib/demoMedicines";
 
 export async function GET(request: Request) {
   try {
-    const user = await authenticateRequest();
-    if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const facilityId = searchParams.get("facilityId");
     const search = searchParams.get("search") || "";
