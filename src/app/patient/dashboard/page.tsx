@@ -1393,13 +1393,13 @@ export default function PatientDashboard() {
 
               <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
                 <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider block">Used for Surgeries</span>
-                <strong className="text-sm font-black text-amber-300 block mt-0.5">₹{(pmjayWallet?.usedAmount || 175000).toLocaleString('en-IN')}</strong>
+                <strong className="text-sm font-black text-amber-300 block mt-0.5">₹{(pmjayWallet?.usedAmount ?? 0).toLocaleString('en-IN')}</strong>
                 <span className="text-[8px] text-amber-200 font-semibold">Pre-Authorized Deductions</span>
               </div>
 
               <div className="bg-emerald-500/20 p-3 rounded-2xl border border-emerald-400/40">
                 <span className="text-[9px] font-bold text-emerald-200 uppercase tracking-wider block">Available Balance</span>
-                <strong className="text-sm font-black text-emerald-300 block mt-0.5">₹{(pmjayWallet?.availableBalance || 325000).toLocaleString('en-IN')}</strong>
+                <strong className="text-sm font-black text-emerald-300 block mt-0.5">₹{(pmjayWallet?.availableBalance ?? 500000).toLocaleString('en-IN')}</strong>
                 <span className="text-[8px] text-emerald-300 font-semibold">100% Cashless Ready</span>
               </div>
 
@@ -1685,7 +1685,7 @@ export default function PatientDashboard() {
 
               <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 text-center min-w-[180px] shrink-0">
                 <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider block">Available Balance</span>
-                <strong className="text-2xl font-black text-white block mt-1">₹{(pmjayWallet?.availableBalance || 325000).toLocaleString('en-IN')}</strong>
+                <strong className="text-2xl font-black text-white block mt-1">₹{(pmjayWallet?.availableBalance ?? 500000).toLocaleString('en-IN')}</strong>
                 <span className="text-[9px] text-emerald-200/80 font-medium mt-0.5 block">of ₹5,00,000 Total Limit</span>
               </div>
             </div>
@@ -1752,26 +1752,26 @@ export default function PatientDashboard() {
                     {language === "mr" ? "वार्षिक निधी वापर मीटर" : language === "hi" ? "वार्षिक फंड उपयोग मीटर" : "Annual Cashless Pool Utilization"}
                   </h3>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                    {Math.round(((pmjayWallet?.availableBalance || 325000) / 500000) * 100)}% Funds Available
+                    {Math.round(((pmjayWallet?.availableBalance ?? 500000) / 500000) * 100)}% Funds Available
                   </span>
                 </div>
 
                 <div className="mt-4 space-y-2">
                   <div className="flex justify-between text-xs font-bold text-slate-700">
-                    <span>Used: ₹{(pmjayWallet?.usedAmount || 175000).toLocaleString('en-IN')}</span>
-                    <span className="text-emerald-600">Available: ₹{(pmjayWallet?.availableBalance || 325000).toLocaleString('en-IN')}</span>
+                    <span>Used: ₹{(pmjayWallet?.usedAmount ?? 0).toLocaleString('en-IN')}</span>
+                    <span className="text-emerald-600">Available: ₹{(pmjayWallet?.availableBalance ?? 500000).toLocaleString('en-IN')}</span>
                   </div>
 
                   {/* Visual Progress Bar */}
                   <div className="w-full bg-slate-100 h-3.5 rounded-full overflow-hidden flex border border-slate-200/60 p-0.5">
                     <div
                       className="bg-amber-500 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, ((pmjayWallet?.usedAmount || 175000) / 500000) * 100)}%` }}
+                      style={{ width: `${Math.min(100, ((pmjayWallet?.usedAmount ?? 0) / 500000) * 100)}%` }}
                       title="Used for Surgery Pre-Auth"
                     />
                     <div
                       className="bg-emerald-500 h-full rounded-full transition-all duration-500 ml-0.5"
-                      style={{ width: `${Math.min(100, ((pmjayWallet?.availableBalance || 325000) / 500000) * 100)}%` }}
+                      style={{ width: `${Math.min(100, ((pmjayWallet?.availableBalance ?? 500000) / 500000) * 100)}%` }}
                       title="Available Cashless Pool"
                     />
                   </div>
@@ -1879,55 +1879,76 @@ export default function PatientDashboard() {
 
           {/* Past Cashless Surgery Deductions & Claims History */}
           <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center justify-between border-b border-slate-100 pb-3">
-              <span>{language === "mr" ? "मागील कॅशलेस शस्त्रक्रिया व दावे इतिहास" : language === "hi" ? "पिछले कैशलेस सर्जरी व दावे इतिहास" : "Past Cashless Surgery Pre-Authorizations & Claims History"}</span>
-              <span className="text-[10px] text-slate-400 font-medium">Total Claims: {pmjayWallet?.claimsHistory?.length || 1}</span>
-            </h3>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <CreditCard size={16} className="text-emerald-600" />
+                  <span>{language === "mr" ? "मागील कॅशलेस शस्त्रक्रिया व दावे इतिहास" : language === "hi" ? "पिछले कैशलेस सर्जरी व दावे इतिहास" : "Past Cashless Surgery Pre-Authorizations & Claims History"}</span>
+                </h3>
+                <span className="text-[10px] text-slate-400">
+                  Live ABDM digital passbook showing all secondary & tertiary hospitalizations settled cashless.
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                  Total Claims: {pmjayWallet?.claimsHistory?.length || 0}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleResetWallet}
+                  className="text-[10px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1 rounded-full border border-amber-200 cursor-pointer transition-all"
+                  title="Reset wallet back to fresh ₹5,00,000 for presentation demo"
+                >
+                  🔄 Reset Wallet (₹5,00,000)
+                </button>
+              </div>
+            </div>
 
-            <div className="space-y-3">
-              {(pmjayWallet?.claimsHistory || [
-                {
-                  claimId: "PMJAY-CLM-8841",
-                  hospitalName: "Sahyadri Super-Specialty Hospital (Private Empanelled)",
-                  hospitalType: "Private (Empanelled)",
-                  procedureName: "Cervical Spine Decompression & Nerve Release",
-                  packageCode: "NEURO-SP-04",
-                  amountDeducted: 175000,
-                  approvalStatus: "Approved & Settled Cashless",
-                  date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
-                }
-              ]).map((claim: any, idx: number) => (
-                <div key={idx} className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] font-extrabold text-primary bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
-                        {claim.claimId}
+            {(!pmjayWallet?.claimsHistory || pmjayWallet.claimsHistory.length === 0) ? (
+              <div className="bg-emerald-50/50 border border-emerald-200/60 p-6 rounded-2xl text-center space-y-2">
+                <div className="h-10 w-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
+                  <Check size={20} />
+                </div>
+                <h4 className="text-xs font-bold text-emerald-900">100% Cashless Pool Available (₹5,00,000)</h4>
+                <p className="text-[11px] text-emerald-800/80 max-w-md mx-auto leading-relaxed">
+                  No surgery pre-authorizations or claims have been deducted yet. When an empanelled hospital concludes a surgical consultation, it will be automatically recorded in this live passbook with ₹0 out-of-pocket payment.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pmjayWallet.claimsHistory.map((claim: any, idx: number) => (
+                  <div key={idx} className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[10px] font-extrabold text-primary bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
+                          {claim.claimId}
+                        </span>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                          claim.hospitalType?.includes("Private") ? "bg-purple-50 text-purple-700 border border-purple-200" : "bg-blue-50 text-blue-700 border border-blue-200"
+                        }`}>
+                          {claim.hospitalType || "Private (Empanelled)"}
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-extrabold text-slate-800">{claim.procedureName}</h4>
+                      <p className="text-[10px] text-slate-500 flex items-center gap-2">
+                        <span>🏥 {claim.hospitalName}</span>
+                        <span>•</span>
+                        <span>📅 {new Date(claim.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                      </p>
+                    </div>
+
+                    <div className="text-right sm:self-center shrink-0">
+                      <span className="text-xs sm:text-sm font-black text-slate-900 block">
+                        ₹{Number(claim.amountDeducted).toLocaleString('en-IN')}
                       </span>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
-                        claim.hospitalType?.includes("Private") ? "bg-purple-50 text-purple-700 border border-purple-200" : "bg-blue-50 text-blue-700 border border-blue-200"
-                      }`}>
-                        {claim.hospitalType || "Private (Empanelled)"}
+                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md mt-1 inline-block border border-emerald-200">
+                        ✓ {claim.approvalStatus || "Approved & Settled Cashless"}
                       </span>
                     </div>
-                    <h4 className="text-xs font-extrabold text-slate-800">{claim.procedureName}</h4>
-                    <p className="text-[10px] text-slate-500 flex items-center gap-2">
-                      <span>🏥 {claim.hospitalName}</span>
-                      <span>•</span>
-                      <span>📅 {new Date(claim.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    </p>
                   </div>
-
-                  <div className="text-right sm:self-center shrink-0">
-                    <span className="text-xs sm:text-sm font-black text-slate-900 block">
-                      ₹{Number(claim.amountDeducted).toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md mt-1 inline-block border border-emerald-200">
-                      ✓ {claim.approvalStatus || "Approved & Settled Cashless"}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
