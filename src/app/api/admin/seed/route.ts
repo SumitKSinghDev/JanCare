@@ -262,6 +262,26 @@ export async function POST() {
       preferredLanguage: "Marathi",
       emergencyContact: { name: "Sunita Kumar", relation: "Spouse", mobile: "9822114401" },
       abhaLinked: true,
+      abhaNumber: "91-4582-9012-7734",
+      pmjayWallet: {
+        isEligible: true,
+        schemeName: "Ayushman Bharat PM-JAY / MJPJAY",
+        totalAnnualCoverage: 500000,
+        usedAmount: 175000,
+        availableBalance: 325000,
+        claimsHistory: [
+          {
+            claimId: "PMJAY-CLM-8841",
+            hospitalName: "Sahyadri Super-Specialty Hospital (Private Empanelled)",
+            hospitalType: "Private (Empanelled)",
+            procedureName: "Cervical Spine Decompression and Nerve Release",
+            packageCode: "NEURO-SP-04",
+            amountDeducted: 175000,
+            approvalStatus: "Approved & Settled Cashless",
+            date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
+          }
+        ]
+      },
       registeredBy: ashaUser._id,
     });
 

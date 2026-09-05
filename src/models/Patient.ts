@@ -21,6 +21,23 @@ export interface IPatient extends Document {
   };
   abhaLinked: boolean;
   abhaNumber?: string; // Optional reference
+  pmjayWallet?: {
+    isEligible: boolean;
+    schemeName: string;
+    totalAnnualCoverage: number; // e.g. 500000 (₹5 Lakhs)
+    usedAmount: number;
+    availableBalance: number;
+    claimsHistory?: Array<{
+      claimId: string;
+      hospitalName: string;
+      hospitalType: "Public (Government)" | "Private (Empanelled)";
+      procedureName: string;
+      packageCode: string;
+      amountDeducted: number;
+      approvalStatus: "Approved & Settled Cashless" | "Pre-Authorized" | "In Review";
+      date: Date;
+    }>;
+  };
   registeredBy?: mongoose.Types.ObjectId; // ASHA or Frontline worker
   createdAt: Date;
   updatedAt: Date;
@@ -48,6 +65,25 @@ const PatientSchema: Schema<IPatient> = new Schema(
     },
     abhaLinked: { type: Boolean, required: true, default: false },
     abhaNumber: { type: String },
+    pmjayWallet: {
+      isEligible: { type: Boolean, default: true },
+      schemeName: { type: String, default: "Ayushman Bharat PM-JAY / MJPJAY" },
+      totalAnnualCoverage: { type: Number, default: 500000 },
+      usedAmount: { type: Number, default: 0 },
+      availableBalance: { type: Number, default: 500000 },
+      claimsHistory: [
+        {
+          claimId: { type: String, required: true },
+          hospitalName: { type: String, required: true },
+          hospitalType: { type: String, enum: ["Public (Government)", "Private (Empanelled)"], default: "Private (Empanelled)" },
+          procedureName: { type: String, required: true },
+          packageCode: { type: String, required: true },
+          amountDeducted: { type: Number, required: true },
+          approvalStatus: { type: String, enum: ["Approved & Settled Cashless", "Pre-Authorized", "In Review"], default: "Approved & Settled Cashless" },
+          date: { type: Date, default: Date.now },
+        },
+      ],
+    },
     registeredBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }

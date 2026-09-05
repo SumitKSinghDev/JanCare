@@ -41,7 +41,8 @@ import {
   AlertOctagon,
   PhoneCall,
   Share2,
-  ShoppingBag
+  ShoppingBag,
+  CreditCard
 } from "lucide-react";
 import AIAgentChatbot from "@/components/AIAgentChatbot";
 import AppShell from "@/components/AppShell";
@@ -98,6 +99,68 @@ export default function PatientDashboard() {
   const [emergencyDismissed, setEmergencyDismissed] = useState(false);
   const [activeInstantRoom, setActiveInstantRoom] = useState<string | null>(null);
   const [instantCalling, setInstantCalling] = useState(false);
+
+  // PM-JAY / ABHA Cashless Surgery Wallet States
+  const [pmjayWallet, setPmjayWallet] = useState<any>({
+    isEligible: true,
+    schemeName: "Ayushman Bharat PM-JAY / MJPJAY",
+    totalAnnualCoverage: 500000,
+    usedAmount: 175000,
+    availableBalance: 325000,
+    claimsHistory: [
+      {
+        claimId: "PMJAY-CLM-8841",
+        hospitalName: "Sahyadri Super-Specialty Hospital (Private Empanelled)",
+        hospitalType: "Private (Empanelled)",
+        procedureName: "Cervical Spine Decompression & Nerve Release",
+        packageCode: "NEURO-SP-04",
+        amountDeducted: 175000,
+        approvalStatus: "Approved & Settled Cashless",
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14)
+      }
+    ]
+  });
+  const [preAuthLoading, setPreAuthLoading] = useState(false);
+  const [preAuthSuccessMsg, setPreAuthSuccessMsg] = useState("");
+  const [preAuthErrorMsg, setPreAuthErrorMsg] = useState("");
+  const [selectedSurgeryDemo, setSelectedSurgeryDemo] = useState("Cervical Spine Decompression & Nerve Release");
+  const [selectedHospitalDemo, setSelectedHospitalDemo] = useState("Sahyadri Super-Specialty Hospital (Private Empanelled)");
+  const [selectedHospitalType, setSelectedHospitalType] = useState<"Public (Government)" | "Private (Empanelled)">("Private (Empanelled)");
+  const [customSurgeryCost, setCustomSurgeryCost] = useState(175000);
+
+  async function handleSimulatePreAuth(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    try {
+      setPreAuthLoading(true);
+      setPreAuthErrorMsg("");
+      setPreAuthSuccessMsg("");
+
+      const res = await fetch("/api/pmjay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientRefId: user?.patientRefId || "JC-7F3K92",
+          hospitalName: selectedHospitalDemo,
+          hospitalType: selectedHospitalType,
+          procedureName: selectedSurgeryDemo,
+          packageCode: selectedSurgeryDemo.includes("Spine") ? "NEURO-SP-04" : selectedSurgeryDemo.includes("Bypass") ? "CARD-CABG-01" : selectedSurgeryDemo.includes("Knee") ? "ORTHO-TKR-02" : "SURG-GEN-08",
+          amount: customSurgeryCost
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.wallet) {
+        setPmjayWallet(data.wallet);
+        setPreAuthSuccessMsg(`✅ Pre-Authorization Approved! ₹${customSurgeryCost.toLocaleString('en-IN')} deducted cashless from your PM-JAY Card for ${selectedHospitalDemo}. Remaining Card Balance: ₹${data.wallet.availableBalance.toLocaleString('en-IN')}`);
+      } else {
+        setPreAuthErrorMsg(data.error || "Failed to pre-authorize cashless surgery package.");
+      }
+    } catch (err: any) {
+      setPreAuthErrorMsg(err.message || "Network error during pre-authorization.");
+    } finally {
+      setPreAuthLoading(false);
+    }
+  }
 
   async function handleStartInstantEmergencyCall() {
     try {
@@ -314,6 +377,17 @@ export default function PatientDashboard() {
       const docData = await docRes.json();
       if (docData.success) {
         setDocuments(docData.documents);
+      }
+
+      // Fetch PM-JAY Cashless Surgery Wallet
+      try {
+        const pmjayRes = await fetch(`/api/pmjay?patientRefId=${meData.user.patientRefId || ""}`);
+        const pmjayData = await pmjayRes.json();
+        if (pmjayData.success && pmjayData.wallet) {
+          setPmjayWallet(pmjayData.wallet);
+        }
+      } catch (e) {
+        console.warn("PM-JAY fetch failed:", e);
       }
 
       // Mock ABHA linkage check
@@ -1261,6 +1335,70 @@ export default function PatientDashboard() {
             </div>
           </div>
 
+          {/* 💳 ABHA PM-JAY Cashless Health Benefit Wallet Card */}
+          <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white p-5 sm:p-6 rounded-3xl shadow-lg border border-emerald-500/30 relative overflow-hidden space-y-4 animate-in fade-in duration-200">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="bg-amber-400 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                    <Shield size={12} className="text-slate-950" />
+                    {language === "mr" ? "आयुष्मान भारत PM-JAY कॅशलेस वॉलेट" : language === "hi" ? "आयुष्मान भारत PM-JAY कैशलेस वॉलेट" : "Ayushman Bharat PM-JAY Cashless Wallet"}
+                  </span>
+                  <span className="text-[10px] text-emerald-300 font-bold bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-400/30">
+                    {language === "mr" ? "✓ शासकीय व खाजगी मान्यताप्राप्त" : language === "hi" ? "✓ सरकारी व निजी संबद्ध" : "✓ Public & Private Empanelled"}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-black tracking-tight text-white mt-1">
+                  {language === "mr" ? "शस्त्रक्रिया व उपचारांसाठी ₹५,००,००० कॅशलेस संरक्षण" : language === "hi" ? "सर्जरी व उपचार हेतु ₹5,00,000 कैशलेस सुरक्षा" : "₹5,00,000 Cashless Secondary & Tertiary Surgery Coverage"}
+                </h3>
+                <p className="text-xs text-emerald-100/80 max-w-2xl">
+                  {language === "mr" 
+                    ? "मोठ्या शस्त्रक्रिया व उपचारांसाठी खाजगी किंवा शासकीय रुग्णालयांमध्ये त्वरित कॅशलेस वजावट. कोणताही आर्थिक अडथळा नाही." 
+                    : language === "hi" 
+                    ? "बड़ी सर्जरी और उपचार के लिए निजी या सरकारी अस्पतालों में तुरंत कैशलेस कटौती। कोई आर्थिक रुकावट नहीं।" 
+                    : "Instant cashless pre-authorization across 28,000+ Empanelled Private & Govt Super-Specialty Hospitals linked to your ABHA ID."}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setActiveTab("ABHA Health Wallet")}
+                className="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs px-5 py-3 rounded-2xl flex items-center gap-2 shadow-md cursor-pointer transition-all shrink-0 border-0"
+              >
+                <CreditCard size={16} />
+                <span>{language === "mr" ? "वॉलेट व शस्त्रक्रिया दावे पहा" : language === "hi" ? "वॉलेट व सर्जरी दावे देखें" : "View Wallet & Surgery Claims"}</span>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+
+            {/* Live Wallet Balance Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-white/10 relative z-10">
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider block">Total Annual Pool</span>
+                <strong className="text-sm font-black text-white block mt-0.5">₹5,00,000</strong>
+                <span className="text-[8px] text-emerald-300 font-semibold">Per Family / Year</span>
+              </div>
+
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider block">Used for Surgeries</span>
+                <strong className="text-sm font-black text-amber-300 block mt-0.5">₹{(pmjayWallet?.usedAmount || 175000).toLocaleString('en-IN')}</strong>
+                <span className="text-[8px] text-amber-200 font-semibold">Pre-Authorized Deductions</span>
+              </div>
+
+              <div className="bg-emerald-500/20 p-3 rounded-2xl border border-emerald-400/40">
+                <span className="text-[9px] font-bold text-emerald-200 uppercase tracking-wider block">Available Balance</span>
+                <strong className="text-sm font-black text-emerald-300 block mt-0.5">₹{(pmjayWallet?.availableBalance || 325000).toLocaleString('en-IN')}</strong>
+                <span className="text-[8px] text-emerald-300 font-semibold">100% Cashless Ready</span>
+              </div>
+
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider block">Linked ABHA ID</span>
+                <strong className="text-xs font-mono font-bold text-white block mt-1">{user?.abhaNumber || abhaNumber || "91-4582-9012-7734"}</strong>
+                <span className="text-[8px] text-blue-300 font-semibold">✓ ABDM Verified</span>
+              </div>
+            </div>
+          </div>
+
           <div className="grid lg:grid-cols-12 gap-6">
             {/* Left section inside dashboard: Recent Vitals */}
             <div className="lg:col-span-8 bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
@@ -1499,6 +1637,284 @@ export default function PatientDashboard() {
                   <strong className="text-white">{user?.patientRefId || "JC-9118"}</strong>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2.5 ABHA PM-JAY CASHLESS SURGERY WALLET VIEW */}
+      {activeTab === "ABHA Health Wallet" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Header Banner */}
+          <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white p-6 sm:p-8 rounded-3xl shadow-xl border border-emerald-500/30 relative overflow-hidden space-y-4">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="bg-amber-400 text-slate-950 text-[10px] font-black uppercase px-3 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                    <Shield size={12} className="text-slate-950" />
+                    {language === "mr" ? "आयुष्मान भारत PM-JAY / MJPJAY" : language === "hi" ? "आयुष्मान भारत PM-JAY / MJPJAY" : "Ayushman Bharat PM-JAY / MJPJAY"}
+                  </span>
+                  <span className="text-[10px] text-emerald-300 font-bold bg-emerald-950/80 px-2.5 py-0.5 rounded-md border border-emerald-400/40">
+                    {language === "mr" ? "२८,०००+ खाजगी व शासकीय रुग्णालये" : language === "hi" ? "28,000+ निजी व सरकारी अस्पताल" : "28,000+ Empanelled Hospitals"}
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-2">
+                  {language === "mr" ? "ABHA कॅशलेस आरोग्य व शस्त्रक्रिया वॉलेट" : language === "hi" ? "ABHA कैशलेस स्वास्थ्य व सर्जरी वॉलेट" : "ABHA Cashless Surgery & Health Wallet"}
+                </h2>
+                <p className="text-xs text-emerald-100/80 max-w-2xl leading-relaxed">
+                  {language === "mr"
+                    ? "मोठ्या शस्त्रक्रिया व उपचारांसाठी दरवर्षी ₹५,००,००० पर्यंतचे कॅशलेस संरक्षण. खाजगी व शासकीय रुग्णालयांमध्ये अखंडित डिजिटल प्रक्रिया."
+                    : language === "hi"
+                    ? "बड़ी सर्जरी और उपचार के लिए प्रति वर्ष ₹5,00,000 तक कैशलेस सुरक्षा। निजी और सरकारी अस्पतालों में निर्बाध डिजिटल प्रक्रिया।"
+                    : "Universal ₹5,00,000 yearly cashless health cover for secondary and tertiary surgeries. Seamless interoperability across Public PHC/CHC and Empanelled Private Super-Specialty Hospitals."}
+                </p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 text-center min-w-[180px] shrink-0">
+                <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider block">Available Balance</span>
+                <strong className="text-2xl font-black text-white block mt-1">₹{(pmjayWallet?.availableBalance || 325000).toLocaleString('en-IN')}</strong>
+                <span className="text-[9px] text-emerald-200/80 font-medium mt-0.5 block">of ₹5,00,000 Total Limit</span>
+              </div>
+            </div>
+          </div>
+
+          {preAuthSuccessMsg && (
+            <div className="bg-emerald-50 text-emerald-900 border border-emerald-300 p-4 rounded-2xl text-xs font-bold flex items-center justify-between animate-in slide-in-from-top duration-200">
+              <span>{preAuthSuccessMsg}</span>
+              <button onClick={() => setPreAuthSuccessMsg("")} className="text-emerald-700 hover:text-emerald-900 bg-transparent border-0 font-bold cursor-pointer">✕</button>
+            </div>
+          )}
+
+          {preAuthErrorMsg && (
+            <div className="bg-red-50 text-red-900 border border-red-300 p-4 rounded-2xl text-xs font-bold flex items-center justify-between animate-in slide-in-from-top duration-200">
+              <span>{preAuthErrorMsg}</span>
+              <button onClick={() => setPreAuthErrorMsg("")} className="text-red-700 hover:text-red-900 bg-transparent border-0 font-bold cursor-pointer">✕</button>
+            </div>
+          )}
+
+          {/* Gold Digital Health Card & Live Meter Grid */}
+          <div className="grid lg:grid-cols-12 gap-6 items-stretch">
+            {/* Digital ABHA Card */}
+            <div className="lg:col-span-6 bg-gradient-to-br from-amber-600 via-amber-700 to-yellow-800 text-white p-6 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-between border border-amber-400/40 min-h-[260px]">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-300/10 rounded-full blur-2xl pointer-events-none" />
+              
+              <div className="flex justify-between items-start border-b border-amber-300/30 pb-3 relative z-10">
+                <div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-amber-200 block">GOVERNMENT OF INDIA & MAHARASHTRA</span>
+                  <h3 className="text-sm font-black text-white mt-0.5">National Health Identity & PM-JAY Card</h3>
+                </div>
+                <div className="h-8 w-8 bg-white/20 rounded-lg flex items-center justify-center font-black text-xs border border-white/30">
+                  🇮🇳
+                </div>
+              </div>
+
+              <div className="my-4 space-y-1 relative z-10">
+                <span className="text-[9px] font-bold text-amber-200 uppercase tracking-wider block">ABHA HEALTH NUMBER</span>
+                <span className="text-lg sm:text-xl font-mono font-black tracking-widest text-white block drop-shadow-sm">
+                  {user?.abhaNumber || abhaNumber || "91-4582-9012-7734"}
+                </span>
+                <div className="flex items-center gap-4 text-xs font-bold text-amber-100 pt-1">
+                  <span>Name: <strong className="text-white font-extrabold">{user?.name || "Ramesh Kumar"}</strong></span>
+                  <span>Ref: <strong className="text-white font-mono">{user?.patientRefId || "JC-7F3K92"}</strong></span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-end border-t border-amber-300/30 pt-3 text-[10px] relative z-10">
+                <div>
+                  <span className="text-amber-200 block text-[9px]">ANNUAL CASHLESS COVERAGE</span>
+                  <strong className="text-white text-xs font-black">₹5,00,000 / Year</strong>
+                </div>
+                <div className="bg-white text-slate-900 font-bold px-2.5 py-1 rounded-lg text-[9px] flex items-center gap-1 shadow-xs">
+                  <Check size={11} className="text-green-600 font-black" /> ABDM VERIFIED & EMPANELLED
+                </div>
+              </div>
+            </div>
+
+            {/* Wallet Meter & Utilization Card */}
+            <div className="lg:col-span-6 bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <Activity size={14} className="text-emerald-600" />
+                    {language === "mr" ? "वार्षिक निधी वापर मीटर" : language === "hi" ? "वार्षिक फंड उपयोग मीटर" : "Annual Cashless Pool Utilization"}
+                  </h3>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    {Math.round(((pmjayWallet?.availableBalance || 325000) / 500000) * 100)}% Funds Available
+                  </span>
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  <div className="flex justify-between text-xs font-bold text-slate-700">
+                    <span>Used: ₹{(pmjayWallet?.usedAmount || 175000).toLocaleString('en-IN')}</span>
+                    <span className="text-emerald-600">Available: ₹{(pmjayWallet?.availableBalance || 325000).toLocaleString('en-IN')}</span>
+                  </div>
+
+                  {/* Visual Progress Bar */}
+                  <div className="w-full bg-slate-100 h-3.5 rounded-full overflow-hidden flex border border-slate-200/60 p-0.5">
+                    <div
+                      className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, ((pmjayWallet?.usedAmount || 175000) / 500000) * 100)}%` }}
+                      title="Used for Surgery Pre-Auth"
+                    />
+                    <div
+                      className="bg-emerald-500 h-full rounded-full transition-all duration-500 ml-0.5"
+                      style={{ width: `${Math.min(100, ((pmjayWallet?.availableBalance || 325000) / 500000) * 100)}%` }}
+                      title="Available Cashless Pool"
+                    />
+                  </div>
+                  <div className="flex justify-between text-[9px] text-slate-400">
+                    <span>₹0 (Min)</span>
+                    <span className="font-bold text-slate-600">₹5,00,000 (Max Annual Limit)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/60 text-[11px] text-slate-600 space-y-1">
+                <strong className="text-slate-800 font-bold block">💡 How Cashless Deduction Works:</strong>
+                <p className="leading-relaxed text-[10px]">
+                  When a surgery is scheduled at any empanelled hospital (Govt Civil Hospital or Private Super-Specialty), the hospital pre-authorizes the surgery package through your ABHA number. The approved amount is directly deducted from this ₹5 Lakh pool, ensuring <strong>zero out-of-pocket payment</strong> for your family.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Live Surgery Pre-Authorization Tool (Viva / Presentation Demonstration) */}
+          <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <Shield size={16} className="text-primary" />
+                  {language === "mr" ? "शस्त्रक्रिया पॅकेज पूर्व-मंजुरी व कॅशलेस वजावट सिम्युलेटर" : language === "hi" ? "सर्जरी पैकेज पूर्व-अनुमोदन व कैशलेस कटौती सिम्युलेटर" : "Surgery Package Pre-Authorization & Cashless Deduction Simulator"}
+                </h3>
+                <span className="text-[10px] text-slate-500">
+                  Demonstrate how large surgical expenses are instantly deducted from the PM-JAY wallet across Public and Private hospitals.
+                </span>
+              </div>
+              <span className="text-[9px] font-black text-primary bg-blue-50 px-2.5 py-1 rounded-full uppercase">
+                ⚡ Live ABDM Pre-Auth
+              </span>
+            </div>
+
+            <form onSubmit={handleSimulatePreAuth} className="grid md:grid-cols-12 gap-4">
+              <div className="md:col-span-4 space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+                  Select Surgery / Procedure Package
+                </label>
+                <select
+                  value={selectedSurgeryDemo}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedSurgeryDemo(val);
+                    if (val.includes("Spine")) setCustomSurgeryCost(175000);
+                    else if (val.includes("Bypass")) setCustomSurgeryCost(185000);
+                    else if (val.includes("Knee")) setCustomSurgeryCost(120000);
+                    else if (val.includes("Gallbladder")) setCustomSurgeryCost(45000);
+                  }}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-primary"
+                >
+                  <option value="Cervical Spine Decompression & Nerve Release">🧠 Cervical Spine Decompression (₹1,75,000)</option>
+                  <option value="Coronary Artery Bypass Graft (CABG) Heart Surgery">❤️ Coronary Artery Bypass (CABG) (₹1,85,000)</option>
+                  <option value="Total Knee / Hip Joint Replacement">🦴 Total Knee Joint Replacement (₹1,20,000)</option>
+                  <option value="Laparoscopic Cholecystectomy (Gallbladder)">🔬 Laparoscopic Cholecystectomy (₹45,000)</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-4 space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+                  Select Healthcare Facility (Public / Private)
+                </label>
+                <select
+                  value={selectedHospitalDemo}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedHospitalDemo(val);
+                    setSelectedHospitalType(val.includes("Sahyadri") || val.includes("Wockhardt") ? "Private (Empanelled)" : "Public (Government)");
+                  }}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-hidden focus:border-primary"
+                >
+                  <option value="Sahyadri Super-Specialty Hospital (Private Empanelled)">🏥 Sahyadri Super-Specialty Hospital (Private Empanelled)</option>
+                  <option value="Nashik District Civil Hospital & Trauma ICU">🏛️ Nashik District Civil Hospital & Trauma ICU (Govt)</option>
+                  <option value="Wockhardt Super-Specialty Care (Private Empanelled)">🏥 Wockhardt Super-Specialty Care (Private Empanelled)</option>
+                  <option value="Sinnar Rural CHC Facility">🏛️ Sinnar Rural CHC Facility (Govt)</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+                  Package Cost (₹)
+                </label>
+                <input
+                  type="number"
+                  value={customSurgeryCost}
+                  onChange={(e) => setCustomSurgeryCost(Number(e.target.value))}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-hidden focus:border-primary"
+                />
+              </div>
+
+              <div className="md:col-span-2 flex items-end">
+                <button
+                  type="submit"
+                  disabled={preAuthLoading}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-md cursor-pointer border-0 transition-all disabled:opacity-50"
+                >
+                  {preAuthLoading ? <Loader2 size={14} className="animate-spin" /> : <CreditCard size={14} />}
+                  <span>Authorize Pre-Auth</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Past Cashless Surgery Deductions & Claims History */}
+          <div className="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center justify-between border-b border-slate-100 pb-3">
+              <span>{language === "mr" ? "मागील कॅशलेस शस्त्रक्रिया व दावे इतिहास" : language === "hi" ? "पिछले कैशलेस सर्जरी व दावे इतिहास" : "Past Cashless Surgery Pre-Authorizations & Claims History"}</span>
+              <span className="text-[10px] text-slate-400 font-medium">Total Claims: {pmjayWallet?.claimsHistory?.length || 1}</span>
+            </h3>
+
+            <div className="space-y-3">
+              {(pmjayWallet?.claimsHistory || [
+                {
+                  claimId: "PMJAY-CLM-8841",
+                  hospitalName: "Sahyadri Super-Specialty Hospital (Private Empanelled)",
+                  hospitalType: "Private (Empanelled)",
+                  procedureName: "Cervical Spine Decompression & Nerve Release",
+                  packageCode: "NEURO-SP-04",
+                  amountDeducted: 175000,
+                  approvalStatus: "Approved & Settled Cashless",
+                  date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
+                }
+              ]).map((claim: any, idx: number) => (
+                <div key={idx} className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] font-extrabold text-primary bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/60">
+                        {claim.claimId}
+                      </span>
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                        claim.hospitalType?.includes("Private") ? "bg-purple-50 text-purple-700 border border-purple-200" : "bg-blue-50 text-blue-700 border border-blue-200"
+                      }`}>
+                        {claim.hospitalType || "Private (Empanelled)"}
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-extrabold text-slate-800">{claim.procedureName}</h4>
+                    <p className="text-[10px] text-slate-500 flex items-center gap-2">
+                      <span>🏥 {claim.hospitalName}</span>
+                      <span>•</span>
+                      <span>📅 {new Date(claim.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    </p>
+                  </div>
+
+                  <div className="text-right sm:self-center shrink-0">
+                    <span className="text-xs sm:text-sm font-black text-slate-900 block">
+                      ₹{Number(claim.amountDeducted).toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md mt-1 inline-block border border-emerald-200">
+                      ✓ {claim.approvalStatus || "Approved & Settled Cashless"}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

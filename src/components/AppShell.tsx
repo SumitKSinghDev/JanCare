@@ -36,7 +36,8 @@ import {
   Database,
   MapPin,
   X,
-  Shield
+  Shield,
+  CreditCard
 } from "lucide-react";
 
 interface AppShellProps {
@@ -85,6 +86,7 @@ export default function AppShell({
           {
             group: "HEALTH DATA",
             items: [
+              { name: "ABHA Health Wallet", icon: CreditCard },
               { name: "Health Records", icon: Heart },
               { name: "Care Timeline", icon: Clock },
               { name: "Referrals", icon: Share2 },
