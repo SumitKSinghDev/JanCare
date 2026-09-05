@@ -181,10 +181,13 @@ CRITICAL RULES:
      • Status: Confirmed & Added to Doctor Queue
    - Do NOT fabricate or hallucinate any booking confirmation unless action is "BOOKED".
 
-9. DATE AWARENESS & SYMPTOM CONSULTATION PROACTIVE SUGGESTION:
-   - Always evaluate dates relative to CURRENT DATE.
-   - If an appointment record has a date in the past, DO NOT describe it as an "upcoming" or "active" appointment. Note that it was a previous visit and ask if the patient wants to book a fresh consultation for their current complaints (e.g. "क्या आप इन लक्षणों के लिए आज या कल की डॉक्टर अपॉइंटमेंट बुक करना चाहेंगे?").
-   - When a patient describes new or ongoing symptoms (like dizziness, headache, fever), always offer to schedule a doctor consultation slot for today/tomorrow.`;
+10. SPECIALIST & CLINICAL DOCTOR ROUTING:
+   - When suggesting doctors or confirming bookings based on symptoms:
+     • **Neck pain / Nerve numbness / Tingling / Migraine / Seizures / Headaches**: Recommend **Dr. Rajesh Deshmukh (Neurologist)** at Nashik District Civil Hospital.
+     • **Chest pain / Palpitations / Heart complaints**: Recommend **Dr. Smita Rao (Cardiologist)** at Nashik District Civil Hospital.
+     • **Bone / Joint pain / Fractures / Back strain**: Recommend **Dr. Vikram Joshi (Orthopedic)** at Sinnar CHC.
+     • **Child / Infant health / Pediatric complaints**: Recommend **Dr. Priya Sharma (Pediatrician)** at Igatpuri PHC.
+     • **General fever / Cold / Cough / Routine care**: Recommend **Dr. Aniruddha Kulkarni (General Physician)** at Sinnar CHC.`;
 
 // Helper to query Gemini with retry + model fallback for extreme rate limit resiliency
 async function runGeminiWithFallback(
@@ -438,10 +441,68 @@ function extractSymptomsAndTriage(fullConversationText: string) {
               selectedFacility = await Facility.findOne({ type: "CHC" }) || await Facility.findOne({});
             }
             
-            // 3. Doctor selection
+            // 3. Intelligent Symptom & Specialty Doctor Routing
+            const fullHistoryLower = fullHistoryText.toLowerCase();
             let doctorDoc = null;
-            if (msgLower.includes("smita") || msgLower.includes("rao") || msgLower.includes("cardiologist")) {
-              doctorDoc = await User.findOne({ name: /Smita/i });
+
+            const isNeurology = /neck\s*pain|gardhan|मान\s*दुख|गर्दन\s*दर्द|tingling|numbness|nerve|seizure|झटके|migraine|dizziness|चक्कर|paralysis|लकवा|मेंदू|neurolog|headache|डोकं\s*दुख|सिर\s*दर्द/.test(fullHistoryLower);
+            const isCardiology = /chest|chhati|heart|छाती|हार्ट|सीने\s*में\s*दर्द|palpitation|cardiolog|smita|rao/.test(fullHistoryLower);
+            const isOrthopedic = /bone|joint|fracture|knee|घुटने|back\s*pain|kamar\s*dard|हाड|सांधे|कंबर|orthoped|हड्डी|vikram/.test(fullHistoryLower);
+            const isPediatric = /child|baby|infant|mul|bache|बालरोग|बालक|pediatric|priya/.test(fullHistoryLower);
+
+            if (isNeurology) {
+              doctorDoc = await User.findOne({ name: /Rajesh|Neurologist/i });
+              if (!doctorDoc) {
+                const defaultHash = (await User.findOne({ role: "Doctor" }))?.passwordHash || "$2a$10$e8wF18Vmsu6l9aP5q7Wb9.";
+                doctorDoc = await User.create({
+                  name: "Dr. Rajesh Deshmukh (Neurologist)",
+                  username: "neurologist",
+                  passwordHash: defaultHash,
+                  role: "Specialist",
+                  associatedFacility: selectedFacility?._id,
+                }).catch(() => User.findOne({ role: "Doctor" }));
+              }
+              // Prefer DH / Specialist facility
+              const dhFacility = await Facility.findOne({ type: "DH" }) || await Facility.findOne({ name: /Civil/i });
+              if (dhFacility) selectedFacility = dhFacility;
+            } else if (isCardiology) {
+              doctorDoc = await User.findOne({ name: /Smita|Cardiologist/i });
+              if (!doctorDoc) {
+                const defaultHash = (await User.findOne({ role: "Doctor" }))?.passwordHash || "$2a$10$e8wF18Vmsu6l9aP5q7Wb9.";
+                doctorDoc = await User.create({
+                  name: "Dr. Smita Rao (Cardiologist)",
+                  username: "specialist",
+                  passwordHash: defaultHash,
+                  role: "Specialist",
+                  associatedFacility: selectedFacility?._id,
+                }).catch(() => User.findOne({ role: "Doctor" }));
+              }
+              const dhFacility = await Facility.findOne({ type: "DH" }) || await Facility.findOne({ name: /Civil/i });
+              if (dhFacility) selectedFacility = dhFacility;
+            } else if (isOrthopedic) {
+              doctorDoc = await User.findOne({ name: /Vikram|Orthopedic/i });
+              if (!doctorDoc) {
+                const defaultHash = (await User.findOne({ role: "Doctor" }))?.passwordHash || "$2a$10$e8wF18Vmsu6l9aP5q7Wb9.";
+                doctorDoc = await User.create({
+                  name: "Dr. Vikram Joshi (Orthopedic)",
+                  username: "orthopedic",
+                  passwordHash: defaultHash,
+                  role: "Specialist",
+                  associatedFacility: selectedFacility?._id,
+                }).catch(() => User.findOne({ role: "Doctor" }));
+              }
+            } else if (isPediatric) {
+              doctorDoc = await User.findOne({ name: /Priya|Pediatrician/i });
+              if (!doctorDoc) {
+                const defaultHash = (await User.findOne({ role: "Doctor" }))?.passwordHash || "$2a$10$e8wF18Vmsu6l9aP5q7Wb9.";
+                doctorDoc = await User.create({
+                  name: "Dr. Priya Sharma (Pediatrician)",
+                  username: "pediatrician",
+                  passwordHash: defaultHash,
+                  role: "Doctor",
+                  associatedFacility: selectedFacility?._id,
+                }).catch(() => User.findOne({ role: "Doctor" }));
+              }
             } else {
               doctorDoc = await User.findOne({ name: /Aniruddha/i }) || await User.findOne({ role: "Doctor" });
             }

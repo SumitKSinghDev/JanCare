@@ -174,6 +174,30 @@ export async function POST() {
       associatedFacility: facilityNashikCivil._id,
     });
 
+    const neurologistUser: any = await User.create({
+      name: "Dr. Rajesh Deshmukh (Neurologist)",
+      username: "neurologist",
+      passwordHash,
+      role: "Specialist",
+      associatedFacility: facilityNashikCivil._id,
+    });
+
+    const orthopedicUser: any = await User.create({
+      name: "Dr. Vikram Joshi (Orthopedic)",
+      username: "orthopedic",
+      passwordHash,
+      role: "Specialist",
+      associatedFacility: facilitySinnar._id,
+    });
+
+    const pediatricianUser: any = await User.create({
+      name: "Dr. Priya Sharma (Pediatrician)",
+      username: "pediatrician",
+      passwordHash,
+      role: "Doctor",
+      associatedFacility: facilityIgatpuriPHC._id,
+    });
+
     const facilityAdmin: any = await User.create({
       name: "Meera Deshmukh",
       username: "facilityadmin",
