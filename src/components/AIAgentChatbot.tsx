@@ -173,23 +173,70 @@ export default function AIAgentChatbot({ inline = false, userName }: AIAgentChat
         const detectedLang = isMarathi ? "mr" : (hasDevanagari || isRomanHindi) ? "hi" : "en";
         const lowerText = text.toLowerCase();
 
+        const respLower = (data.response || "").toLowerCase();
+        const userLower = text.toLowerCase();
+
         // Dispatch booking event to reload parent dashboard data
         if (data.toolCalled === "bookAppointment" && data.toolResult?.action === "BOOKED") {
           window.dispatchEvent(new CustomEvent("jancare_appointment_booked"));
-          setBookingChips([]);
-        } else if (data.toolResult?.action === "GATHER_DETAILS" || data.toolResult?.action === "OFFER_SLOTS" || lowerText.includes("book") || lowerText.includes("appointment") || lowerText.includes("अपॉइंटमेंट") || lowerText.includes("भेट")) {
-          // Present interactive quick selection chips
-          const isMr = detectedLang === "mr";
-          const chips: Array<{ label: string; text: string; category?: string }> = [
-            { label: isMr ? "📅 आज (Today)" : "📅 आज (Today)", text: "आज के लिए स्लॉट बुक करें", category: "Date" },
-            { label: isMr ? "📅 उद्या (Tomorrow)" : "📅 कल (Tomorrow)", text: "कल के लिए स्लॉट बुक करें", category: "Date" },
-            { label: "⏰ 11:30 AM (Morning)", text: "11:30 AM का समय स्लॉट", category: "Slot" },
-            { label: "⏰ 02:00 PM (Afternoon)", text: "02:00 PM का समय स्लॉट", category: "Slot" },
-            { label: isMr ? "🏥 सिन्नर CHC" : "🏥 सिन्नर CHC", text: "सिन्नर CHC अस्पताल", category: "Facility" },
-            { label: isMr ? "🏥 इगतपुरी PHC" : "🏥 इगतपुरी PHC", text: "इगतपुरी PHC अस्पताल", category: "Facility" },
-            { label: isMr ? "✅ होय, कन्फर्म करा" : "✅ हाँ, कन्फर्म कर दो", text: "हाँ, कन्फर्म कर दो", category: "Confirm" },
-          ];
-          setBookingChips(chips);
+          setBookingChips([
+            { label: "📋 माझी अपॉइंटमेंट पहा (View Appointments)", text: "माझी नोंदवलेली अपॉइंटमेंट दाखवा", category: "Action" },
+            { label: "💊 औषध उपलब्धता तपासा (Check Medicines)", text: "सिन्नर CHC मध्ये औषध साठा तपासा", category: "Action" },
+            { label: "📞 108 आपत्कालीन मदत (Emergency Help)", text: "108 रुग्णवाहिका आणि आपत्कालीन कक्ष", category: "Action" },
+          ]);
+        } else {
+          // Check if AI response offers options or asks user to choose
+          const hasOptionsInText = 
+            data.toolResult?.action === "GATHER_DETAILS" ||
+            data.toolResult?.action === "OFFER_SLOTS" ||
+            data.response?.includes("📅") || data.response?.includes("⏰") || data.response?.includes("🏥") ||
+            data.response?.includes("11:30") || data.response?.includes("02:00") ||
+            respLower.includes("sinnar") || respLower.includes("igatpuri") ||
+            /तारीख|समय|स्लॉट|अपॉइंटमेंट|पसंद|विकल्प|निवडा|choice|option|choose|slot|date|time|center|hospital|appointment|book|ତାରିଖ|ସମୟ|କେନ୍ଦ୍ର|ଆପଏଣ୍ଟମେଣ୍ଟ/i.test(respLower) ||
+            /book|appointment|अपॉइंटमेंट|भेट|doctor|डॉक्टर|दवाखाना|रुग्णालय/i.test(userLower);
+
+          const isSymptomTalk = !hasOptionsInText && (
+            /ताप|बुखार|fever|cold|cough|सर्दी|खोकला|दर्द|pain|vomit|उल्टी|चक्कर|ଥଣ୍ଡା|ଜ୍ଵର|କାଶ/i.test(respLower) ||
+            /ताप|बुखार|fever|cold|cough|सर्दी|खोकला|दर्द|pain|vomit|उल्टी|चक्कर|ଥଣ୍ଡା|ଜ୍ଵର|କାଶ/i.test(userLower)
+          );
+
+          if (hasOptionsInText) {
+            const isMr = detectedLang === "mr";
+            const isOdia = /[\u0B00-\u0B7F]/.test(text) || /[\u0B00-\u0B7F]/.test(data.response || "");
+            const chips: Array<{ label: string; text: string; category?: string }> = isOdia ? [
+              { label: "📅 ଆଜି (Today 5 Sep)", text: "ଆଜି (5 Sep) ପାଇଁ ସ୍ଲଟ୍ ବୁକ୍ କରନ୍ତୁ", category: "Date" },
+              { label: "📅 ଆସନ୍ତାକାଲି (Tomorrow 6 Sep)", text: "ଆସନ୍ତାକାଲି (6 Sep) ପାଇଁ ସ୍ଲଟ୍ ବୁକ୍ କରନ୍ତୁ", category: "Date" },
+              { label: "⏰ 11:30 AM (ସକାଳ)", text: "11:30 AM ସମୟ ସ୍ଲଟ୍", category: "Slot" },
+              { label: "⏰ 02:00 PM (ଅପରାହ୍ନ)", text: "02:00 PM ସମୟ ସ୍ଲଟ୍", category: "Slot" },
+              { label: "🏥 Sinnar CHC (କେନ୍ଦ୍ର)", text: "Sinnar CHC ସ୍ୱାସ୍ଥ୍ୟ କେନ୍ଦ୍ର", category: "Facility" },
+              { label: "🏥 Igatpuri PHC (କେନ୍ଦ୍ର)", text: "Igatpuri PHC ସ୍ୱାସ୍ଥ୍ୟ କେନ୍ଦ୍ର", category: "Facility" },
+              { label: "✅ ଆଜି 11:30 AM ନିଶ୍ଚିତ କରନ୍ତୁ", text: "ହଁ, ଆଜି 11:30 AM Sinnar CHC ରେ ଆପଏଣ୍ଟମେଣ୍ଟ ନିଶ୍ଚିତ କରନ୍ତୁ", category: "Confirm" },
+            ] : [
+              { label: isMr ? "📅 आज (5 Sep)" : "📅 आज (Today 5 Sep)", text: isMr ? "आज (5 Sep) साठी स्लॉट बुक करा" : "आज (5 Sep) के लिए स्लॉट बुक करें", category: "Date" },
+              { label: isMr ? "📅 उद्या (6 Sep)" : "📅 कल (Tomorrow 6 Sep)", text: isMr ? "उद्या (6 Sep) साठी स्लॉट बुक करा" : "कल (6 Sep) के लिए स्लॉट बुक करें", category: "Date" },
+              { label: "⏰ 11:30 AM (Morning)", text: "11:30 AM का समय स्लॉट", category: "Slot" },
+              { label: "⏰ 02:00 PM (Afternoon)", text: "02:00 PM का समय स्लॉट", category: "Slot" },
+              { label: isMr ? "🏥 सिन्नर CHC" : "🏥 सिन्नर CHC (Sinnar)", text: "सिन्नर CHC स्वास्थ्य केंद्र", category: "Facility" },
+              { label: isMr ? "🏥 इगतपुरी PHC" : "🏥 इगतपुरी PHC (Igatpuri)", text: "इगतपुरी PHC स्वास्थ्य केंद्र", category: "Facility" },
+              { label: isMr ? "✅ आज 11:30 AM कन्फर्म करा" : "✅ आज 11:30 AM कन्फर्म करें", text: isMr ? "हो, आज 11:30 AM सिन्नर CHC मध्ये अपॉइंटमेंट कन्फर्म करा" : "हाँ, आज 11:30 AM सिन्नर CHC में अपॉइंटमेंट कन्फर्म करें", category: "Confirm" },
+            ];
+            setBookingChips(chips);
+          } else if (isSymptomTalk) {
+            const isMr = detectedLang === "mr";
+            const isOdia = /[\u0B00-\u0B7F]/.test(text) || /[\u0B00-\u0B7F]/.test(data.response || "");
+            const chips: Array<{ label: string; text: string; category?: string }> = isOdia ? [
+              { label: "🌡️ 101°F ଜ୍ଵର (Fever 101°F)", text: "ମୋତେ 101°F ଜ୍ୱର ଏବଂ ଥଣ୍ଡା ଅଛି", category: "Symptom" },
+              { label: "🤧 କାଶ ଓ ଥଣ୍ଡା (Cough & Cold)", text: "ମୋତେ କାଶ ଏବଂ ଥଣ୍ଡା ହେଉଛି", category: "Symptom" },
+              { label: "🗓️ ୨ ଦିନ ହେଲା (Since 2 Days)", text: "ଗତ ୨ ଦିନ ହେବ ଏହି ସମସ୍ୟା ଅଛି", category: "Duration" },
+              { label: "🩺 ଡାକ୍ତରଙ୍କ ସହ କଥା ହୁଅନ୍ତୁ", text: "ଦୟାକରି ଡାକ୍ତରଙ୍କ ସହିତ ଆପଏଣ୍ଟମେଣ୍ଟ ବୁକ୍ କରନ୍ତୁ", category: "Action" },
+            ] : [
+              { label: isMr ? "🌡️ ताप 101°F" : "🌡️ बुखार 101°F (Fever 101°F)", text: isMr ? "मला 101°F ताप आला आहे (Fever 101°F)" : "मुझे 101°F बुखार है", category: "Symptom" },
+              { label: isMr ? "🤧 खोकला व सर्दी" : "🤧 खांसी और जुकाम (Cough & Cold)", text: isMr ? "मला खोकला आणि सर्दीचा त्रास आहे" : "मुझे खांसी और जुकाम है", category: "Symptom" },
+              { label: isMr ? "🗓️ 2 दिवस झाले" : "🗓️ 2 दिन से है (Since 2 Days)", text: isMr ? "गेल्या 2 दिवसांपासून त्रास होत आहे" : "पिछले 2 दिनों से यह परेशानी है", category: "Duration" },
+              { label: isMr ? "🩺 डॉक्टरांशी बोला" : "🩺 डॉक्टर से अपॉइंटमेंट बुक करें", text: isMr ? "कृपया माझ्यासाठी डॉक्टरांची अपॉइंटमेंट बुक करा" : "कृपया डॉक्टर से परामर्श के लिए अपॉइंटमेंट बुक करें", category: "Action" },
+            ];
+            setBookingChips(chips);
+          }
         }
 
         const isEmergencyTrigger = /chest|chhati|heart|breath|saas|dum|श्वास|दम|bleeding|khoon|behoshi|unconscious|faint|snake|सर्पदंश|emergency|आपत्काल|तातडीने|108/.test(lowerText) || /emergency|urgent|108|ambulance/i.test(data.response || "");
@@ -302,6 +349,49 @@ export default function AIAgentChatbot({ inline = false, userName }: AIAgentChat
     { label: t("assistant.promptRecords"), text: "Explain patient Ramesh Kumar's historical triage records" },
   ];
 
+  const renderBookingChips = () => {
+    if (bookingChips.length === 0) return null;
+    return (
+      <div className="px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 flex flex-wrap gap-1.5 animate-in fade-in duration-200 shrink-0">
+        <div className="w-full flex items-center justify-between pb-1">
+          <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+            ✨ {language === "mr" ? "त्वरित निवडा: पर्याय निवडा" : language === "hi" ? "त्वरित चयन: विकल्प चुनें" : "Quick Select: Tap an option to choose"}
+          </span>
+          <button
+            type="button"
+            onClick={() => setBookingChips([])}
+            className="text-[9px] text-slate-400 hover:text-slate-600 bg-transparent border-0 cursor-pointer"
+          >
+            {language === "mr" ? "बंद करा" : language === "hi" ? "हटाएं" : "Dismiss"}
+          </button>
+        </div>
+        {bookingChips.map((chip, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => sendMessage(chip.text)}
+            disabled={loading}
+            className={`text-[10px] font-bold py-1 px-2.5 rounded-lg border transition-all cursor-pointer shadow-2xs ${
+              chip.category === "Confirm"
+                ? "bg-green-600 hover:bg-green-700 text-white border-green-600 font-black shadow-xs"
+                : chip.category === "Date"
+                ? "bg-white hover:bg-blue-100 text-blue-800 border-blue-200"
+                : chip.category === "Slot"
+                ? "bg-white hover:bg-amber-100 text-amber-800 border-amber-200"
+                : chip.category === "Facility"
+                ? "bg-white hover:bg-purple-100 text-purple-800 border-purple-200"
+                : chip.category === "Symptom"
+                ? "bg-white hover:bg-rose-100 text-rose-800 border-rose-200"
+                : "bg-white hover:bg-slate-100 text-slate-700 border-slate-200"
+            }`}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   if (inline) {
     return (
       <div className="w-full h-full flex flex-col overflow-hidden bg-white">
@@ -363,6 +453,9 @@ export default function AIAgentChatbot({ inline = false, userName }: AIAgentChat
           )}
           <div ref={chatEndRef} />
         </div>
+
+        {/* Interactive Option Chips (Inline) */}
+        {renderBookingChips()}
 
         {/* Quick Prompts Bar */}
         <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-none shrink-0">
@@ -553,39 +646,7 @@ export default function AIAgentChatbot({ inline = false, userName }: AIAgentChat
           </div>
 
           {/* Interactive Booking Option Chips */}
-          {bookingChips.length > 0 && (
-            <div className="px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 flex flex-wrap gap-1.5 animate-in fade-in duration-200">
-              <div className="w-full flex items-center justify-between pb-1">
-                <span className="text-[10px] font-bold text-primary flex items-center gap-1">
-                  ✨ Quick Select: Tap an option to choose
-                </span>
-                <button
-                  onClick={() => setBookingChips([])}
-                  className="text-[9px] text-slate-400 hover:text-slate-600 bg-transparent border-0 cursor-pointer"
-                >
-                  Dismiss
-                </button>
-              </div>
-              {bookingChips.map((chip, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => sendMessage(chip.text)}
-                  disabled={loading}
-                  className={`text-[10px] font-bold py-1 px-2.5 rounded-lg border transition-all cursor-pointer shadow-2xs ${
-                    chip.category === "Confirm"
-                      ? "bg-green-600 hover:bg-green-700 text-white border-green-600 font-black"
-                      : chip.category === "Date"
-                      ? "bg-white hover:bg-blue-100 text-blue-800 border-blue-200"
-                      : chip.category === "Slot"
-                      ? "bg-white hover:bg-amber-100 text-amber-800 border-amber-200"
-                      : "bg-white hover:bg-slate-100 text-slate-700 border-slate-200"
-                  }`}
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-          )}
+          {renderBookingChips()}
 
           {/* Quick Prompts Bar */}
           <div className="px-4 py-2 bg-slate-50 border-t border-border-brand flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
