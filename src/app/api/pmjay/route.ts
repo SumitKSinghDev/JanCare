@@ -34,25 +34,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Patient not found" }, { status: 404 });
     }
 
-    if (!patient.pmjayWallet || !patient.pmjayWallet.totalAnnualCoverage) {
+    if (!patient.pmjayWallet || typeof patient.pmjayWallet.availableBalance !== "number") {
       patient.pmjayWallet = {
         isEligible: true,
         schemeName: "Ayushman Bharat PM-JAY / MJPJAY",
         totalAnnualCoverage: 500000,
-        usedAmount: 175000,
-        availableBalance: 325000,
-        claimsHistory: [
-          {
-            claimId: "PMJAY-CLM-8841",
-            hospitalName: "Sahyadri Super-Specialty Hospital (Private Empanelled)",
-            hospitalType: "Private (Empanelled)",
-            procedureName: "Cervical Spine Decompression and Nerve Release",
-            packageCode: "NEURO-SP-04",
-            amountDeducted: 175000,
-            approvalStatus: "Approved & Settled Cashless",
-            date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14),
-          }
-        ]
+        usedAmount: 0,
+        availableBalance: 500000,
+        claimsHistory: []
       };
       await patient.save();
     }
@@ -96,6 +85,23 @@ export async function POST(request: Request) {
 
     if (!patient) {
       return NextResponse.json({ success: false, error: "Patient record not found" }, { status: 404 });
+    }
+
+    if (body.action === "RESET") {
+      patient.pmjayWallet = {
+        isEligible: true,
+        schemeName: "Ayushman Bharat PM-JAY / MJPJAY",
+        totalAnnualCoverage: 500000,
+        usedAmount: 0,
+        availableBalance: 500000,
+        claimsHistory: [],
+      };
+      await patient.save();
+      return NextResponse.json({
+        success: true,
+        message: "Wallet successfully reset to fresh ₹5,00,000 balance with 0 deductions.",
+        wallet: patient.pmjayWallet,
+      });
     }
 
     const deductAmount = Number(amount) || 45000;

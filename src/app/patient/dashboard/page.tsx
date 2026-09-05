@@ -105,20 +105,9 @@ export default function PatientDashboard() {
     isEligible: true,
     schemeName: "Ayushman Bharat PM-JAY / MJPJAY",
     totalAnnualCoverage: 500000,
-    usedAmount: 175000,
-    availableBalance: 325000,
-    claimsHistory: [
-      {
-        claimId: "PMJAY-CLM-8841",
-        hospitalName: "Sahyadri Super-Specialty Hospital (Private Empanelled)",
-        hospitalType: "Private (Empanelled)",
-        procedureName: "Cervical Spine Decompression & Nerve Release",
-        packageCode: "NEURO-SP-04",
-        amountDeducted: 175000,
-        approvalStatus: "Approved & Settled Cashless",
-        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14)
-      }
-    ]
+    usedAmount: 0,
+    availableBalance: 500000,
+    claimsHistory: []
   });
   const [preAuthLoading, setPreAuthLoading] = useState(false);
   const [preAuthSuccessMsg, setPreAuthSuccessMsg] = useState("");
@@ -127,6 +116,29 @@ export default function PatientDashboard() {
   const [selectedHospitalDemo, setSelectedHospitalDemo] = useState("Sahyadri Super-Specialty Hospital (Private Empanelled)");
   const [selectedHospitalType, setSelectedHospitalType] = useState<"Public (Government)" | "Private (Empanelled)">("Private (Empanelled)");
   const [customSurgeryCost, setCustomSurgeryCost] = useState(175000);
+
+  async function handleResetWallet() {
+    try {
+      setPreAuthLoading(true);
+      const res = await fetch("/api/pmjay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "RESET",
+          patientRefId: user?.patientRefId || "JC-7F3K92",
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.wallet) {
+        setPmjayWallet(data.wallet);
+        setPreAuthSuccessMsg("🔄 ABHA PM-JAY Card reset to fresh ₹5,00,000 balance with 0 claims.");
+      }
+    } catch (e: any) {
+      console.warn("Reset error:", e);
+    } finally {
+      setPreAuthLoading(false);
+    }
+  }
 
   async function handleSimulatePreAuth(e?: React.FormEvent) {
     if (e) e.preventDefault();
