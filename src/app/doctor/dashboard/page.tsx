@@ -434,6 +434,51 @@ export default function DoctorDashboard() {
             </div>
           </div>
 
+          {/* 🚨 Priority Emergency Patient Alert for Doctor */}
+          {(urgentCount > 0 || consultations.some(c => c.healthRecordId?.triage?.level === "Urgent" || c.healthRecordId?.triage?.level === "Emergency")) && (
+            <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-lg border border-red-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-200">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="bg-white/20 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1.5 animate-pulse">
+                    🚨 {language === "mr" ? "तातडीचा रुग्ण कॉल प्रतीक्षेत" : language === "hi" ? "आपातकालीन मरीज कॉल प्रतीक्षारत" : "Critical Emergency Patient Queued"}
+                  </span>
+                  <span className="text-[10px] text-red-100 hidden sm:inline">• High Priority Casualty Desk</span>
+                </div>
+                <h3 className="text-sm font-extrabold text-white">
+                  {language === "mr" 
+                    ? `तातडीचे रुग्ण: ${urgentCount} रुग्ण तात्काळ वैद्यकीय मदतीची वाट पाहत आहेत.` 
+                    : language === "hi" 
+                    ? `आपातकालीन मरीज: ${urgentCount} मरीज तत्काल चिकित्सा सहायता की प्रतीक्षा कर रहे हैं।` 
+                    : `Emergency Alert: ${urgentCount} Urgent Patient(s) awaiting immediate clinical examination.`}
+                </h3>
+                <p className="text-[11px] text-red-100">
+                  {language === "mr"
+                    ? "ASHA किंवा AI ट्रायजद्वारे हायपरटेन्सिव्ह किंवा तीव्र लक्षणे नोंदवली गेली आहेत."
+                    : language === "hi"
+                    ? "ASHA या AI ट्रायज द्वारा तीव्र लक्षण दर्ज किए गए हैं।"
+                    : "Intake vitals indicate acute clinical risk (Hypertensive urgency / chest pain / respiratory distress)."}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                <button
+                  onClick={() => {
+                    const firstUrgent = sortedConsultations.find(c => c.healthRecordId?.triage?.level === "Urgent" || c.healthRecordId?.triage?.level === "Emergency") || sortedConsultations[0];
+                    if (firstUrgent) {
+                      router.push(`/doctor/consultation/${firstUrgent._id}`);
+                    } else {
+                      router.push("/doctor/consultation/live");
+                    }
+                  }}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-md cursor-pointer border-0 transition-all w-full sm:w-auto animate-pulse"
+                >
+                  <Video size={16} />
+                  {language === "mr" ? "तातडीची सल्लामसलत सुरू करा" : language === "hi" ? "आपातकालीन परामर्श शुरू करें" : "Attend Emergency Call Now"}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Today's Metrics widgets */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
             <div className="bg-white p-3.5 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between h-22 sm:h-24">

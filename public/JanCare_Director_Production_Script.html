@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JanCare - SIH 2026 Grand Finale Master Director Script & AI Prompt Kit | Team CODE4CARE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --social: #16a34a;
+    --economic: #d97706;
+    --edu: #9333ea;
+    --tech: #ea580c;
+    --env: #059669;
+    --dark: #0f172a;
+    --light-bg: #f8fafc;
+    --border: #e2e8f0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f1f5f9;
+    color: #1e293b;
+    line-height: 1.6;
+    padding: 30px;
+  }
+
+  .container {
+    max-width: 1050px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 50px 65px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.06), 0 8px 12px -6px rgba(0, 0, 0, 0.02);
+  }
+
+  .header-banner {
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 25px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .team-badge {
+    display: inline-block;
+    background: #f1f5f9;
+    border: 2px solid #64748b;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 4px 14px;
+    border-radius: 50px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .title {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--dark);
+    letter-spacing: -0.8px;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .sih-badge {
+    background: linear-gradient(135deg, #ea580c, #0284c7);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    text-align: right;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    background: var(--light-bg);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border);
+  }
+
+  .meta-label {
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .meta-value {
+    color: var(--dark);
+    font-weight: 800;
+    font-size: 15px;
+  }
+
+  /* 5 Pillars Bar */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 35px;
+  }
+
+  .pillar-card {
+    padding: 12px 10px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .pillar-card strong { display: block; font-size: 13px; margin-top: 4px; }
+  .pillar-card span { font-size: 11px; color: #64748b; }
+
+  .p-social { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+  .p-econ { background: #fefce8; border-color: #fef08a; color: #854d0e; }
+  .p-edu { background: #faf5ff; border-color: #e9d5ff; color: #6b21a8; }
+  .p-tech { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+  .p-env { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+
+  .act-header {
+    margin-top: 40px;
+    margin-bottom: 18px;
+    padding: 14px 20px;
+    background: #0f172a;
+    color: #ffffff;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .act-title {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+  }
+
+  .act-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: #1e293b;
+    padding: 4px 12px;
+    border-radius: 6px;
+    color: #38bdf8;
+    font-weight: 700;
+    border: 1px solid #334155;
+  }
+
+  table.script-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 13.5px;
+  }
+
+  table.script-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 800;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  table.script-table td {
+    padding: 14px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .col-time {
+    width: 13%;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: #0369a1;
+  }
+
+  .col-visual { width: 37%; }
+  .col-audio { width: 50%; background: #fcfeff; }
+
+  .voice-quote {
+    font-style: italic;
+    color: #0f172a;
+    line-height: 1.6;
+    position: relative;
+    padding-left: 12px;
+    border-left: 3px solid #38bdf8;
+    font-weight: 500;
+  }
+
+  .direction-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+
+  .dir-camera { background: #e0f2fe; color: #0369a1; }
+  .dir-action { background: #dcfce7; color: #15803d; }
+  .dir-zoom { background: #fef3c7; color: #b45309; }
+  .dir-sound { background: #f3e8ff; color: #7e22ce; }
+  .dir-impact { background: #ffe4e6; color: #be123c; }
+
+  /* AI Prompts Box Styling */
+  .ai-prompt-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: 4px solid #6366f1;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 30px;
+    font-size: 12.5px;
+  }
+
+  .ai-prompt-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    color: #4338ca;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .prompt-row {
+    margin-bottom: 8px;
+  }
+
+  .prompt-label {
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 2px;
+  }
+
+  .prompt-code {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .impact-callout {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 30px 0;
+  }
+
+  .audience-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .audience-item {
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .audience-item strong { color: var(--primary-dark); }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 45px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 14px;
+    border: none;
+    box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .print-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(2, 132, 199, 0.45);
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+    .print-btn { display: none; }
+    .act-header { break-after: avoid; }
+    table.script-table { break-inside: avoid; }
+    .ai-prompt-box { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  
+  <div class="header-banner">
+    <div>
+      <div class="team-badge">TEAM CODE4CARE</div>
+      <h1 class="title">JanCare: Master Video Production Blueprint</h1>
+      <div class="subtitle">Smart India Hackathon 2026 Grand Finale • 5-Minute Gold Standard Pitch & AI Prompt Kit</div>
+    </div>
+    <div class="sih-badge">
+      <div>SMART INDIA HACKATHON</div>
+      <div style="font-size: 18px; font-weight: 900;">2026</div>
+    </div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-item">
+      <div class="meta-label">Total Duration</div>
+      <div class="meta-value">04:55 Minutes</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Target Audience</div>
+      <div class="meta-value">4 Core Stakeholders</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Impact Spectrum</div>
+      <div class="meta-value">5 Verified Pillars</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Core Tech</div>
+      <div class="meta-value">IndexedDB • WebRTC • ABDM</div>
+    </div>
+  </div>
+
+  <!-- 5 PILLARS BAR -->
+  <div class="pillars-grid">
+    <div class="pillar-card p-social">
+      <strong>🟢 Social Impact</strong>
+      <span>Access, ASHA Follow-up</span>
+    </div>
+    <div class="pillar-card p-econ">
+      <strong>💰 Economic Impact</strong>
+      <span>₹18.5k Family Savings</span>
+    </div>
+    <div class="pillar-card p-edu">
+      <strong>📚 Awareness Impact</strong>
+      <span>Multilingual Health Literacy</span>
+    </div>
+    <div class="pillar-card p-tech">
+      <strong>💻 Tech Impact</strong>
+      <span>Offline PWA + ABHA CDSS</span>
+    </div>
+    <div class="pillar-card p-env">
+      <strong>🌱 Environmental</strong>
+      <span>Paperless & Zero Travel CO₂</span>
+    </div>
+  </div>
+
+  <!-- PROLOGUE -->
+  <div class="act-header">
+    <div class="act-title">PROLOGUE: The Rural Crisis & The Broken Lifeline</div>
+    <div class="act-time">00:00 - 00:40 (40s)</div>
+  </div>
+
+  <table class="script-table">
+    <thead>
+      <tr>
+        <th class="col-time">Time</th>
+        <th class="col-visual">Visual & Screen Choreography</th>
+        <th class="col-audio">Voiceover & Audio Design</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-time">0:00 - 0:15</td>
+        <td>
+          <span class="direction-tag dir-camera">CINEMATIC MONTAGE</span><br/>
+          Dark gradient backdrop. Fast data-card reveals: <em>"70% Population Rural vs. 20% Specialists"</em>. Visual zooms into a rural tribal pocket (Igatpuri/Sinnar) and a smartphone showing <strong>"No Service / Emergency Only"</strong>.
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-sound">SFX: Low Rhythmic Bass Tension Pulse</span>
+          <div class="voice-quote">
+            "Across rural India, 800 million citizens rely on healthcare that is fundamentally fragmented. When a critical symptom strikes in a remote tribal hamlet, the lifeline is broken before it even begins."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">0:15 - 0:28</td>
+        <td>
+          <span class="direction-tag dir-zoom">SPLIT SCREEN GRAPHIC</span><br/>
+          Left: Rural patient with a paper prescription.<br/>
+          Right: Private pharmacy bill reading <strong>₹65,000 (Catastrophic Medical Debt)</strong>.
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "Zero network connectivity stops vital intake. Misdiagnosis delays life-saving interventions. And commercial branded medicines push families into crushing generational debt."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">0:28 - 0:40</td>
+        <td>
+          <span class="direction-tag dir-action">TEAM CODE4CARE LOGO REVEAL</span><br/>
+          Screen clears. <strong>CODE4CARE presents JanCare</strong> in tricolor accents with tagline: <em>"India’s Offline-First, AI-Triaged Digital Healthcare Stack"</em>.
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-sound">SFX: Uplifting Technology Cymbal Swell</span>
+          <div class="voice-quote">
+            "We are Team CODE4CARE, and we built JanCare: India’s first offline-first, WHO-protocol governed digital healthcare ecosystem uniting frontline ASHA workers, specialist doctors, Ayushman Bharat PM-JAY, and Jan Aushadhi Kendras into one unbroken continuum."
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AI PROMPTS FOR PROLOGUE -->
+  <div class="ai-prompt-box">
+    <div class="ai-prompt-title">🤖 AI Generation Prompts for Scene 1 (Prologue)</div>
+    <div class="prompt-row">
+      <div class="prompt-label">🎥 Video Prompt (Runway Gen-3 / Luma / Kling):</div>
+      <div class="prompt-code">Cinematic slow-motion aerial drone shot sweeping over a remote hilly rural Indian village in Maharashtra (Igatpuri). Mist rising over rustic mud homes and lush Western Ghats hills. The camera smoothly descends to follow a female rural health worker in a teal cotton saree walking along a dusty village trail holding a tablet. 35mm lens, golden hour lighting, National Geographic documentary style, photorealistic, 4k 60fps.</div>
+    </div>
+    <div class="prompt-row">
+      <div class="prompt-label">🖼️ Image Overlay Prompt (Midjourney v6 / DALL-E 3):</div>
+      <div class="prompt-code">High-contrast emotional conceptual split-screen image. Left side: An elderly rural Indian farmer holding an empty paper prescription looking worried inside a rustic home. Right side: A digital hologram of a hospital bill of 65,000 rupees with a red badge 'Catastrophic Medical Debt'. Photorealistic, 8k, cinematic dramatic lighting, teal and warm amber color grading. --ar 16:9</div>
+    </div>
+  </div>
+
+  <!-- ACT I -->
+  <div class="act-header">
+    <div class="act-title">ACT I: The Architectural Blueprint & The 5 Pillars</div>
+    <div class="act-time">00:40 - 01:20 (40s)</div>
+  </div>
+
+  <table class="script-table">
+    <thead>
+      <tr>
+        <th class="col-time">Time</th>
+        <th class="col-visual">Visual & Screen Choreography</th>
+        <th class="col-audio">Voiceover & Audio Design</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-time">0:40 - 01:00</td>
+        <td>
+          <span class="direction-tag dir-camera">INFOGRAPHIC DIAGRAM</span><br/>
+          Full display of the 5-Stage Healthcare Journey Infographic. Animated highlight pulses sequentially through: <em>1. Offline ASHA &nbsp; 2. Multilingual AI &nbsp; 3. Teleconsult &nbsp; 4. PM-JAY Cashless &nbsp; 5. Jan Aushadhi</em>.
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "Unlike conventional tele-health apps that crash without 5G, JanCare operates with zero dropouts in extreme connectivity constraints while adhering 100% to India's Ayushman Bharat Digital Mission (ABDM) standards."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">01:00 - 01:20</td>
+        <td>
+          <span class="direction-tag dir-action">ROLE DASHBOARD GRID</span><br/>
+          Quick transition showcasing the 4 target stakeholder dashboards (Rural Patients, ASHA Health Workers, Specialist Doctors, District Health Authorities).
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "Let us step into a real clinical case: Patient Ramesh Patil, a 46-year-old farmer in a zero-connectivity tribal village, experiencing sudden acute chest discomfort."
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AI PROMPTS FOR ACT I -->
+  <div class="ai-prompt-box">
+    <div class="ai-prompt-title">🤖 AI Generation Prompts for Scene 2 (Act I)</div>
+    <div class="prompt-row">
+      <div class="prompt-label">🎥 Video Prompt (Runway Gen-3 / Sora):</div>
+      <div class="prompt-code">Futuristic 3D holographic digital ecosystem map of India glowing in tricolor accents (emerald green, clean cyan, and warm saffron). 5 glowing nodes light up interconnected by flowing data packets across rural regions: ASHA intake, Multilingual AI, Specialist Doctor video, PM-JAY Cashless Wallet, and Jan Aushadhi generic delivery. Smooth rotating 3D isometric camera perspective, clean high-tech medical UI, 4k.</div>
+    </div>
+  </div>
+
+  <!-- ACT II -->
+  <div class="act-header">
+    <div class="act-title">ACT II: Frontline ASHA Offline Engine & Zero-Drop Sync</div>
+    <div class="act-time">01:20 - 02:05 (45s)</div>
+  </div>
+
+  <table class="script-table">
+    <thead>
+      <tr>
+        <th class="col-time">Time</th>
+        <th class="col-visual">Visual & Screen Choreography (/asha/dashboard)</th>
+        <th class="col-audio">Voiceover & Audio Design</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-time">01:20 - 01:35</td>
+        <td>
+          <span class="direction-tag dir-zoom">ZOOM ON NETWORK TOGGLE</span><br/>
+          1. Open ASHA Dashboard.<br/>
+          2. Toggle <strong>"Simulate Offline Mode"</strong> switch.<br/>
+          3. Top banner turns: <strong style="color:#dc2626;">"🔴 Offline Mode (IndexedDB Active)"</strong>.
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "ASHA worker Sunita visits Ramesh's home in a tribal hamlet with zero cellular network. She activates JanCare's Offline Mode. The entire application runs client-side with zero dependency on active servers."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">01:35 - 01:50</td>
+        <td>
+          <span class="direction-tag dir-action">LIVE VITAL INTAKE</span><br/>
+          1. Sunita registers Ramesh Patil (Age 46, Nashik/Sinnar).<br/>
+          2. Records vitals: <strong>BP 148/92 mmHg, SpO2 94%, Severe Chest Discomfort</strong>.<br/>
+          3. Clicks <strong>"Save to Local Offline Cache"</strong>.<br/>
+          4. Offline Queue Badge ticks to <strong>[ 1 Pending Record ]</strong>.
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "She records Ramesh's blood pressure, oxygen saturation, and clinical symptoms. JanCare encrypts and stores the telemetry inside browser IndexedDB, instantly queuing it for background synchronization."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">01:50 - 02:05</td>
+        <td>
+          <span class="direction-tag dir-action">1-CLICK CLOUD SYNC</span><br/>
+          1. Network toggle returns to <strong>"🟢 Online"</strong>.<br/>
+          2. Click <strong>"Sync to Central Cloud"</strong>.<br/>
+          3. Green toast: <em>"Patient Ramesh Patil synced with District Health Registry"</em>.
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-sound">SFX: Clean Success Ping</span>
+          <div class="voice-quote">
+            "The moment connectivity is detected, JanCare’s synchronization engine flushes the queue to the central health registry without duplicate records or packet drops."
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AI PROMPTS FOR ACT II -->
+  <div class="ai-prompt-box">
+    <div class="ai-prompt-title">🤖 AI Generation Prompts for Scene 3 (Act II)</div>
+    <div class="prompt-row">
+      <div class="prompt-label">🎥 Video Prompt (Runway Gen-3 / Luma / Kling):</div>
+      <div class="prompt-code">Close-up cinematic over-the-shoulder shot of a confident Indian ASHA worker inside a rural village home. She taps on an 8-inch Android tablet running a healthcare app with a visible red 'Offline Mode (IndexedDB Active)' badge on screen. She measures blood pressure of a 46-year-old male villager with a digital cuff. Soft natural light through the window, authentic Indian rural setting, photorealistic, 4k.</div>
+    </div>
+  </div>
+
+  <!-- ACT III -->
+  <div class="act-header">
+    <div class="act-title">ACT III: Multilingual AI Voice Triage & WHO Guidelines</div>
+    <div class="act-time">02:05 - 02:50 (45s)</div>
+  </div>
+
+  <table class="script-table">
+    <thead>
+      <tr>
+        <th class="col-time">Time</th>
+        <th class="col-visual">Visual & Screen Choreography (/patient/dashboard)</th>
+        <th class="col-audio">Voiceover & Audio Design</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-time">02:05 - 02:25</td>
+        <td>
+          <span class="direction-tag dir-action">VERNACULAR SPEECH INTAKE</span><br/>
+          1. Switch portal language to <strong>मराठी (Marathi)</strong>.<br/>
+          2. Click the floating microphone.<br/>
+          3. Play audio: <em>"माझ्या छातीत खूप दुखत आहे आणि डाव्या हाताला मुंग्या येत आहेत"</em>.<br/>
+          4. Live audio waveform transcribes Marathi text in real time.
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-impact">EDUCATIONAL & AWARENESS IMPACT</span>
+          <div class="voice-quote">
+            "For rural citizens who cannot type, JanCare provides voice-first intake in native vernacular languages including Marathi, Hindi, and Odia, boosting community health literacy. Ramesh simply speaks his symptoms into his phone."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">02:25 - 02:50</td>
+        <td>
+          <span class="direction-tag dir-zoom">ZOOM ON CLINICAL RULE TAG</span><br/>
+          Triage Result Card appears:
+          • Urgency: <strong>High Priority / Emergency</strong><br/>
+          • Mapped Specialist: <strong>Cardiology (Dr. Smita Rao)</strong><br/>
+          • Protocol Badge: <strong>WHO/IMHA Standard Protocol #C-104</strong>
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "Crucially, our AI does not guess or hallucinate. Every triage decision is strictly bounded by WHO and Indian Medical Association Standard Treatment Guidelines. Rule C-104 identifies acute cardiac risk, bypasses general OPD queues, and books an emergency teleconsultation with Senior Cardiologist Dr. Smita Rao."
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AI PROMPTS FOR ACT III -->
+  <div class="ai-prompt-box">
+    <div class="ai-prompt-title">🤖 AI Generation Prompts for Scene 4 (Act III)</div>
+    <div class="prompt-row">
+      <div class="prompt-label">🎥 Video Prompt (Runway Gen-3 / Luma):</div>
+      <div class="prompt-code">Cinematic close-up shot of a smartphone in a villager's hand. A glowing animated audio soundwave pulses across the screen with Marathi regional text transcription appearing in real-time. The UI smoothly transitions to a medical triage card with a glowing shield badge reading 'WHO / IMHA Protocol #C-104 - High Cardiac Risk'. High-tech UI elements composited on photorealistic hands, 4k.</div>
+    </div>
+  </div>
+
+  <!-- ACT IV -->
+  <div class="act-header">
+    <div class="act-title">ACT IV: Doctor Teleconsultation Desk & Real-Time CDSS</div>
+    <div class="act-time">02:50 - 03:40 (50s)</div>
+  </div>
+
+  <table class="script-table">
+    <thead>
+      <tr>
+        <th class="col-time">Time</th>
+        <th class="col-visual">Visual & Screen Choreography (/doctor/consultation/...)</th>
+        <th class="col-audio">Voiceover & Audio Design</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-time">02:50 - 03:15</td>
+        <td>
+          <span class="direction-tag dir-action">WEBRTC VIDEO + CDSS ALERTS</span><br/>
+          1. Dr. Smita Rao joins the teleconsultation room.<br/>
+          2. Patient baseline vitals from ASHA intake load automatically on side-panel.<br/>
+          3. Amber <strong>CDSS Banner</strong> warns: <em>"Hypertensive Urgency (BP 148/92, SpO2 94%)"</em>.
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-impact">TECHNOLOGICAL IMPACT</span>
+          <div class="voice-quote">
+            "Dr. Smita Rao joins the teleconsultation via secure WebRTC video. The doctor doesn't just see a face; JanCare's Clinical Decision Support System provides the entire longitudinal history—flagging the hypertensive urgency recorded hours earlier by the ASHA worker."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">03:15 - 03:40</td>
+        <td>
+          <span class="direction-tag dir-action">ELECTRONIC RX SIGNING</span><br/>
+          1. Doctor prescribes: <em>Tab. Telmisartan 40mg + Tab. Atorvastatin 20mg</em>.<br/>
+          2. Selects diagnostic procedure: <em>Coronary Angiography</em>.<br/>
+          3. Clicks <strong>"Sign & Issue ABHA-Compliant Digital Rx"</strong>.
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-impact">ENVIRONMENTAL IMPACT</span>
+          <div class="voice-quote">
+            "Dr. Rao prescribes evidence-based generic medications and electronically signs an ABHA-compliant 100% paperless digital prescription that immediately reflects in Ramesh's patient vault."
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AI PROMPTS FOR ACT IV -->
+  <div class="ai-prompt-box">
+    <div class="ai-prompt-title">🤖 AI Generation Prompts for Scene 5 (Act IV)</div>
+    <div class="prompt-row">
+      <div class="prompt-label">🎥 Video Prompt (Runway Gen-3 / Kling):</div>
+      <div class="prompt-code">Professional female Indian specialist doctor wearing a white coat and stethoscope sitting in a modern hospital teleconsultation workstation. She speaks into a high-definition video call on her dual-monitor setup. On the side monitor, real-time ASHA baseline vitals appear with an amber alert box flashing 'CDSS Alert: Hypertensive Urgency'. Clean hospital environment, soft fluorescent lighting, sharp focus, 4k 60fps.</div>
+    </div>
+  </div>
+
+  <!-- ACT V -->
+  <div class="act-header">
+    <div class="act-title">ACT V: The Cashless Revolution — PM-JAY ₹5L Wallet Pre-Auth</div>
+    <div class="act-time">03:40 - 04:15 (35s)</div>
+  </div>
+
+  <table class="script-table">
+    <thead>
+      <tr>
+        <th class="col-time">Time</th>
+        <th class="col-visual">Visual & Screen Choreography</th>
+        <th class="col-audio">Voiceover & Audio Design</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-time">03:40 - 03:58</td>
+        <td>
+          <span class="direction-tag dir-action">INSTANT SURGERY PRE-AUTH</span><br/>
+          1. In Doctor Desk, open <strong>"PM-JAY Surgery Pre-Auth"</strong> drawer.<br/>
+          2. Select: <strong>Coronary Angiography (CR-402, ₹42,000)</strong>.<br/>
+          3. Click <strong>"Submit Pre-Authorization"</strong>.<br/>
+          4. Green badge appears: <em>"Pre-Auth Approved by NHA Gateway"</em>.
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "Recognizing the cardiac risk, Dr. Rao initiates instant Ayushman Bharat PM-JAY pre-authorization for a coronary angiography directly from her desk. Within seconds, the pre-auth request is verified against national package CR-402."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">03:58 - 04:15</td>
+        <td>
+          <span class="direction-tag dir-zoom">ZOOM ON PATIENT'S PM-JAY CARD</span><br/>
+          Cut to Patient Dashboard (`/patient/dashboard`):<br/>
+          • Total: <strong>₹5,00,000</strong> $\rightarrow$ Balance: <strong style="color:#16a34a;">₹4,58,000</strong> (Live ₹42,000 deduction).<br/>
+          • Passbook shows transparent transaction hash.
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-impact">ECONOMIC IMPACT</span>
+          <div class="voice-quote">
+            "On Ramesh’s dashboard, his ₹5,00,000 cashless wallet balance updates in real-time. The patient walks into the district empanelled hospital with pre-approved cashless coverage—eliminating predatory middlemen and financial panic."
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AI PROMPTS FOR ACT V -->
+  <div class="ai-prompt-box">
+    <div class="ai-prompt-title">🤖 AI Generation Prompts for Scene 6 (Act V)</div>
+    <div class="prompt-row">
+      <div class="prompt-label">🎥 Video Prompt (Runway Gen-3 / Luma / Kling):</div>
+      <div class="prompt-code">Dynamic 3D motion graphic of the golden Ayushman Bharat ABHA PM-JAY Cashless Surgery card. A digital doctor pre-authorization stamp verifies on screen. The balance counter dynamically counts down from Rs. 5,00,000 to Rs. 4,58,000 with a green checkmark indicating 'Rs. 42,000 Pre-Auth Approved (Coronary Angiography)'. Clean financial technology animation, high-end motion graphics, 4k 60fps.</div>
+    </div>
+  </div>
+
+  <!-- ACT VI -->
+  <div class="act-header">
+    <div class="act-title">ACT VI: Closed-Loop Jan Aushadhi Dispensation & District Radar</div>
+    <div class="act-time">04:15 - 04:40 (25s)</div>
+  </div>
+
+  <table class="script-table">
+    <thead>
+      <tr>
+        <th class="col-time">Time</th>
+        <th class="col-visual">Visual & Screen Choreography</th>
+        <th class="col-audio">Voiceover & Audio Design</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-time">04:15 - 04:28</td>
+        <td>
+          <span class="direction-tag dir-action">JAN AUSHADHI RESERVATION</span><br/>
+          1. In Patient Prescriptions, click <strong>"Reserve at Jan Aushadhi (90% Savings)"</strong>.<br/>
+          2. Generates token <strong>`JC-MED-8492`</strong>.<br/>
+          3. Switch to Pharmacist Desk (`/pharmacist/dashboard`) $\rightarrow$ verify token $\rightarrow$ click <strong>"Dispense"</strong> (Stock auto-decrements).
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "For post-consultation medications, Ramesh reserves generic drugs at the nearest Jan Aushadhi Kendra with one click. Pharmacist verifies token JC-MED-8492, dispenses the generic medicines, and reduces the patient's out-of-pocket drug cost by 90%."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">04:28 - 04:40</td>
+        <td>
+          <span class="direction-tag dir-camera">DISTRICT EPI-RADAR</span><br/>
+          Switch to District Admin (`/admin/dashboard`):<br/>
+          Show Maharashtra Outbreak Heatmap. Click <strong>"Trigger Automated ICMR Containment Alert"</strong> (dispatches SMS to 42 ASHA workers).
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-impact">SOCIAL & HEALTH GOVERNANCE</span>
+          <div class="voice-quote">
+            "Simultaneously, every vital recorded across hamlets feeds into our District Epidemiological Radar, enabling health authorities to detect emerging viral clusters 14 days early and automatically trigger containment protocols."
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AI PROMPTS FOR ACT VI -->
+  <div class="ai-prompt-box">
+    <div class="ai-prompt-title">🤖 AI Generation Prompts for Scene 7 (Act VI)</div>
+    <div class="prompt-row">
+      <div class="prompt-label">🎥 Video Prompt (Runway Gen-3 / Kling):</div>
+      <div class="prompt-code">1. Split clip: A smiling rural Indian woman receiving a sealed generic medicine package at a clean, well-lit 'Pradhan Mantri Jan Aushadhi Kendra' counter with a verified digital token displayed on a POS screen. 2. Transition into a wide shot of a government District Health Administration command centre with a huge wall display showing a live heat-map radar of Maharashtra districts with automated ICMR outbreak alerts pulsing in real-time.</div>
+    </div>
+  </div>
+
+  <!-- EPILOGUE -->
+  <div class="act-header">
+    <div class="act-title">EPILOGUE: Verified 5-Pillar Impact & The Winning Pitch</div>
+    <div class="act-time">04:40 - 05:00 (20s)</div>
+  </div>
+
+  <table class="script-table">
+    <thead>
+      <tr>
+        <th class="col-time">Time</th>
+        <th class="col-visual">Visual & Screen Choreography</th>
+        <th class="col-audio">Voiceover & Audio Design</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-time">04:40 - 04:52</td>
+        <td>
+          <span class="direction-tag dir-camera">5 IMPACT PILLARS SLIDE</span><br/>
+          • <strong>Social:</strong> Seamless ASHA care & zero rural waiting time<br/>
+          • <strong>Economic:</strong> ₹18,500 annual family savings & 90% cheaper generic drugs<br/>
+          • <strong>Educational:</strong> Multilingual health awareness<br/>
+          • <strong>Technological:</strong> Offline PWA + ABHA interoperability<br/>
+          • <strong>Environmental:</strong> 100% paperless + zero unnecessary travel emissions
+        </td>
+        <td class="col-audio">
+          <span class="direction-tag dir-sound">SFX: Orchestral Grand Climax</span>
+          <div class="voice-quote">
+            "JanCare delivers verifiable social, economic, educational, technological, and environmental impact. We transform rural healthcare from broken fragments into an unbroken national continuum."
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="col-time">04:52 - 05:00</td>
+        <td>
+          <span class="direction-tag dir-camera">CODE4CARE CLOSING TITLE CARD</span><br/>
+          <strong>Team CODE4CARE • JanCare</strong><br/>
+          Smart India Hackathon 2026 • <em>github.com/SumitKSinghDev/JanCare</em>
+        </td>
+        <td class="col-audio">
+          <div class="voice-quote">
+            "From Team CODE4CARE — delivering specialist healthcare and financial dignity to the last citizen of Bharat. Thank you."
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- AI PROMPTS FOR EPILOGUE -->
+  <div class="ai-prompt-box">
+    <div class="ai-prompt-title">🤖 AI Generation Prompts for Scene 8 (Epilogue)</div>
+    <div class="prompt-row">
+      <div class="prompt-label">🎥 Video Prompt (Runway Gen-3 / Luma):</div>
+      <div class="prompt-code">Inspiring cinematic montage of transformed rural healthcare: A smiling ASHA worker holding her tablet, a relieved rural family outside a clean primary health centre, and a doctor smiling at her workstation. Camera cuts to a triumphant closing slide with the glowing logos of Team CODE4CARE, JanCare, and Smart India Hackathon 2026. Sunset golden glow, cinematic orchestral feel, 4k.</div>
+    </div>
+  </div>
+
+  <!-- TARGET AUDIENCES OVERVIEW -->
+  <div class="impact-callout">
+    <div style="font-weight: 800; font-size: 15px; color: #0f172a; margin-bottom: 6px;">
+      🎯 4 Target Stakeholder Audiences Addressed in Prototype:
+    </div>
+    <div class="audience-grid">
+      <div class="audience-item">
+        <strong>1. Rural Patients & Families:</strong>
+        <p>1-Click voice access, ₹5L cashless surgery wallet, and 90% generic medicine discounts.</p>
+      </div>
+      <div class="audience-item">
+        <strong>2. ASHA / ANM Health Workers:</strong>
+        <p>Offline-first PWA registration, doorstep vital telemetry, and automatic conflict-free cloud sync.</p>
+      </div>
+      <div class="audience-item">
+        <strong>3. Specialist Doctors & Public Facilities:</strong>
+        <p>WebRTC video desk, longitudinal baseline vitals, CDSS diagnostic alerts, and ABHA digital Rx.</p>
+      </div>
+      <div class="audience-item">
+        <strong>4. District Health Authorities:</strong>
+        <p>Live Epidemiological Radar, real-time outbreak heatmaps, and automated ICMR containment dispatch.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    JanCare Digital Public Health Stack • Developed by Team CODE4CARE for Smart India Hackathon (SIH) 2026
+  </div>
+
+</div>
+
+<button class="print-btn" onclick="window.print()">
+  🖨️ Print / Save as PDF
+</button>
+
+</body>
+</html>

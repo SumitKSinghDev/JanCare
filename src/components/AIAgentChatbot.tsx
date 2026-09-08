@@ -243,6 +243,8 @@ export default function AIAgentChatbot({ inline = false, userName }: AIAgentChat
         if (isEmergencyTrigger) {
           setEmergencyActive(true);
           if (typeof window !== "undefined") {
+            localStorage.setItem("jancare_emergency_active", "true");
+            localStorage.setItem("jancare_emergency_reason", text);
             window.dispatchEvent(new CustomEvent("jancare_urgent_emergency", { detail: { reason: text } }));
           }
         }

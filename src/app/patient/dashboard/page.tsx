@@ -97,6 +97,8 @@ export default function PatientDashboard() {
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [dashboardAmbulanceTriggered, setDashboardAmbulanceTriggered] = useState(false);
   const [emergencyDismissed, setEmergencyDismissed] = useState(false);
+  const [emergencyActiveFromAI, setEmergencyActiveFromAI] = useState(false);
+  const [emergencyReason, setEmergencyReason] = useState("");
   const [activeInstantRoom, setActiveInstantRoom] = useState<string | null>(null);
   const [instantCalling, setInstantCalling] = useState(false);
 
@@ -205,9 +207,12 @@ export default function PatientDashboard() {
 
   // Detect if patient has an active urgent emergency from clinical records or live trigger
   const hasUrgentCondition = !emergencyDismissed && (
+    emergencyActiveFromAI ||
     dashboardAmbulanceTriggered ||
-    appointments.some((a: any) => a.triagePriority === "Urgent") ||
-    referrals.some((r: any) => r.priority === "Urgent")
+    activeInstantRoom !== null ||
+    consultations.some((c: any) => c.status === "In Progress" || c.healthRecordId?.triage?.level === "Urgent" || c.healthRecordId?.triage?.level === "Emergency" || (c.symptoms && JSON.stringify(c.symptoms).includes("Emergency"))) ||
+    appointments.some((a: any) => a.triagePriority === "Urgent" || a.triagePriority === "Emergency" || a.status === "Urgent" || a.status === "Emergency") ||
+    referrals.some((r: any) => r.priority === "Urgent" || r.priority === "Emergency")
   );
 
   const [showAvailabilityCheck, setShowAvailabilityCheck] = useState(false);
@@ -305,10 +310,24 @@ export default function PatientDashboard() {
       }
     };
 
-    const handleUrgentEmergency = () => {
+    const handleUrgentEmergency = (e: any) => {
       setEmergencyDismissed(false);
+      setEmergencyActiveFromAI(true);
+      if (e?.detail?.reason) {
+        setEmergencyReason(e.detail.reason);
+      }
+      if (typeof window !== "undefined") {
+        localStorage.setItem("jancare_emergency_active", "true");
+      }
       fetchPatientData();
     };
+
+    if (typeof window !== "undefined") {
+      const savedEmergency = localStorage.getItem("jancare_emergency_active") === "true";
+      if (savedEmergency) {
+        setEmergencyActiveFromAI(true);
+      }
+    }
 
     window.addEventListener("jancare_appointment_booked", handleRefresh);
     window.addEventListener("jancare_switch_tab", handleSwitchTab);
@@ -1141,14 +1160,31 @@ export default function PatientDashboard() {
               </p>
             </div>
 
-            {activeConsultation?.status === "In Progress" && (
+            <div className="flex flex-wrap items-center gap-3 relative z-10 pt-2">
+              {activeConsultation?.status === "In Progress" && (
+                <button
+                  onClick={() => router.push(`/doctor/consultation/${activeConsultation._id}`)}
+                  className="bg-primary hover:bg-deep-blue text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-md transition-all border-0 w-full sm:w-auto justify-center"
+                >
+                  <Video size={16} /> {language === "mr" ? "सल्लामसलत कॉलमध्ये सामील व्हा" : language === "hi" ? "परामर्श कॉल में शामिल हों" : "Join Consultation Call"}
+                </button>
+              )}
+
               <button
-                onClick={() => router.push(`/doctor/consultation/${activeConsultation._id}`)}
-                className="bg-primary hover:bg-deep-blue text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-md transition-all border-0 w-full sm:w-auto justify-center"
+                onClick={() => {
+                  setEmergencyDismissed(false);
+                  setEmergencyActiveFromAI(true);
+                  setDashboardAmbulanceTriggered(true);
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("jancare_emergency_active", "true");
+                  }
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-md transition-all border-0 w-full sm:w-auto justify-center animate-pulse"
               >
-                <Video size={16} /> {language === "mr" ? "सल्लामसलत कॉलमध्ये सामील व्हा" : language === "hi" ? "परामर्श कॉल में शामिल हों" : "Join Consultation Call"}
+                <AlertOctagon size={16} className="text-amber-300" />
+                {language === "mr" ? "🚨 आपत्कालीन SOS / 108 कॉल" : language === "hi" ? "🚨 आपातकालीन SOS / 108 कॉल" : "🚨 Emergency SOS / 108 Alert"}
               </button>
-            )}
+            </div>
           </div>
 
           {/* 🚨 Emergency Fast-Track SOS Dock (Rendered Conditionally for Urgent Triage & Emergencies) */}
@@ -1160,13 +1196,15 @@ export default function PatientDashboard() {
                     <AlertOctagon size={12} className="animate-pulse text-amber-300" />
                     {language === "mr" ? "तातडीची वैद्यकीय आणीबाणी सक्रिय" : language === "hi" ? "आपातकालीन चिकित्सा सक्रिय" : "Urgent Clinical Escalation Active"}
                   </span>
-                  <span className="text-[10px] text-red-100 hidden sm:inline">• Sinnar CHC ICU</span>
+                  <span className="text-[10px] text-red-100 hidden sm:inline">• Sinnar CHC ICU & 108 Command Notified</span>
                 </div>
                 <h3 className="text-sm font-extrabold text-white">
                   {language === "mr" ? "आपल्या उपचारासाठी तातडीची सेवा सक्रिय आहे" : language === "hi" ? "आपकी देखभाल के लिए आपातकालीन सेवा सक्रिय है" : "Emergency Response Active for Your Care"}
                 </h3>
                 <p className="text-[11px] text-red-100">
-                  {language === "mr" ? "AI तपासणीनुसार तातडीच्या उपचारांची आवश्यकता ओळखली गेली आहे." : language === "hi" ? "AI जांच के अनुसार आपातकालीन देखभाल की आवश्यकता है।" : "AI triage or clinician flagged high-risk symptoms requiring prioritized emergency response."}
+                  {emergencyReason 
+                    ? `⚠️ ${emergencyReason}` 
+                    : (language === "mr" ? "AI तपासणीनुसार तातडीच्या उपचारांची आवश्यकता ओळखली गेली आहे." : language === "hi" ? "AI जांच के अनुसार आपातकालीन देखभाल की आवश्यकता है।" : "AI triage or clinician flagged high-risk symptoms requiring prioritized emergency response.")}
                 </p>
               </div>
 
@@ -1198,7 +1236,14 @@ export default function PatientDashboard() {
                 </button>
 
                 <button
-                  onClick={() => setEmergencyDismissed(true)}
+                  onClick={() => {
+                    setEmergencyDismissed(true);
+                    setEmergencyActiveFromAI(false);
+                    setDashboardAmbulanceTriggered(false);
+                    if (typeof window !== "undefined") {
+                      localStorage.removeItem("jancare_emergency_active");
+                    }
+                  }}
                   className="bg-red-800/80 hover:bg-red-800 text-white text-[11px] font-bold px-3 py-2.5 rounded-xl cursor-pointer border-0 transition-all"
                 >
                   {language === "mr" ? "बंद करा" : language === "hi" ? "खारिज करें" : "Dismiss"}
