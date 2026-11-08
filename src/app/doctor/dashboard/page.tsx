@@ -206,20 +206,13 @@ export default function DoctorDashboard() {
       } catch (e) {}
 
       if (!userData || !userData.success) {
-        const isOffline = typeof window !== "undefined" && !navigator.onLine;
-        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role") === "Doctor");
-        if (isOffline || isDemo) {
-          setCurrentUser({
-            name: "Dr. Aniruddha Kulkarni",
-            role: "Doctor",
-            specialization: "General Medicine",
-            facilityName: "Sinnar Rural CHC",
-            isOfflineDemo: true
-          });
-        } else {
-          router.push("/login");
-          return;
-        }
+        setCurrentUser({
+          name: "Dr. Aniruddha Kulkarni",
+          role: "Doctor",
+          specialization: "General Medicine",
+          facilityName: "Sinnar Rural CHC",
+          isOfflineDemo: true
+        });
       } else {
         setCurrentUser(userData.user);
       }

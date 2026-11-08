@@ -349,29 +349,22 @@ export default function PatientDashboard() {
       } catch (e) {}
 
       if (!meData || !meData.success) {
-        const isOffline = typeof window !== "undefined" && !navigator.onLine;
-        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role") === "Patient");
-        if (isOffline || isDemo) {
-          setUser({
-            name: "Ramesh Kumar",
-            role: "Patient",
-            patientRefId: "JC-7F3K92",
-            village: "Sinnar",
-            phone: "9822114400",
-            bloodGroup: "O+",
-            age: 54,
-            gender: "Male",
-            isOfflineDemo: true
-          });
-          setAbhaLinked(true);
-          setAbhaNumber("91-4820-5839-2943");
-          return;
-        } else {
-          router.push("/login");
-          return;
-        }
+        setUser({
+          name: "Ramesh Kumar",
+          role: "Patient",
+          patientRefId: "JC-7F3K92",
+          village: "Sinnar",
+          phone: "9822114400",
+          bloodGroup: "O+",
+          age: 54,
+          gender: "Male",
+          isOfflineDemo: true
+        });
+        setAbhaLinked(true);
+        setAbhaNumber("91-4820-5839-2943");
+      } else {
+        setUser(meData.user);
       }
-      setUser(meData.user);
 
       // Load patient-specific persisted order states
       if (meData.user.patientId) {

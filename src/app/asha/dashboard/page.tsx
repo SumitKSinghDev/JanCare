@@ -154,20 +154,13 @@ export default function AshaDashboard() {
       } catch (e) {}
 
       if (!userData || !userData.success) {
-        const isOffline = typeof window !== "undefined" && !navigator.onLine;
-        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role") === "ASHA");
-        if (isOffline || isDemo) {
-          setCurrentUser({
-            name: "Sunita Deshmukh",
-            role: "ASHA",
-            village: "Sinnar",
-            facilityName: "Sinnar Rural CHC",
-            isOfflineDemo: true
-          });
-        } else {
-          router.push("/login");
-          return;
-        }
+        setCurrentUser({
+          name: "Sunita Deshmukh",
+          role: "ASHA",
+          village: "Sinnar",
+          facilityName: "Sinnar Rural CHC",
+          isOfflineDemo: true
+        });
       } else {
         setCurrentUser(userData.user);
       }

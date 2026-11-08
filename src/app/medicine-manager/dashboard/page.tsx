@@ -94,19 +94,12 @@ export default function MedicineManagerDashboard() {
       } catch (e) {}
 
       if (!userData || !userData.success) {
-        const isOffline = typeof window !== "undefined" && !navigator.onLine;
-        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role")?.toLowerCase().includes("med"));
-        if (isOffline || isDemo) {
-          setCurrentUser({
-            name: "Prakash Jadhav",
-            role: "MedicineManager",
-            facilityName: "Nashik Central Medical Depot",
-            isOfflineDemo: true
-          });
-        } else {
-          router.push("/login");
-          return;
-        }
+        setCurrentUser({
+          name: "Prakash Jadhav",
+          role: "MedicineManager",
+          facilityName: "Nashik Central Medical Depot",
+          isOfflineDemo: true
+        });
       } else {
         setCurrentUser(userData.user);
       }

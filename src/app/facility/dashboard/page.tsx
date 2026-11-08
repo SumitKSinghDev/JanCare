@@ -71,24 +71,17 @@ export default function FacilityDashboard() {
       } catch (e) {}
 
       if (!userData || !userData.success) {
-        const isOffline = typeof window !== "undefined" && !navigator.onLine;
-        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role")?.toLowerCase().includes("facility"));
-        if (isOffline || isDemo) {
-          setCurrentUser({
-            name: "Dr. Sandeep Patil",
-            role: "FacilityAdmin",
-            facilityName: "Sinnar Rural CHC",
-            isOfflineDemo: true
-          });
-          setFacility({
-            name: "Sinnar Rural CHC",
-            type: "Community Health Centre",
-            district: "Nashik"
-          });
-        } else {
-          router.push("/login");
-          return;
-        }
+        setCurrentUser({
+          name: "Dr. Sandeep Patil",
+          role: "FacilityAdmin",
+          facilityName: "Sinnar Rural CHC",
+          isOfflineDemo: true
+        });
+        setFacility({
+          name: "Sinnar Rural CHC",
+          type: "Community Health Centre",
+          district: "Nashik"
+        });
       } else {
         setCurrentUser(userData.user);
       }
