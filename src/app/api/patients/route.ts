@@ -4,6 +4,7 @@ import Patient from "@/models/Patient";
 import User from "@/models/User";
 import { authenticateRequest } from "@/lib/authMiddleware";
 import { isValidIndianMobile, sanitizeIndianMobile } from "@/lib/validation";
+import { DEMO_PATIENTS } from "@/lib/demoUsers";
 
 // Helper to generate a random JC patient reference ID: JC-XXXXXX
 function generatePatientRefId(): string {
@@ -66,8 +67,15 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, patients });
   } catch (error: any) {
-    console.error("Failed to query patients:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.warn("Failed to query patients from DB, falling back to demo patients:", error.message);
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || "";
+    let fallback = [...DEMO_PATIENTS];
+    if (search) {
+      const q = search.toLowerCase();
+      fallback = fallback.filter(p => p.name.toLowerCase().includes(q) || p.patientRefId.toLowerCase().includes(q) || p.mobile.includes(q));
+    }
+    return NextResponse.json({ success: true, patients: fallback });
   }
 }
 

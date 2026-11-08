@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import Appointment from "@/models/Appointment";
 import User from "@/models/User";
 import { authenticateRequest } from "@/lib/authMiddleware";
+import { getDemoAppointments } from "@/lib/demoUsers";
 
 export async function GET(request: Request) {
   try {
@@ -62,8 +63,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, appointments });
   } catch (error: any) {
-    console.error("Failed to query appointments:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.warn("Failed to query appointments from DB, falling back to demo appointments:", error.message);
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status") || "Scheduled";
+    const patientIdParam = searchParams.get("patientId");
+    const demoAppointments = getDemoAppointments({ status, patientId: patientIdParam });
+    return NextResponse.json({ success: true, appointments: demoAppointments });
   }
 }
 

@@ -94,7 +94,9 @@ export default function MedicineManagerDashboard() {
       } catch (e) {}
 
       if (!userData || !userData.success) {
-        if (typeof window !== "undefined" && !navigator.onLine) {
+        const isOffline = typeof window !== "undefined" && !navigator.onLine;
+        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role")?.toLowerCase().includes("med"));
+        if (isOffline || isDemo) {
           setCurrentUser({
             name: "Prakash Jadhav",
             role: "MedicineManager",

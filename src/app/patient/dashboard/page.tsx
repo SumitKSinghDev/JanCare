@@ -349,7 +349,9 @@ export default function PatientDashboard() {
       } catch (e) {}
 
       if (!meData || !meData.success) {
-        if (typeof window !== "undefined" && !navigator.onLine) {
+        const isOffline = typeof window !== "undefined" && !navigator.onLine;
+        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role") === "Patient");
+        if (isOffline || isDemo) {
           setUser({
             name: "Ramesh Kumar",
             role: "Patient",
@@ -479,6 +481,11 @@ export default function PatientDashboard() {
 
   async function handleLogout() {
     try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("jancare_demo_user");
+        localStorage.removeItem("jancare_user_role");
+        localStorage.removeItem("jancare_current_user");
+      }
       await fetch("/api/auth/logout", { method: "POST" });
     } catch (e) {}
     window.location.href = "/login";

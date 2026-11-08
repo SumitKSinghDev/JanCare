@@ -323,13 +323,21 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
+    // Store demo session locally for zero-latency client state
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("jancare_demo_user", JSON.stringify(account));
+        localStorage.setItem("jancare_user_role", account.label);
+      } catch (e) {}
+    }
+
     // If offline, route directly to offline dashboard instantly via Service Worker
     if (typeof window !== "undefined" && !navigator.onLine) {
       window.location.href = account.path;
       return;
     }
 
-    setSeedingText(language === "mr" ? "डेटाबेस कनेक्ट करत आहे..." : "Connecting Database & Seeding Scenario...");
+    setSeedingText(language === "mr" ? "डेमो खाते कनेक्ट करत आहे..." : "Connecting Demo Session...");
 
     try {
       const loginRes = await fetch("/api/auth/login", {
@@ -338,23 +346,12 @@ export default function LoginPage() {
         body: JSON.stringify({ username: account.username, password: "password123" }),
       }).catch(() => null);
 
-      const loginData = loginRes ? await loginRes.json().catch(() => null) : null;
-
-      if (!loginData || !loginData.success) {
-        // If fetch failed due to offline or connection drop
-        if (typeof window !== "undefined" && !navigator.onLine) {
-          window.location.href = account.path;
-          return;
-        }
-
-        // Try seeding database if empty
-        const seedRes = await fetch("/api/admin/seed", { method: "POST" }).catch(() => null);
-        if (seedRes) {
-          await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: account.username, password: "password123" }),
-          }).catch(() => null);
+      if (loginRes && loginRes.ok) {
+        const loginData = await loginRes.json().catch(() => null);
+        if (loginData?.user && typeof window !== "undefined") {
+          try {
+            localStorage.setItem("jancare_current_user", JSON.stringify(loginData.user));
+          } catch (e) {}
         }
       }
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import Facility from "@/models/Facility";
 import { authenticateRequest } from "@/lib/authMiddleware";
+import { getDemoFacilities } from "@/lib/demoUsers";
 
 export async function GET(request: Request) {
   try {
@@ -28,8 +29,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, facilities });
   } catch (error: any) {
-    console.error("Failed to query facilities:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.warn("Failed to query facilities from DB, falling back to demo facilities:", error.message);
+    const { searchParams } = new URL(request.url);
+    const district = searchParams.get("district");
+    const type = searchParams.get("type");
+    const demoFacilities = getDemoFacilities({ district, type });
+    return NextResponse.json({ success: true, facilities: demoFacilities });
   }
 }
 

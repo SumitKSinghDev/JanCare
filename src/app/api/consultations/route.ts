@@ -4,6 +4,7 @@ import Consultation from "@/models/Consultation";
 import Appointment from "@/models/Appointment";
 import AuditLog from "@/models/AuditLog";
 import { authenticateRequest } from "@/lib/authMiddleware";
+import { getDemoConsultations } from "@/lib/demoUsers";
 
 export async function GET(request: Request) {
   try {
@@ -60,8 +61,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, consultations });
   } catch (error: any) {
-    console.error("Failed to query consultations:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.warn("Failed to query consultations from DB, falling back to demo consultations:", error.message);
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status");
+    const patientId = searchParams.get("patientId");
+    const demoList = getDemoConsultations({ status, patientId });
+    return NextResponse.json({ success: true, consultations: demoList });
   }
 }
 

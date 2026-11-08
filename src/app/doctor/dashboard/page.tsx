@@ -206,7 +206,9 @@ export default function DoctorDashboard() {
       } catch (e) {}
 
       if (!userData || !userData.success) {
-        if (typeof window !== "undefined" && !navigator.onLine) {
+        const isOffline = typeof window !== "undefined" && !navigator.onLine;
+        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role") === "Doctor");
+        if (isOffline || isDemo) {
           setCurrentUser({
             name: "Dr. Aniruddha Kulkarni",
             role: "Doctor",
@@ -254,6 +256,11 @@ export default function DoctorDashboard() {
 
   async function handleLogout() {
     try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("jancare_demo_user");
+        localStorage.removeItem("jancare_user_role");
+        localStorage.removeItem("jancare_current_user");
+      }
       await fetch("/api/auth/logout", { method: "POST" });
     } catch (e) {}
     window.location.href = "/login";

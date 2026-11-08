@@ -71,7 +71,9 @@ export default function FacilityDashboard() {
       } catch (e) {}
 
       if (!userData || !userData.success) {
-        if (typeof window !== "undefined" && !navigator.onLine) {
+        const isOffline = typeof window !== "undefined" && !navigator.onLine;
+        const isDemo = typeof window !== "undefined" && (Boolean(localStorage.getItem("jancare_demo_user")) || localStorage.getItem("jancare_user_role")?.toLowerCase().includes("facility"));
+        if (isOffline || isDemo) {
           setCurrentUser({
             name: "Dr. Sandeep Patil",
             role: "FacilityAdmin",

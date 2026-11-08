@@ -283,6 +283,11 @@ export default function AdminDashboard() {
 
   async function handleLogout() {
     try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("jancare_demo_user");
+        localStorage.removeItem("jancare_user_role");
+        localStorage.removeItem("jancare_current_user");
+      }
       await fetch("/api/auth/logout", { method: "POST" });
     } catch (e) {}
     window.location.href = "/login";
