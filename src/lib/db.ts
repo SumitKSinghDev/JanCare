@@ -15,18 +15,8 @@ import "@/models/Consent";
 import "@/models/HealthRecord";
 import "@/models/Notification";
 
-
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env");
-}
-
-/**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections from growing exponentially
- * during API Route usage.
- */
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -48,13 +38,22 @@ export async function connectToDatabase() {
     return cached.conn;
   }
 
+  if (!MONGODB_URI) {
+    throw new Error("MONGODB_URI is not defined");
+  }
+
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 2500, // Fail fast in 2.5s if cluster is paused/dead
+      connectTimeoutMS: 2500,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
       return mongooseInstance;
+    }).catch((err) => {
+      cached.promise = null;
+      throw err;
     });
   }
 
